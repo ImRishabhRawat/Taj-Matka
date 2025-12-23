@@ -17,8 +17,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load game details
     loadGameDetails();
     
-    // Generate Jodi grid (00-99)
+    // Generate Grids
     generateJodiGrid();
+    generateHarufGrid('andarGrid', 'andar');
+    generateHarufGrid('baharGrid', 'bahar');
     
     // Setup tab switching
     setupTabs();
@@ -26,10 +28,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Setup crossing preview
     setupCrossingPreview();
     
-    // Load user balance
-    if (isLoggedIn()) {
-        loadUserBalance();
-    }
+    // Setup input listeners for total amount
+    document.addEventListener('input', (e) => {
+        if (e.target.classList.contains('bet-box-input')) {
+            updateTotalAmount();
+        }
+    });
 });
 
 /**
@@ -46,11 +50,17 @@ async function loadGameDetails() {
             
             // Initialize timer
             if (game.timeLeft > 0) {
-                const timer = new GameTimer('gameTimer', game.timeLeft, () => {
+                const timerCallback = () => {
                     alert('Game closed! Betting time has ended.');
                     window.location.href = '/home';
-                });
-                timer.start();
+                };
+
+                // Sync with both header and main timer
+                const mainTimer = new GameTimer('gameTimer', game.timeLeft, timerCallback);
+                const headerTimer = new GameTimer('headerTimer', game.timeLeft);
+                
+                mainTimer.start();
+                headerTimer.start();
             } else {
                 alert('This game is closed');
                 window.location.href = '/home';
@@ -71,13 +81,15 @@ function generateJodiGrid() {
     for (let i = 0; i <= 99; i++) {
         const number = String(i).padStart(2, '0');
         html += `
-            <button 
-                class="jodi-number" 
-                data-number="${number}"
-                onclick="toggleJodiNumber('${number}')"
-            >
-                ${number}
-            </button>
+            <div class="bet-box">
+                <div class="bet-box-header">${number}</div>
+                <input type="number" 
+                       class="bet-box-input" 
+                       data-number="${number}" 
+                       data-type="jodi"
+                       placeholder="0"
+                       min="0">
+            </div>
         `;
     }
     
@@ -85,26 +97,42 @@ function generateJodiGrid() {
 }
 
 /**
- * Toggle Jodi number selection
+ * Generate 0-9 Haruf Grid
  */
-function toggleJodiNumber(number) {
-    const button = document.querySelector(`[data-number="${number}"]`);
+function generateHarufGrid(containerId, type) {
+    const grid = document.getElementById(containerId);
+    let html = '';
     
-    if (button.classList.contains('selected')) {
-        button.classList.remove('selected');
-        selectedNumbers.delete(number);
-    } else {
-        button.classList.add('selected');
-        // Show amount input or use default
-        const amount = prompt(`Enter amount for ${number}:`, '100');
-        if (amount && parseFloat(amount) > 0) {
-            selectedNumbers.set(number, parseFloat(amount));
-        } else {
-            button.classList.remove('selected');
-        }
+    for (let i = 0; i <= 9; i++) {
+        html += `
+            <div class="bet-box">
+                <div class="bet-box-header">${i}</div>
+                <input type="number" 
+                       class="bet-box-input" 
+                       data-number="${i}" 
+                       data-type="${type}"
+                       placeholder="0"
+                       min="0">
+            </div>
+        `;
     }
     
-    updateBetSlip();
+    grid.innerHTML = html;
+}
+
+/**
+ * Update total amount in footer
+ */
+function updateTotalAmount() {
+    const inputs = document.querySelectorAll('.bet-box-input');
+    let total = 0;
+    
+    inputs.forEach(input => {
+        const val = parseFloat(input.value) || 0;
+        total += val;
+    });
+    
+    document.getElementById('footerTotalAmount').textContent = `₹${total}`;
 }
 
 /**
@@ -180,18 +208,19 @@ function addCrossingBets() {
         }
     }
     
-    // Add to bet slip
+    // Add to grid
     combinations.forEach(num => {
-        betSlipData.push({
-            number: num,
-            amount: amount,
-            type: 'jodi',
-            source: 'crossing'
-        });
+        const input = document.querySelector(`.bet-box-input[data-number="${num}"][data-type="jodi"]`);
+        if (input) {
+            const currentVal = parseFloat(input.value) || 0;
+            input.value = currentVal + amount;
+        }
     });
     
-    updateBetSlip();
-    openBetSlip();
+    updateTotalAmount();
+    
+    // Switch to Jodi tab to see results
+    document.querySelector('[data-tab="jodi"]').click();
     
     // Clear inputs
     document.getElementById('crossingDigits').value = '';
@@ -221,32 +250,30 @@ function addPasteBets() {
     numbers.forEach(num => {
         const cleaned = num.trim();
         if (/^\d{2}$/.test(cleaned)) {
-            betSlipData.push({
-                number: cleaned,
-                amount: amount,
-                type: 'jodi',
-                source: 'paste',
-                palti: palti
-            });
+            const inputsToUpdate = [cleaned];
             
             // Add reverse if palti enabled
             if (palti) {
                 const reverse = cleaned.split('').reverse().join('');
                 if (reverse !== cleaned) {
-                    betSlipData.push({
-                        number: reverse,
-                        amount: amount,
-                        type: 'jodi',
-                        source: 'paste-palti',
-                        palti: true
-                    });
+                    inputsToUpdate.push(reverse);
                 }
             }
+
+            inputsToUpdate.forEach(n => {
+                const input = document.querySelector(`.bet-box-input[data-number="${n}"][data-type="jodi"]`);
+                if (input) {
+                    const currentVal = parseFloat(input.value) || 0;
+                    input.value = currentVal + amount;
+                }
+            });
         }
     });
     
-    updateBetSlip();
-    openBetSlip();
+    updateTotalAmount();
+    
+    // Switch to Jodi tab to see results
+    document.querySelector('[data-tab="jodi"]').click();
     
     // Clear inputs
     document.getElementById('pasteNumbers').value = '';
@@ -337,8 +364,22 @@ function closeBetSlip() {
  * Place bets (API call)
  */
 async function placeBets() {
-    if (betSlipData.length === 0) {
-        alert('Please add at least one bet');
+    const inputs = document.querySelectorAll('.bet-box-input');
+    const bets = [];
+    
+    inputs.forEach(input => {
+        const amount = parseFloat(input.value) || 0;
+        if (amount > 0) {
+            bets.push({
+                number: input.dataset.number,
+                type: input.dataset.type,
+                amount: amount
+            });
+        }
+    });
+    
+    if (bets.length === 0) {
+        alert('Please enter an amount for at least one number');
         return;
     }
     
@@ -348,50 +389,34 @@ async function placeBets() {
         return;
     }
     
+    // Show confirmation
+    const totalAmount = bets.reduce((sum, b) => sum + b.amount, 0);
+    if (!confirm(`Confirm placing ${bets.length} bets for a total of ₹${totalAmount}?`)) {
+        return;
+    }
+    
     try {
-        const token = localStorage.getItem('token');
-        
-        // Prepare bet data
-        const numbers = betSlipData.map(bet => bet.number);
-        const amount = betSlipData[0].amount; // Assuming same amount for simplicity
-        
-        const response = await fetch('/api/bets', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                gameId: parseInt(currentGameId),
-                betType: 'jodi',
-                numbers: numbers,
-                amount: amount,
-                palti: false // Already handled in frontend
-            })
+        // Use central API helper for consistency
+        const response = await API.post('/bets', {
+            gameId: parseInt(currentGameId),
+            bets: bets
         });
         
-        const data = await response.json();
-        
-        if (data.success) {
-            alert(`✅ Bets placed successfully!\nTotal: ₹${data.data.totalAmount}\nNew Balance: ₹${data.data.newBalance}`);
+        if (response.success) {
+            alert(`✅ Bets placed successfully!\nTotal: ₹${response.data.totalAmount}\nNew Balance: ₹${response.data.newBalance}`);
             
-            // Clear bet slip
-            betSlipData = [];
-            selectedNumbers.clear();
-            document.querySelectorAll('.jodi-number.selected').forEach(btn => {
-                btn.classList.remove('selected');
-            });
-            updateBetSlip();
-            closeBetSlip();
+            // Clear inputs
+            inputs.forEach(input => input.value = '');
+            updateTotalAmount();
             
-            // Reload balance
-            loadUserBalance();
+            // Reload user balance if needed
+            if (window.loadUserBalance) loadUserBalance();
         } else {
-            alert(`❌ ${data.message}`);
+            alert(`❌ ${response.message || 'Failed to place bets'}`);
         }
     } catch (error) {
         console.error('Error placing bets:', error);
-        alert('Failed to place bets. Please try again.');
+        alert(`❌ Error: ${error.message || 'Connection failed'}`);
     }
 }
 

@@ -141,15 +141,16 @@ body {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.wallet-balance {
+.timer-badge {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
-    background: rgba(255, 255, 255, 0.15);
-    padding: 0.2rem 0.5rem;
-    border-radius: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 0.2rem 0.75rem;
+    border-radius: 15px;
     font-weight: 600;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
+    color: #fff;
 }
 
 .help-btn {
@@ -182,7 +183,21 @@ body {
 }
 
 .page-content {
+    padding: 0;
+}
+
+.secondary-timer-bar {
+    background: #000;
+    color: #fff;
+    text-align: center;
     padding: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.secondary-timer-bar span {
+    color: #fff;
 }
 
 /* ===================================
@@ -501,93 +516,108 @@ body {
     display: block;
 }
 
-.jodi-grid {
+.section-container {
+    padding: 0.5rem;
+    background: #fff;
+    margin-bottom: 1rem;
+}
+
+.section-title {
+    color: #ff0000;
+    font-size: 1.1rem;
+    text-align: center;
+    margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.jodi-grid-modern {
     display: grid;
     grid-template-columns: repeat(10, 1fr);
-    gap: 0.5rem;
-    padding: 1rem;
-    background: var(--bg-card);
-    border-radius: 12px;
+    gap: 1px;
+    background: #ddd;
+    border: 1px solid #ddd;
 }
 
-.jodi-number {
-    aspect-ratio: 1;
-    background: var(--bg-input);
-    border: 2px solid transparent;
-    border-radius: 8px;
-    color: var(--text-primary);
-    font-weight: 700;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.15s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.jodi-number:active {
-    transform: scale(0.95);
-}
-
-.jodi-number.selected {
-    background: var(--primary-gradient);
-    border-color: var(--primary-orange);
-    box-shadow: 0 0 12px rgba(255, 69, 0, 0.5);
-}
-
-.jodi-number:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-}
-
-/* ===================================
-   HARUF GRID (0-9)
-   =================================== */
-
-.haruf-section {
-    margin-bottom: 1.5rem;
-}
-
-.haruf-title {
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--primary-orange);
-    margin-bottom: 0.75rem;
-    text-align: center;
-}
-
-.haruf-grid {
+.haruf-grid-modern {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 0.75rem;
-    padding: 1rem;
-    background: var(--bg-card);
-    border-radius: 12px;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 1px;
+    background: #ddd;
+    border: 1px solid #ddd;
 }
 
-.haruf-number {
-    aspect-ratio: 1;
-    background: var(--bg-input);
-    border: 2px solid transparent;
-    border-radius: 8px;
-    color: var(--text-primary);
+.bet-box {
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    min-height: 45px;
+}
+
+.bet-box-header {
+    background: var(--primary-gradient);
+    color: #fff;
+    font-size: 0.75rem;
     font-weight: 700;
+    text-align: center;
+    padding: 2px 0;
+}
+
+.bet-box-input {
+    width: 100%;
+    border: none;
+    outline: none;
+    text-align: center;
+    font-size: 0.85rem;
+    padding: 2px;
+    background: #fff;
+    color: #000;
+}
+
+.bet-box-input::placeholder {
+    color: #ccc;
+}
+
+/* Fixed Betting Footer */
+.betting-footer {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 500px;
+    height: 60px;
+    background: #1a1a1a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 1rem;
+    z-index: 1001;
+}
+
+.footer-left {
+    color: #fff;
     font-size: 1.2rem;
-    cursor: pointer;
-    transition: all 0.15s;
+    font-weight: 700;
+}
+
+.footer-right {
     display: flex;
     align-items: center;
-    justify-content: center;
 }
 
-.haruf-number:active {
+.play-btn {
+    background: #00a000;
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    border-radius: 5px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.play-btn:active {
     transform: scale(0.95);
-}
-
-.haruf-number.selected {
-    background: var(--primary-gradient);
-    border-color: var(--primary-orange);
-    box-shadow: 0 0 12px rgba(255, 69, 0, 0.5);
 }
 
 /* ===================================

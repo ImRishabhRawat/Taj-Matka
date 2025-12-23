@@ -24,7 +24,7 @@ async function placeBet(req, res) {
     const { gameId, betType, numbers, amount, palti, crossing, crossingDigits } = req.body;
     
     // Validation
-    if (!gameId || !betType || !amount) {
+    if (!gameId || (!req.body.bets && (!betType || !amount))) {
       return res.status(400).json({
         success: false,
         message: 'Missing required fields'
@@ -68,10 +68,35 @@ async function placeBet(req, res) {
     
     // Prepare bets array
     let betsToPlace = [];
-    const payoutMultiplier = getPayoutMultiplier(betType);
     
-    // Handle different bet modes
-    if (crossing && crossingDigits) {
+    // Check if we have multiple bets with different amounts (New Grid Format)
+    if (Array.isArray(req.body.bets)) {
+        for (const bet of req.body.bets) {
+            let type = bet.type;
+            if (type === 'andar') type = 'haruf_andar';
+            if (type === 'bahar') type = 'haruf_bahar';
+            
+            const payoutMultiplier = getPayoutMultiplier(type);
+            
+            // Validate number
+            if (type === 'jodi' && !isValidJodiNumber(bet.number)) {
+                return res.status(400).json({ success: false, message: `Invalid Jodi number: ${bet.number}` });
+            }
+            if ((type === 'haruf_andar' || type === 'haruf_bahar') && !isValidHarufNumber(bet.number)) {
+                return res.status(400).json({ success: false, message: `Invalid Haruf number: ${bet.number}` });
+            }
+
+            betsToPlace.push({
+                gameSessionId: session.id,
+                betType: type,
+                betNumber: String(bet.number),
+                betAmount: parseFloat(bet.amount),
+                payoutMultiplier
+            });
+        }
+    } 
+    // Handle legacy/other modes
+    else if (crossing && crossingDigits) {
       // CROSSING MODE: Generate all combinations
       const combinations = generateCrossingBets(crossingDigits, amount);
       
@@ -85,16 +110,19 @@ async function placeBet(req, res) {
       
     } else if (Array.isArray(numbers)) {
       // MULTIPLE NUMBERS MODE (from Copy-Paste)
+      const actualBetType = betType === 'andar' ? 'haruf_andar' : (betType === 'bahar' ? 'haruf_bahar' : betType);
+      const payoutMultiplier = getPayoutMultiplier(actualBetType);
+
       for (const num of numbers) {
         // Validate number based on bet type
-        if (betType === 'jodi' && !isValidJodiNumber(num)) {
+        if (actualBetType === 'jodi' && !isValidJodiNumber(num)) {
           return res.status(400).json({
             success: false,
             message: `Invalid Jodi number: ${num}`
           });
         }
         
-        if ((betType === 'haruf_andar' || betType === 'haruf_bahar') && !isValidHarufNumber(num)) {
+        if ((actualBetType === 'haruf_andar' || actualBetType === 'haruf_bahar') && !isValidHarufNumber(num)) {
           return res.status(400).json({
             success: false,
             message: `Invalid Haruf number: ${num}`
@@ -102,12 +130,12 @@ async function placeBet(req, res) {
         }
         
         // Apply Palti if enabled
-        if (palti && betType === 'jodi') {
+        if (palti && actualBetType === 'jodi') {
           const paltiBets = applyPalti(num, amount);
           paltiBets.forEach(bet => {
             betsToPlace.push({
               gameSessionId: session.id,
-              betType,
+              betType: actualBetType,
               betNumber: bet.number,
               betAmount: bet.amount,
               payoutMultiplier
@@ -116,7 +144,7 @@ async function placeBet(req, res) {
         } else {
           betsToPlace.push({
             gameSessionId: session.id,
-            betType,
+            betType: actualBetType,
             betNumber: num,
             betAmount: parseFloat(amount),
             payoutMultiplier
