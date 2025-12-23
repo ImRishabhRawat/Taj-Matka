@@ -89,6 +89,14 @@ app.get('/chart', requireAuth, (req, res) => {
   res.render('chart', { title: 'Chart' });
 });
 
+app.get('/deposit', requireAuth, (req, res) => {
+  res.render('deposit', { title: 'Add Money' });
+});
+
+app.get('/withdraw', requireAuth, (req, res) => {
+  res.render('withdraw', { title: 'Withdraw' });
+});
+
 // Admin routes (require admin role)
 app.get('/admin/result-entry', requireAdmin, (req, res) => {
   res.render('admin/result-entry', { title: 'Declare Result' });

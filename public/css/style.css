@@ -156,7 +156,7 @@ body {
     background: rgba(255, 255, 255, 0.15);
     border: none;
     color: var(--text-primary);
-    padding: 0.5rem 0.75rem;
+    padding: 0.2rem 0.75rem;
     border-radius: 8px;
     display: flex;
     flex-direction: column;
@@ -248,82 +248,114 @@ body {
 }
 
 .game-card {
-    background: var(--bg-card);
+    background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
     border-radius: 12px;
     padding: 1rem;
     box-shadow: var(--shadow-sm);
-    transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.game-card:active {
-    transform: scale(0.98);
-}
-
-.game-card-header {
+.game-card-layout {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.75rem;
+    gap: 1rem;
+}
+
+/* Left: Results Section */
+.game-results {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.result-item {
+    text-align: center;
+}
+
+.result-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+    margin-bottom: 0.25rem;
+}
+
+.result-label {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.result-divider {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    font-weight: 300;
+    margin: 0 0.25rem;
+}
+
+/* Center: Game Info */
+.game-info-center {
+    flex: 1;
 }
 
 .game-name {
     font-size: 1.1rem;
     font-weight: 700;
     color: var(--text-primary);
-}
-
-.game-status {
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
     display: flex;
+    justify-content: center;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.85rem;
-    font-weight: 600;
 }
 
-.status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    animation: pulse 2s infinite;
-}
-
-.status-dot.open {
-    background: var(--status-open);
-    box-shadow: 0 0 8px var(--status-open);
-}
-
-.status-dot.closed {
-    background: var(--status-closed);
-    animation: none;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-}
-
-.game-info {
+.game-timings {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    justify-content: center;
     align-items: center;
-    margin-bottom: 0.75rem;
+    gap: 0.15rem;
 }
 
-.game-time {
-    font-size: 0.85rem;
+.timing-text {
+    font-size: 0.7rem;
     color: var(--text-secondary);
+    font-weight: 400;
 }
 
-.game-timer {
-    font-size: 1rem;
+/* Right: Status Button */
+.game-status-btn {
+    flex-shrink: 0;
+}
+
+.btn-status {
+    padding: 0.65rem 1.75rem;
+    border: none;
+    border-radius: 20px;
     font-weight: 700;
-    color: var(--primary-orange);
-    font-family: 'Courier New', monospace;
+    font-size: 1rem;
+    cursor: pointer;
+    min-width: 90px;
+    transition: transform 0.2s;
 }
 
-.game-actions {
-    display: flex;
-    gap: 0.75rem;
+.btn-status:active {
+    transform: scale(0.95);
+}
+
+.status-open {
+    background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+    color: #000;
+}
+
+.status-closed {
+    background: linear-gradient(90deg, #8B0000 0%, #FF4500 100%);
+    color: #fff;
+    cursor: not-allowed;
+}
+
+.status-closed:disabled {
+    opacity: 1;
 }
 
 .btn {
@@ -700,4 +732,316 @@ body {
     .app-logo {
         font-size: 1.1rem;
     }
+}
+
+/* ===================================
+   INFO BANNER
+   =================================== */
+
+.info-banner {
+    margin-bottom: 1rem;
+}
+
+.info-banner img {
+    width: 100%;
+    display: block;
+    border-radius: 12px;
+}
+
+/* ===================================
+   ACTION BUTTONS GRID
+   =================================== */
+
+.action-buttons-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.action-btn {
+    background: transparent;
+    border: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.action-btn:active {
+    transform: scale(0.95);
+}
+
+.action-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.action-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-align: center;
+}
+
+/* ===================================
+   HOW TO PLAY BUTTON
+   =================================== */
+
+.how-to-play-btn {
+    width: 100%;
+    background: linear-gradient(90deg, #8B0000 0%, #FF4500 50%, #FFD700 100%);
+    border: none;
+    border-radius: 25px;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 15px rgba(255, 69, 0, 0.4);
+    transition: transform 0.2s;
+}
+
+.how-to-play-btn:active {
+    transform: scale(0.98);
+}
+
+/* ===================================
+   DEPOSIT PAGE
+   =================================== */
+
+.deposit-limits {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+}
+
+.limit-item {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.limit-label {
+    color: var(--text-secondary);
+}
+
+.limit-value {
+    color: var(--text-primary);
+    font-weight: 700;
+}
+
+.deposit-form {
+    margin-bottom: 2rem;
+}
+
+.deposit-input {
+    width: 100%;
+    padding: 1.25rem;
+    background: #ffffff;
+    border: none;
+    border-radius: 25px;
+    font-size: 1rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #000;
+}
+
+.deposit-input::placeholder {
+    color: #999;
+}
+
+.quick-amounts {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.quick-amount-btn {
+    padding: 0.75rem 1.5rem;
+    background: #000;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.quick-amount-btn:active {
+    transform: scale(0.95);
+}
+
+.btn-deposit-next {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(90deg, #8B0000 0%, #FF4500 50%, #FFD700 100%);
+    border: none;
+    border-radius: 25px;
+    color: white;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 15px rgba(255, 69, 0, 0.4);
+    transition: transform 0.2s;
+}
+
+.btn-deposit-next:active {
+    transform: scale(0.98);
+}
+
+.deposit-notice {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.notice-title {
+    color: #ff4444;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.notice-text {
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+.notice-highlight {
+    color: #FFD700;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+}
+
+.notice-warning {
+    color: #FF4500;
+    font-weight: 700;
+    margin-top: 1rem;
+}
+
+/* ===================================
+   WITHDRAWAL PAGE
+   =================================== */
+
+.withdraw-info-card {
+    background: #ffffff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+}
+
+.withdraw-info-text {
+    color: #000;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.whatsapp-contact {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.whatsapp-icon {
+    flex-shrink: 0;
+}
+
+.whatsapp-details {
+    flex: 1;
+}
+
+.whatsapp-number {
+    color: #25D366;
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-decoration: none;
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.whatsapp-timing {
+    color: #666;
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.withdraw-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.withdraw-input {
+    width: 100%;
+    padding: 1.25rem;
+    background: #ffffff;
+    border: none;
+    border-radius: 25px;
+    font-size: 1rem;
+    text-align: center;
+    color: #000;
+}
+
+.withdraw-input::placeholder {
+    color: #999;
+}
+
+.form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-label {
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.withdraw-select {
+    width: 100%;
+    padding: 1.25rem;
+    background: #ffffff;
+    border: none;
+    border-radius: 25px;
+    font-size: 1rem;
+    color: #000;
+    cursor: pointer;
+}
+
+.btn-withdraw {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(90deg, #8B0000 0%, #FF4500 50%, #FFD700 100%);
+    border: none;
+    border-radius: 25px;
+    color: white;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    margin-top: 1rem;
+    box-shadow: 0 4px 15px rgba(255, 69, 0, 0.4);
+    transition: transform 0.2s;
+}
+
+.btn-withdraw:active {
+    transform: scale(0.98);
 }

@@ -52,11 +52,64 @@ const title = 'Home';
         <main class="app-main">
             <div class="page-content">
                 
-                <!-- Welcome Banner -->
-                <div class="welcome-banner" style="background: linear-gradient(135deg, #FF4500 0%, #8B0000 100%); padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; text-align: center;">
-                    <h2 style="font-size: 1.3rem; margin-bottom: 0.5rem;">🎰 Welcome to Taj Matka</h2>
-                    <p style="font-size: 0.9rem; opacity: 0.9;">Choose your game and start playing!</p>
+                <!-- Info Banner -->
+                <div class="info-banner">
+                    <img src="/images/banner-info.png" alt="Information Banner" style="width: 100%; display: block; border-radius: 12px;">
                 </div>
+
+                <!-- Action Buttons Grid -->
+                <div class="action-buttons-grid">
+                    <button class="action-btn" onclick="window.location.href='/deposit'">
+                        <div class="action-icon" style="background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                                <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                                <line x1="2" y1="10" x2="22" y2="10"></line>
+                                <line x1="12" y1="14" x2="12" y2="18"></line>
+                                <line x1="10" y1="16" x2="14" y2="16"></line>
+                            </svg>
+                        </div>
+                        <span class="action-label">पैसा जमा</span>
+                    </button>
+
+                    <button class="action-btn" onclick="window.location.href='/withdraw'">
+                        <div class="action-icon" style="background: linear-gradient(135deg, #4da6ff 0%, #0066cc 100%);">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                                <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path>
+                                <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path>
+                                <line x1="18" y1="12" x2="18" y2="18"></line>
+                                <line x1="15" y1="15" x2="21" y2="15"></line>
+                            </svg>
+                        </div>
+                        <span class="action-label">पैसा निकालें</span>
+                    </button>
+
+                    <button class="action-btn" onclick="shareOnWhatsApp()">
+                        <div class="action-icon" style="background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
+                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                            </svg>
+                        </div>
+                        <span class="action-label">WhatsApp</span>
+                    </button>
+
+                    <button class="action-btn" onclick="shareOnTelegram()">
+                        <div class="action-icon" style="background: linear-gradient(135deg, #0088cc 0%, #006699 100%);">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+                            </svg>
+                        </div>
+                        <span class="action-label">Telegram</span>
+                    </button>
+                </div>
+
+                <!-- How to Play Button -->
+                <button class="how-to-play-btn" onclick="window.location.href='/how-to-play'">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                        <circle cx="12" cy="12" r="10" fill="white" opacity="0.3"/>
+                        <polygon points="10 8 16 12 10 16 10 8" fill="white"/>
+                    </svg>
+                    <span style="font-size: 1.1rem; font-weight: 700;">खेलने का तरीका</span>
+                </button>
 
                 <!-- Games Grid -->
                 <div class="games-grid" id="gamesGrid">
@@ -145,49 +198,39 @@ const title = 'Home';
         function renderGames(games) {
             const gamesHtml = games.map(game => `
                 <div class="game-card">
-                    <div class="game-card-header">
-                        <h3 class="game-name">${game.name}</h3>
-                        <div class="game-status">
-                            <span class="status-dot ${game.isOpen ? 'open' : 'closed'}"></span>
-                            <span>${game.isOpen ? 'Open' : 'Closed'}</span>
+                    <div class="game-card-layout">
+                        <!-- Left: Results -->
+                        <div class="game-results">
+                            <div class="result-item">
+                                <div class="result-number">${game.yesterdayResult || '00'}</div>
+                                <div class="result-label">कल</div>
+                            </div>
+                            <div class="result-divider">></div>
+                            <div class="result-item">
+                                <div class="result-number">${game.isOpen ? 'XX' : (game.todayResult || 'XX')}</div>
+                                <div class="result-label">आज</div>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <div class="game-info">
-                        <div class="game-time">
-                            <div style="font-size: 0.75rem; color: #666; margin-bottom: 0.25rem;">Open Time</div>
-                            <div style="font-weight: 600;">${game.open_time}</div>
+                        
+                        <!-- Center: Game Info -->
+                        <div class="game-info-center">
+                            <h3 class="game-name">${game.name}</h3>
+                            <div class="game-timings">
+                                <div class="timing-text">OPEN: ${game.open_time}</div>
+                                <div class="timing-text">CLOSE: ${game.close_time}</div>
+                            </div>
                         </div>
-                        <div class="game-time">
-                            <div style="font-size: 0.75rem; color: #666; margin-bottom: 0.25rem;">Close Time</div>
-                            <div style="font-weight: 600;">${game.close_time}</div>
+                        
+                        <!-- Right: Status Button -->
+                        <div class="game-status-btn">
+                            <button 
+                                class="btn-status ${game.isOpen ? 'status-open' : 'status-closed'}"
+                                onclick="window.location.href='/betting/${game.id}'"
+                                ${game.isOpen ? '' : 'disabled'}
+                            >
+                                ${game.isOpen ? 'Open' : 'Closed'}
+                            </button>
                         </div>
-                    </div>
-                    
-                    <div style="text-align: center; margin-bottom: 1rem;">
-                        <div style="font-size: 0.75rem; color: #666; margin-bottom: 0.25rem;">Time Left</div>
-                        <div class="game-timer" id="timer-${game.id}">00:00:00</div>
-                    </div>
-                    
-                    <div class="game-actions">
-                        <button 
-                            class="btn btn-play" 
-                            id="play-btn-${game.id}"
-                            onclick="window.location.href='/betting/${game.id}'"
-                            ${game.isOpen ? '' : 'disabled'}
-                        >
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                            </svg>
-                            ${game.isOpen ? 'Play Now' : 'Closed'}
-                        </button>
-                        <button class="btn btn-secondary" onclick="window.location.href='/results?game=${game.id}'">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <path d="M12 6v6l4 2"></path>
-                            </svg>
-                            Results
-                        </button>
                     </div>
                 </div>
             `).join('');

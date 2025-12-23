@@ -56,7 +56,7 @@
 ```css
 .help-btn {
   flex-direction: column; /* Stack icon and text */
-  gap: 2px; /* Small gap */
+  gap: 1px; /* Small gap */
 }
 ```
 

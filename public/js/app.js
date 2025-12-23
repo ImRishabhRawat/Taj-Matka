@@ -115,3 +115,20 @@ document.addEventListener('DOMContentLoaded', () => {
 window.API = API;
 window.isLoggedIn = isLoggedIn;
 window.logout = logout;
+window.loadUserBalance = loadUserBalance;
+
+// Share functions
+function shareOnWhatsApp() {
+  const text = encodeURIComponent('Join Taj Matka - India\'s No.1 Matka App! Fast and Secure. Download now!');
+  const url = encodeURIComponent(window.location.origin);
+  window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
+}
+
+function shareOnTelegram() {
+  const text = encodeURIComponent('Join Taj Matka - India\'s No.1 Matka App!');
+  const url = encodeURIComponent(window.location.origin);
+  window.open(`https://t.me/share/url?url=${url}&text=${text}`, '_blank');
+}
+
+window.shareOnWhatsApp = shareOnWhatsApp;
+window.shareOnTelegram = shareOnTelegram;

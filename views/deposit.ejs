@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Add Money - Taj Matka</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="mobile-container">
+        
+        <!-- Fixed Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <button class="menu-btn" onclick="window.history.back()">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                    </button>
+                    <h1 class="app-logo">Add money</h1>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            <div class="page-content">
+                
+                <!-- Deposit Limits -->
+                <div class="deposit-limits">
+                    <div class="limit-item">
+                        <span class="limit-label">Min. Deposit :</span>
+                        <span class="limit-value">50</span>
+                    </div>
+                    <div class="limit-item">
+                        <span class="limit-label">Max. Deposit :</span>
+                        <span class="limit-value">2000</span>
+                    </div>
+                </div>
+
+                <!-- Amount Input -->
+                <div class="deposit-form">
+                    <input 
+                        type="number" 
+                        id="depositAmount" 
+                        class="deposit-input" 
+                        placeholder="Enter Amount"
+                        min="50"
+                        max="2000"
+                    >
+
+                    <!-- Quick Amount Buttons -->
+                    <div class="quick-amounts">
+                        <button class="quick-amount-btn" onclick="setAmount(50)">50</button>
+                        <button class="quick-amount-btn" onclick="setAmount(100)">100</button>
+                        <button class="quick-amount-btn" onclick="setAmount(500)">500</button>
+                        <button class="quick-amount-btn" onclick="setAmount(1000)">1000</button>
+                        <button class="quick-amount-btn" onclick="setAmount(2000)">2000</button>
+                    </div>
+
+                    <!-- Next Button -->
+                    <button class="btn-deposit-next" onclick="proceedToPayment()">
+                        NEXT (आगे बढ़े)
+                    </button>
+                </div>
+
+                <!-- Important Notice -->
+                <div class="deposit-notice">
+                    <h3 class="notice-title">((महत्वपूर्ण सूचना))</h3>
+                    
+                    <p class="notice-text">हमारी 3 साल की सफलता का जश्न! 🎉</p>
+                    
+                    <p class="notice-text">अब ₹100 / ₹200 / ₹500 / ₹1000 / ₹2000 के डिपॉजिट पर ✨ फिक्स 5% बोनस ✨ पाएं और बाजार में से बेहतरीन रेट का आनंद लें</p>
+                    
+                    <p class="notice-highlight">🔢 जोड़ी रेट - 💰 ₹10 का ₹960!</p>
+                    <p class="notice-highlight">🔢 हरफ अंदर/बाहर - ₹100 का ₹960!</p>
+                    
+                    <p class="notice-warning">🔥इस खास ऑफर का लाभ उठाएं और अभी खेलें🔥</p>
+                </div>
+
+            </div>
+        </main>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/app.js"></script>
+    <script>
+        function setAmount(amount) {
+            document.getElementById('depositAmount').value = amount;
+        }
+
+        function proceedToPayment() {
+            const amount = document.getElementById('depositAmount').value;
+            
+            if (!amount || amount < 50) {
+                alert('Minimum deposit amount is ₹50');
+                return;
+            }
+            
+            if (amount > 2000) {
+                alert('Maximum deposit amount is ₹2000');
+                return;
+            }
+            
+            // TODO: Integrate payment gateway
+            alert('Payment gateway integration coming soon!\n\nAmount: ₹' + amount);
+        }
+    </script>
+</body>
+</html>
