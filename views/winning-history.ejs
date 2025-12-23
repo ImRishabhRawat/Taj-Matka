@@ -68,13 +68,20 @@ const title = 'Winning History';
             }
 
             try {
-                const response = await API.get('/bets/history?status=won&limit=100');
+                const response = await API.get('/bets/wins?limit=100');
                 if (response.success && response.data.length > 0) {
                     renderWins(response.data);
                 } else {
                     document.getElementById('winsList').innerHTML = `
                         <div style="text-align: center; padding: 2rem; color: #666;">
-                            No winning bets yet
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom: 1rem; opacity: 0.3;">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+                                <line x1="9" y1="9" x2="9.01" y2="9"/>
+                                <line x1="15" y1="9" x2="15.01" y2="9"/>
+                            </svg>
+                            <p>No winning bets yet</p>
+                            <p style="font-size: 0.875rem; margin-top: 0.5rem; opacity: 0.7;">Keep playing to see your wins here!</p>
                         </div>
                     `;
                 }
@@ -82,51 +89,123 @@ const title = 'Winning History';
                 console.error('Error loading wins:', error);
                 document.getElementById('winsList').innerHTML = `
                     <div style="text-align: center; padding: 2rem; color: #ff4444;">
-                        Failed to load winning history
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom: 1rem;">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="8" x2="12" y2="12"/>
+                            <line x1="12" y1="16" x2="12.01" y2="16"/>
+                        </svg>
+                        <p>Failed to load winning history</p>
+                        <button onclick="loadWins()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: var(--primary-gradient); border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer;">
+                            Retry
+                        </button>
                     </div>
                 `;
             }
         }
 
         function renderWins(wins) {
-            const html = wins.map(bet => {
+            // Calculate total wins and profit
+            const totalWinAmount = wins.reduce((sum, bet) => sum + parseFloat(bet.payout_amount || 0), 0);
+            const totalBetAmount = wins.reduce((sum, bet) => sum + parseFloat(bet.bet_amount || 0), 0);
+            const totalProfit = totalWinAmount - totalBetAmount;
+            
+            // Summary card
+            const summaryHtml = `
+                <div style="background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%); padding: 1.5rem; border-radius: 16px; margin-bottom: 1.5rem; color: white; box-shadow: 0 8px 16px rgba(0, 255, 136, 0.2);">
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                        </svg>
+                        <div>
+                            <div style="font-size: 0.875rem; opacity: 0.9;">Total Wins</div>
+                            <div style="font-size: 1.75rem; font-weight: 700;">${wins.length}</div>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.2);">
+                        <div>
+                            <div style="font-size: 0.75rem; opacity: 0.9;">Total Won</div>
+                            <div style="font-size: 1.25rem; font-weight: 700;">₹${totalWinAmount.toFixed(2)}</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 0.75rem; opacity: 0.9;">Net Profit</div>
+                            <div style="font-size: 1.25rem; font-weight: 700;">₹${totalProfit.toFixed(2)}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            const winsHtml = wins.map(bet => {
                 const date = new Date(bet.created_at);
-                const dateStr = date.toLocaleDateString('en-IN');
+                const dateStr = date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
                 const timeStr = date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+                const sessionDate = bet.session_date ? new Date(bet.session_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }) : '';
+                const profit = parseFloat(bet.payout_amount || 0) - parseFloat(bet.bet_amount);
                 
                 return `
-                    <div style="background: var(--bg-card); padding: 1rem; border-radius: 12px; margin-bottom: 0.75rem; border-left: 4px solid #00ff88;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <div style="background: var(--bg-card); padding: 1.25rem; border-radius: 16px; margin-bottom: 1rem; border-left: 4px solid #00ff88; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: relative; overflow: hidden;">
+                        <!-- Trophy Icon -->
+                        <div style="position: absolute; top: 1rem; right: 1rem; opacity: 0.1;">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="#00ff88">
+                                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                            </svg>
+                        </div>
+                        
+                        <!-- Header -->
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; position: relative; z-index: 1;">
                             <div>
-                                <div style="font-weight: 700; font-size: 1.1rem; color: #FF4500;">${bet.bet_number}</div>
-                                <div style="font-size: 0.75rem; color: #666;">${bet.game_name || 'Game'}</div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                                    <div style="font-weight: 700; font-size: 1.25rem; color: #FF4500;">${bet.bet_number}</div>
+                                    <div style="background: #00ff88; color: #000; padding: 0.125rem 0.5rem; border-radius: 4px; font-size: 0.625rem; font-weight: 700;">WON</div>
+                                </div>
+                                <div style="font-size: 0.875rem; color: #666; font-weight: 500;">${bet.game_name || 'Game'}</div>
+                                ${bet.winning_number ? `<div style="font-size: 0.75rem; color: #888; margin-top: 0.25rem;">Winning: <span style="color: #00ff88; font-weight: 600;">${bet.winning_number}</span></div>` : ''}
                             </div>
                             <div style="text-align: right;">
-                                <div style="font-weight: 700; color: #00ff88; font-size: 1.2rem;">+₹${parseFloat(bet.win_amount).toFixed(2)}</div>
-                                <div style="font-size: 0.75rem; color: #666;">${bet.bet_type}</div>
+                                <div style="font-weight: 700; color: #00ff88; font-size: 1.5rem;">+₹${parseFloat(bet.payout_amount || 0).toFixed(2)}</div>
+                                <div style="font-size: 0.75rem; color: #666; text-transform: uppercase;">${bet.bet_type.replace('_', ' ')}</div>
                             </div>
                         </div>
                         
-                        <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: var(--bg-input); border-radius: 8px; margin-bottom: 0.5rem;">
+                        <!-- Bet Details -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; padding: 1rem; background: var(--bg-input); border-radius: 12px; margin-bottom: 0.75rem;">
                             <div>
-                                <div style="font-size: 0.75rem; color: #666;">Bet Amount</div>
-                                <div style="font-weight: 600;">₹${parseFloat(bet.bet_amount).toFixed(2)}</div>
+                                <div style="font-size: 0.7rem; color: #666; margin-bottom: 0.25rem;">Bet Amount</div>
+                                <div style="font-weight: 700; font-size: 0.95rem;">₹${parseFloat(bet.bet_amount).toFixed(2)}</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 0.7rem; color: #666; margin-bottom: 0.25rem;">Multiplier</div>
+                                <div style="font-weight: 700; font-size: 0.95rem; color: #FF4500;">${bet.payout_multiplier}x</div>
                             </div>
                             <div style="text-align: right;">
-                                <div style="font-size: 0.75rem; color: #666;">Profit</div>
-                                <div style="font-weight: 700; color: #00ff88;">₹${(parseFloat(bet.win_amount) - parseFloat(bet.bet_amount)).toFixed(2)}</div>
+                                <div style="font-size: 0.7rem; color: #666; margin-bottom: 0.25rem;">Profit</div>
+                                <div style="font-weight: 700; font-size: 0.95rem; color: #00ff88;">₹${profit.toFixed(2)}</div>
                             </div>
                         </div>
                         
-                        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #666;">
-                            <span>${dateStr}</span>
-                            <span>${timeStr}</span>
+                        <!-- Footer -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: #666;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                    <line x1="16" y1="2" x2="16" y2="6"/>
+                                    <line x1="8" y1="2" x2="8" y2="6"/>
+                                    <line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                                <span>${sessionDate || dateStr}</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <polyline points="12 6 12 12 16 14"/>
+                                </svg>
+                                <span>${timeStr}</span>
+                            </div>
                         </div>
                     </div>
                 `;
             }).join('');
             
-            document.getElementById('winsList').innerHTML = html;
+            document.getElementById('winsList').innerHTML = summaryHtml + winsHtml;
         }
 
         // Load wins on page load

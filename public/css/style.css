@@ -39,7 +39,7 @@
     
     /* Spacing */
     --header-height: 60px;
-    --bottom-nav-height: 70px;
+    --bottom-nav-height: 60px;
 }
 
 body {
@@ -82,7 +82,7 @@ body {
     justify-content: space-between;
     align-items: center;
     height: 100%;
-    padding: 0 1rem;
+    padding: 0 0.5rem;
 }
 
 .header-left {
@@ -125,7 +125,7 @@ body {
 }
 
 .app-logo {
-    font-size: 1.25rem;
+    font-size: 1rem;
     font-weight: 700;
     letter-spacing: 1px;
     color: var(--text-primary);
@@ -136,8 +136,8 @@ body {
     align-items: center;
     gap: 0.5rem;
     background: #ffffff;
-    padding: 0.5rem 1.25rem;
-    border-radius: 20px;
+    padding: 0.3rem .5rem;
+    border-radius: 15px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
@@ -146,7 +146,7 @@ body {
     align-items: center;
     gap: 0.5rem;
     background: rgba(255, 255, 255, 0.15);
-    padding: 0.5rem 1rem;
+    padding: 0.2rem 0.5rem;
     border-radius: 20px;
     font-weight: 600;
     font-size: 0.95rem;
@@ -182,7 +182,7 @@ body {
 }
 
 .page-content {
-    padding: 1rem;
+    padding: 0.5rem;
 }
 
 /* ===================================
@@ -793,7 +793,7 @@ body {
     }
     
     .app-logo {
-        font-size: 1.1rem;
+        font-size: 0.8rem;
     }
 }
 
@@ -1151,7 +1151,7 @@ body {
 
 .sidebar-header {
     background: linear-gradient(135deg, #FF4500 0%, #8B0000 100%);
-    padding: 1.5rem;
+    padding: .5rem;
     display: flex;
     align-items: center;
     gap: 1rem;

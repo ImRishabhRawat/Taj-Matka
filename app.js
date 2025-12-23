@@ -101,9 +101,12 @@ app.get('/how-to-play', requireAuth, (req, res) => {
   res.render('how-to-play', { title: 'How To Play' });
 });
 
+
+// Winning History page
 app.get('/winning-history', requireAuth, (req, res) => {
   res.render('winning-history', { title: 'Winning History' });
 });
+
 
 app.get('/bid-history', requireAuth, (req, res) => {
   res.render('bid-history', { title: 'Bid History' });
