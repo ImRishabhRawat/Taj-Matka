@@ -221,20 +221,35 @@ body {
 }
 
 .nav-item svg {
-    stroke: var(--text-muted);
-    transition: stroke 0.2s;
+    fill: var(--text-muted);
+    transition: all 0.2s;
 }
 
 .nav-item.active {
-    color: var(--primary-orange);
+    color: #FFD700;
 }
 
 .nav-item.active svg {
-    stroke: var(--primary-orange);
+    fill: #FFD700;
+    filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6));
 }
 
 .nav-item:active {
     transform: scale(0.95);
+}
+
+/* Home Button - Larger and Centered */
+.nav-item-home {
+    position: relative;
+}
+
+.nav-item-home svg {
+    width: 32px;
+    height: 32px;
+}
+
+.nav-item-home.active svg {
+    filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.8));
 }
 
 /* ===================================

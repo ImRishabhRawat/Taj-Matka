@@ -132,3 +132,22 @@ function shareOnTelegram() {
 
 window.shareOnWhatsApp = shareOnWhatsApp;
 window.shareOnTelegram = shareOnTelegram;
+
+// Share app function
+function shareApp() {
+  const text = 'Join Taj Matka - India\'s No.1 Matka App! Fast and Secure.';
+  const url = window.location.origin;
+  
+  if (navigator.share) {
+    navigator.share({
+      title: 'Taj Matka',
+      text: text,
+      url: url
+    }).catch(err => console.log('Error sharing:', err));
+  } else {
+    // Fallback to WhatsApp
+    shareOnWhatsApp();
+  }
+}
+
+window.shareApp = shareApp;
