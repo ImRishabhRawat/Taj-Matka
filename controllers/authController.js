@@ -327,10 +327,11 @@ async function getCurrentUser(req, res) {
         phone: user.phone,
         name: user.name,
         role: user.role,
-        balance: user.balance,
-        winning_balance: user.winning_balance,
-        held_withdrawal_balance: user.held_withdrawal_balance,
-        is_active: user.is_active
+        balance: parseFloat(user.balance || 0).toFixed(2),
+        winning_balance: parseFloat(user.winning_balance || 0).toFixed(2),
+        held_withdrawal_balance: parseFloat(user.held_withdrawal_balance || 0).toFixed(2),
+        is_active: user.is_active,
+        created_at: user.created_at
       }
     });
     

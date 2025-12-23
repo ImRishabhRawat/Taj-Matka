@@ -89,8 +89,19 @@ function isLoggedIn() {
 }
 
 // Logout
-function logout() {
+async function logout() {
+  try {
+    // Call logout API to clear server-side cookie
+    await API.post('/auth/logout', {});
+  } catch (error) {
+    console.error('Error calling logout API:', error);
+    // Continue with logout even if API call fails
+  }
+  
+  // Clear client-side token
   localStorage.removeItem('token');
+  
+  // Redirect to login
   window.location.href = '/login';
 }
 
