@@ -5,6 +5,7 @@
 
 const Bet = require('../models/Bet');
 const Game = require('../models/Game');
+const User = require('../models/User');
 const { 
   generateCrossingBets, 
   applyPalti, 
@@ -19,125 +20,90 @@ const {
  * POST /api/bets
  */
 async function placeBet(req, res) {
+  console.log('DEBUG: placeBet called with:', JSON.stringify(req.body));
   try {
     const userId = req.user.id;
-    const { gameId, betType, numbers, amount, palti, crossing, crossingDigits } = req.body;
+    const { gameId, betType, numbers, amount, palti, crossing, crossingDigits, bets: directBets } = req.body;
     
-    // Validation
-    if (!gameId || (!req.body.bets && (!betType || !amount))) {
-      return res.status(400).json({
-        success: false,
-        message: 'Missing required fields'
-      });
+    // 1. Initial Validation
+    if (!gameId) {
+      return res.status(400).json({ success: false, message: 'VALIDATION_ERR: GAME_ID_MISSING' });
     }
     
-    // CRITICAL SECURITY: Validate game is open using SERVER TIME
-    // This prevents users from manipulating their device clock
+    // 2. CRITICAL SECURITY: Validate game is open using SERVER TIME
     const game = await Game.findById(gameId);
-    
     if (!game || !game.is_active) {
-      return res.status(400).json({
-        success: false,
-        message: 'Game not found or inactive'
-      });
+      return res.status(400).json({ success: false, message: 'Game not found or inactive' });
     }
     
-    // Calculate if game is open based on SERVER time
+    // Server-side system time check
     const now = new Date();
-    const currentTimeInSeconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+    const currentTimeStr = now.getHours().toString().padStart(2, '0') + ':' + 
+                          now.getMinutes().toString().padStart(2, '0') + ':' + 
+                          now.getSeconds().toString().padStart(2, '0');
     
-    const [closeHours, closeMinutes, closeSeconds] = game.close_time.split(':').map(Number);
-    const closeTimeInSeconds = closeHours * 3600 + closeMinutes * 60 + closeSeconds;
-    
-    if (currentTimeInSeconds >= closeTimeInSeconds) {
+    if (currentTimeStr >= game.close_time) {
       return res.status(400).json({
         success: false,
-        message: 'Game is currently closed. Betting time has ended.'
+        message: 'Game Closed'
       });
     }
     
     // Get or create today's session
     const session = await Game.getOrCreateTodaySession(gameId);
-    
     if (session.status !== 'pending') {
-      return res.status(400).json({
-        success: false,
-        message: 'Betting is closed for this session'
-      });
+      return res.status(400).json({ success: false, message: 'Betting is closed for this session' });
     }
     
-    // Prepare bets array
+    // 3. Prepare bets array (Unified Logic)
     let betsToPlace = [];
     
-    // Check if we have multiple bets with different amounts (New Grid Format)
-    if (Array.isArray(req.body.bets)) {
-        for (const bet of req.body.bets) {
-            let type = bet.type;
-            if (type === 'andar') type = 'haruf_andar';
-            if (type === 'bahar') type = 'haruf_bahar';
-            
-            const payoutMultiplier = getPayoutMultiplier(type);
-            
-            // Validate number
-            if (type === 'jodi' && !isValidJodiNumber(bet.number)) {
-                return res.status(400).json({ success: false, message: `Invalid Jodi number: ${bet.number}` });
-            }
-            if ((type === 'haruf_andar' || type === 'haruf_bahar') && !isValidHarufNumber(bet.number)) {
-                return res.status(400).json({ success: false, message: `Invalid Haruf number: ${bet.number}` });
-            }
-
-            betsToPlace.push({
-                gameSessionId: session.id,
-                betType: type,
-                betNumber: String(bet.number),
-                betAmount: parseFloat(bet.amount),
-                payoutMultiplier
-            });
-        }
+    // Mode A: Direct bets array (from Grid)
+    if (Array.isArray(directBets)) {
+      for (const bet of directBets) {
+        let type = bet.type;
+        if (type === 'andar') type = 'haruf_andar';
+        if (type === 'bahar') type = 'haruf_bahar';
+        
+        const payoutMultiplier = getPayoutMultiplier(type);
+        betsToPlace.push({
+          gameSessionId: session.id,
+          betType: type,
+          betNumber: String(bet.number),
+          betAmount: parseFloat(bet.amount),
+          payoutMultiplier
+        });
+      }
     } 
-    // Handle legacy/other modes
-    else if (crossing && crossingDigits) {
-      // CROSSING MODE: Generate all combinations
+    // Mode B: Crossing Mode
+    else if (crossingDigits) {
       const combinations = generateCrossingBets(crossingDigits, amount);
-      
       betsToPlace = combinations.map(combo => ({
         gameSessionId: session.id,
-        betType: 'jodi', // Crossing is always Jodi
+        betType: 'jodi',
         betNumber: combo.number,
-        betAmount: combo.amount,
+        betAmount: parseFloat(amount),
         payoutMultiplier: getPayoutMultiplier('jodi')
       }));
-      
-    } else if (Array.isArray(numbers)) {
-      // MULTIPLE NUMBERS MODE (from Copy-Paste)
-      const actualBetType = betType === 'andar' ? 'haruf_andar' : (betType === 'bahar' ? 'haruf_bahar' : betType);
+    }
+    // Mode C: Multiple Numbers / Copy-Paste / Haruf
+    else if (Array.isArray(numbers)) {
+      const actualBetType = betType === 'andar' ? 'haruf_andar' : (betType === 'bahar' ? 'haruf_bahar' : (betType || 'jodi'));
       const payoutMultiplier = getPayoutMultiplier(actualBetType);
 
       for (const num of numbers) {
-        // Validate number based on bet type
-        if (actualBetType === 'jodi' && !isValidJodiNumber(num)) {
-          return res.status(400).json({
-            success: false,
-            message: `Invalid Jodi number: ${num}`
-          });
-        }
-        
-        if ((actualBetType === 'haruf_andar' || actualBetType === 'haruf_bahar') && !isValidHarufNumber(num)) {
-          return res.status(400).json({
-            success: false,
-            message: `Invalid Haruf number: ${num}`
-          });
-        }
-        
-        // Apply Palti if enabled
+        // Skip invalid numbers
+        if (actualBetType === 'jodi' && !isValidJodiNumber(num)) continue;
+        if ((actualBetType.includes('haruf')) && !isValidHarufNumber(num)) continue;
+
         if (palti && actualBetType === 'jodi') {
           const paltiBets = applyPalti(num, amount);
-          paltiBets.forEach(bet => {
+          paltiBets.forEach(b => {
             betsToPlace.push({
               gameSessionId: session.id,
               betType: actualBetType,
-              betNumber: bet.number,
-              betAmount: bet.amount,
+              betNumber: b.number,
+              betAmount: parseFloat(amount),
               payoutMultiplier
             });
           });
@@ -145,44 +111,34 @@ async function placeBet(req, res) {
           betsToPlace.push({
             gameSessionId: session.id,
             betType: actualBetType,
-            betNumber: num,
+            betNumber: String(num),
             betAmount: parseFloat(amount),
             payoutMultiplier
           });
         }
       }
-      
     } else {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid bet format'
-      });
+      return res.status(400).json({ success: false, message: 'Invalid bet format' });
     }
     
-    // Validate minimum bet amount
-    const minBetAmount = parseFloat(process.env.MIN_BET_AMOUNT) || 10;
-    const invalidBets = betsToPlace.filter(bet => bet.betAmount < minBetAmount);
-    
-    if (invalidBets.length > 0) {
-      return res.status(400).json({
-        success: false,
-        message: `Minimum bet amount is ₹${minBetAmount}`
-      });
+    if (betsToPlace.length === 0) {
+      return res.status(400).json({ success: false, message: 'No valid bets identified' });
     }
-    
-    // Calculate total amount
+
+    // 4. PRE-CALCULATION & GATEKEEPER
     const totalAmount = calculateTotalAmount(betsToPlace);
+    console.log(`DEBUG: placing ${betsToPlace.length} bets, total amount: ${totalAmount}`);
     
-    // Validate maximum bet amount
-    const maxBetAmount = parseFloat(process.env.MAX_BET_AMOUNT) || 10000;
-    if (totalAmount > maxBetAmount) {
+    // Fetch current balance for pre-check
+    const userWallet = await User.getWalletInfo(userId);
+    if (!userWallet || parseFloat(userWallet.balance) < totalAmount) {
       return res.status(400).json({
         success: false,
-        message: `Maximum total bet amount is ₹${maxBetAmount}`
+        message: 'Insufficient Balance'
       });
     }
     
-    // Place bets (atomic transaction)
+    // 5. ATOMIC TRANSACTION (Database Integrity)
     const result = await Bet.createMultiple(betsToPlace, userId, totalAmount);
     
     return res.status(201).json({
@@ -197,18 +153,16 @@ async function placeBet(req, res) {
     });
     
   } catch (error) {
-    console.error('Error placing bet:', error);
+    console.error('CRITICAL ERROR placing bet:', error);
+    console.error('Stack:', error.stack);
     
-    if (error.message === 'Insufficient balance') {
-      return res.status(400).json({
-        success: false,
-        message: 'Insufficient balance'
-      });
+    if (error.message.includes('Insufficient balance')) {
+      return res.status(400).json({ success: false, message: 'Insufficient Balance' });
     }
-    
-    return res.status(500).json({
-      success: false,
-      message: 'Failed to place bet'
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Server Error: Failed to place bet',
+      debug: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 }

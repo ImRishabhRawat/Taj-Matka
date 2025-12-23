@@ -40,35 +40,30 @@ async function createMultiple(betsArray, userId, totalAmount) {
   try {
     await client.query('BEGIN');
     
-    // 1. Lock user row and check balance
-    const userResult = await client.query(
-      'SELECT balance FROM users WHERE id = $1 FOR UPDATE',
-      [userId]
+    // 1. Deduct balance with built-in check (The "Gatekeeper")
+    // This is atomic and prevents race conditions
+    const updateResult = await client.query(
+      `UPDATE users 
+       SET balance = balance - $1 
+       WHERE id = $2 AND balance >= $1 
+       RETURNING balance`,
+      [totalAmount, userId]
     );
     
-    if (userResult.rows.length === 0) {
-      throw new Error('User not found');
+    // 2. Verify row count (If 0, either user doesn't exist or insufficient balance)
+    if (updateResult.rowCount === 0) {
+      throw new Error('Insufficient balance or user not found');
     }
     
-    const currentBalance = parseFloat(userResult.rows[0].balance);
+    const newBalance = parseFloat(updateResult.rows[0].balance);
+    const balanceBefore = newBalance + totalAmount;
     
-    if (currentBalance < totalAmount) {
-      throw new Error('Insufficient balance');
-    }
-    
-    // 2. Deduct total amount from user balance
-    const newBalance = currentBalance - totalAmount;
-    await client.query(
-      'UPDATE users SET balance = $1 WHERE id = $2',
-      [newBalance, userId]
-    );
-    
-    // 3. Record transaction
+    // 3. Record transaction log (type: 'bet')
     await client.query(
       `INSERT INTO transactions 
        (user_id, transaction_type, amount, balance_before, balance_after, description) 
        VALUES ($1, 'bet', $2, $3, $4, $5)`,
-      [userId, totalAmount, currentBalance, newBalance, `Bet placed - ${betsArray.length} bet(s)`]
+      [userId, totalAmount, balanceBefore, newBalance, `Bet placed - ${betsArray.length} bet(s)`]
     );
     
     // 4. Insert all bets

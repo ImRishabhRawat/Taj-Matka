@@ -16,12 +16,10 @@ function generateCrossingBets(digits, amount) {
   
   for (let i = 0; i < uniqueDigits.length; i++) {
     for (let j = 0; j < uniqueDigits.length; j++) {
-      if (i !== j) {
-        bets.push({
-          number: uniqueDigits[i] + uniqueDigits[j],
-          amount: parseFloat(amount)
-        });
-      }
+      bets.push({
+        number: uniqueDigits[i] + uniqueDigits[j],
+        amount: parseFloat(amount)
+      });
     }
   }
   
@@ -75,7 +73,7 @@ function isValidHarufNumber(number) {
  * @returns {number} Total amount
  */
 function calculateTotalAmount(bets) {
-  return bets.reduce((total, bet) => total + parseFloat(bet.amount), 0);
+  return bets.reduce((total, bet) => total + parseFloat(bet.amount || bet.betAmount || 0), 0);
 }
 
 /**
