@@ -9,6 +9,7 @@ const authController = require('../controllers/authController');
 const { authenticate } = require('../middleware/auth');
 
 // Public routes
+router.post('/login', authController.login);
 router.post('/send-otp', authController.sendOTP);
 router.post('/verify-otp', authController.verifyOTPAndLogin);
 

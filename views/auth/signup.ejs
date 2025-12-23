@@ -3,37 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Login - Taj Matka</title>
+    <title>Sign Up - Taj Matka</title>
     <link rel="stylesheet" href="/css/style.css">
     <style>
-        /* Pure Login Page Styles */
-        .login-container {
+        /* Pure Signup Page Styles */
+        .signup-container {
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             background: var(--bg-primary);
         }
         
-        .login-header {
+        .signup-header {
             background: linear-gradient(135deg, #FF4500 0%, #8B0000 100%);
             padding: 3rem 1.5rem;
             text-align: center;
             color: white;
         }
         
-        .login-logo {
+        .signup-logo {
             font-size: 2rem;
             font-weight: 700;
             letter-spacing: 2px;
             margin-bottom: 0.5rem;
         }
         
-        .login-tagline {
+        .signup-tagline {
             font-size: 0.9rem;
             opacity: 0.9;
         }
         
-        .login-form-container {
+        .signup-form-container {
             flex: 1;
             padding: 2rem 1.5rem;
             max-width: 400px;
@@ -41,14 +41,14 @@
             margin: 0 auto;
         }
         
-        .login-title {
+        .signup-title {
             font-size: 1.5rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
             color: var(--text-primary);
         }
         
-        .login-subtitle {
+        .signup-subtitle {
             font-size: 0.9rem;
             color: var(--text-secondary);
             margin-bottom: 2rem;
@@ -82,7 +82,7 @@
             border-color: var(--primary-orange);
         }
         
-        .btn-login {
+        .btn-signup {
             width: 100%;
             padding: 1rem;
             background: linear-gradient(135deg, #FF4500 0%, #8B0000 100%);
@@ -95,11 +95,11 @@
             transition: transform 0.2s;
         }
         
-        .btn-login:active {
+        .btn-signup:active {
             transform: scale(0.98);
         }
         
-        .btn-login:disabled {
+        .btn-signup:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
@@ -131,25 +131,52 @@
         .error-message.show {
             display: block;
         }
+        
+        .success-message {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            display: none;
+        }
+        
+        .success-message.show {
+            display: block;
+        }
     </style>
 </head>
 <body>
-    <div class="login-container">
+    <div class="signup-container">
         
         <!-- Header Section -->
-        <div class="login-header">
-            <div class="login-logo">TAJ MATKA</div>
-            <div class="login-tagline">Play Smart, Win Big</div>
+        <div class="signup-header">
+            <div class="signup-logo">TAJ MATKA</div>
+            <div class="signup-tagline">Play Smart, Win Big</div>
         </div>
 
         <!-- Form Section -->
-        <div class="login-form-container">
-            <h1 class="login-title">Welcome</h1>
-            <p class="login-subtitle">Enter your phone and password to continue</p>
+        <div class="signup-form-container">
+            <h1 class="signup-title">Create Account</h1>
+            <p class="signup-subtitle">Sign up to start playing</p>
             
             <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
             
-            <form id="loginForm">
+            <form id="signupForm">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input 
+                        type="text" 
+                        class="form-input" 
+                        id="name" 
+                        placeholder="Enter your full name"
+                        required
+                    >
+                </div>
+                
                 <div class="form-group">
                     <label class="form-label">Mobile Number</label>
                     <input 
@@ -169,19 +196,31 @@
                         type="password" 
                         class="form-input" 
                         id="password" 
-                        placeholder="Enter your password (min 6 characters)"
+                        placeholder="Create a password (min 6 characters)"
                         minlength="6"
                         required
                     >
                 </div>
                 
-                <button type="submit" class="btn-login" id="loginBtn">
-                    CONTINUE
+                <div class="form-group">
+                    <label class="form-label">Confirm Password</label>
+                    <input 
+                        type="password" 
+                        class="form-input" 
+                        id="confirmPassword" 
+                        placeholder="Re-enter your password"
+                        minlength="6"
+                        required
+                    >
+                </div>
+                
+                <button type="submit" class="btn-signup" id="signupBtn">
+                    SIGN UP
                 </button>
             </form>
             
-            <div class="form-footer" style="margin-top: 1.5rem; text-align: center; color: var(--text-secondary); font-size: 0.85rem;">
-                New user? Just enter your phone and create a password to get started!
+            <div class="form-footer">
+                Already have an account? <a href="/login">Login</a>
             </div>
         </div>
 
@@ -200,18 +239,25 @@
                     window.location.href = '/home';
                 }
             } catch (error) {
-                // Not logged in, stay on login page
+                // Not logged in, stay on signup page
             }
         }
 
-        // Login form handler
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        // Signup form handler
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            const name = document.getElementById('name').value;
             const phone = document.getElementById('phone').value;
             const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
             const errorMessage = document.getElementById('errorMessage');
-            const loginBtn = document.getElementById('loginBtn');
+            const successMessage = document.getElementById('successMessage');
+            const signupBtn = document.getElementById('signupBtn');
+            
+            // Hide messages
+            errorMessage.classList.remove('show');
+            successMessage.classList.remove('show');
             
             // Validate
             if (!/^[0-9]{10}$/.test(phone)) {
@@ -220,21 +266,30 @@
                 return;
             }
             
-            // Hide error
-            errorMessage.classList.remove('show');
+            if (password.length < 6) {
+                errorMessage.textContent = 'Password must be at least 6 characters';
+                errorMessage.classList.add('show');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                errorMessage.textContent = 'Passwords do not match';
+                errorMessage.classList.add('show');
+                return;
+            }
             
             // Disable button
-            loginBtn.disabled = true;
-            loginBtn.textContent = 'LOGGING IN...';
+            signupBtn.disabled = true;
+            signupBtn.textContent = 'CREATING ACCOUNT...';
             
             try {
-                const response = await fetch('/api/auth/login', {
+                const response = await fetch('/api/auth/register', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     credentials: 'include',
-                    body: JSON.stringify({ phone, password })
+                    body: JSON.stringify({ name, phone, password })
                 });
                 
                 const data = await response.json();
@@ -243,20 +298,26 @@
                     // Store token in localStorage as backup
                     localStorage.setItem('token', data.data.token);
                     
-                    // Redirect to home
-                    window.location.href = '/home';
+                    // Show success message
+                    successMessage.textContent = 'Account created successfully! Redirecting...';
+                    successMessage.classList.add('show');
+                    
+                    // Redirect to home after 1 second
+                    setTimeout(() => {
+                        window.location.href = '/home';
+                    }, 1000);
                 } else {
                     errorMessage.textContent = data.message;
                     errorMessage.classList.add('show');
-                    loginBtn.disabled = false;
-                    loginBtn.textContent = 'LOGIN';
+                    signupBtn.disabled = false;
+                    signupBtn.textContent = 'SIGN UP';
                 }
             } catch (error) {
-                console.error('Login error:', error);
-                errorMessage.textContent = 'Login failed. Please try again.';
+                console.error('Signup error:', error);
+                errorMessage.textContent = 'Signup failed. Please try again.';
                 errorMessage.classList.add('show');
-                loginBtn.disabled = false;
-                loginBtn.textContent = 'LOGIN';
+                signupBtn.disabled = false;
+                signupBtn.textContent = 'SIGN UP';
             }
         });
 

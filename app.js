@@ -47,46 +47,50 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Root route - redirect to home
+// Import view authentication middleware
+const { requireAuth, redirectIfAuth, requireAdmin } = require('./middleware/viewAuth');
+
+// Root route - redirect to login
 app.get('/', (req, res) => {
-  res.redirect('/home');
+  res.redirect('/login');
 });
 
-// View routes
-app.get('/home', (req, res) => {
-  res.render('home', { title: 'Taj Matka - Home' });
-});
-
-app.get('/betting/:id', (req, res) => {
-  res.render('betting', { title: 'Place Bet', gameId: req.params.id });
-});
-
-app.get('/game/:id', (req, res) => {
-  res.render('game', { title: 'Play Game', gameId: req.params.id });
-});
-
-app.get('/login', (req, res) => {
+// Auth routes (redirect to /home if already logged in)
+app.get('/login', redirectIfAuth, (req, res) => {
   res.render('auth/login', { title: 'Login' });
 });
 
-app.get('/profile', (req, res) => {
-  res.render('profile', { title: 'My Profile' });
+// Protected routes (require authentication)
+app.get('/home', requireAuth, (req, res) => {
+  res.render('home', { title: 'Taj Matka - Home' });
 });
 
-app.get('/history', (req, res) => {
-  res.render('history', { title: 'Bet History' });
-});
-
-app.get('/results', (req, res) => {
+app.get('/results', requireAuth, (req, res) => {
   res.render('results', { title: 'Results' });
 });
 
-app.get('/chart', (req, res) => {
+app.get('/betting/:id', requireAuth, (req, res) => {
+  res.render('betting', { title: 'Place Bet', gameId: req.params.id });
+});
+
+app.get('/game/:id', requireAuth, (req, res) => {
+  res.render('game', { title: 'Play Game', gameId: req.params.id });
+});
+
+app.get('/profile', requireAuth, (req, res) => {
+  res.render('profile', { title: 'My Profile' });
+});
+
+app.get('/history', requireAuth, (req, res) => {
+  res.render('history', { title: 'Bet History' });
+});
+
+app.get('/chart', requireAuth, (req, res) => {
   res.render('chart', { title: 'Chart' });
 });
 
-// Admin routes
-app.get('/admin/result-entry', (req, res) => {
+// Admin routes (require admin role)
+app.get('/admin/result-entry', requireAdmin, (req, res) => {
   res.render('admin/result-entry', { title: 'Declare Result' });
 });
 

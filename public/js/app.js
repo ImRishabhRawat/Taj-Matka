@@ -1,4 +1,4 @@
-/**
+  /**
  * Taj Matka - Client-side JavaScript
  */
 
@@ -11,6 +11,7 @@ const API = {
     
     const config = {
       ...options,
+      credentials: 'include', // Include cookies in requests
       headers: {
         'Content-Type': 'application/json',
         ...(token && { 'Authorization': `Bearer ${token}` }),
@@ -55,11 +56,27 @@ const API = {
 // Load user balance
 async function loadUserBalance() {
   try {
+    console.log('Loading user balance...');
     const data = await API.get('/auth/me');
     
+    console.log('User data received:', data);
+    
     if (data.success) {
-      const totalBalance = parseFloat(data.data.balance) + parseFloat(data.data.winning_balance);
-      document.getElementById('userBalance').textContent = `₹${totalBalance.toFixed(2)}`;
+      const balance = parseFloat(data.data.balance) || 0;
+      const winningBalance = parseFloat(data.data.winning_balance) || 0;
+      const totalBalance = balance + winningBalance;
+      const balanceText = `₹${totalBalance.toFixed(0)}`;
+      
+      console.log('Balance:', balance, 'Winning:', winningBalance, 'Total:', totalBalance);
+      
+      // Update balance in header (home page uses balanceAmount)
+      const balanceElement = document.getElementById('balanceAmount') || document.getElementById('userBalance');
+      if (balanceElement) {
+        balanceElement.textContent = balanceText;
+        console.log('Balance updated to:', balanceText);
+      } else {
+        console.warn('Balance element not found');
+      }
     }
   } catch (error) {
     console.error('Failed to load balance:', error);

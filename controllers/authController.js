@@ -1,11 +1,192 @@
 /**
  * Authentication Controller
- * Handles OTP-based login and registration
+ * Handles password-based and OTP-based login
  */
 
 const User = require('../models/User');
 const { createOTP, verifyOTP } = require('../utils/otpService');
 const { generateToken } = require('../middleware/auth');
+const bcrypt = require('bcryptjs');
+
+/**
+ * Unified Login/Register
+ * If phone exists: verify password and login
+ * If phone doesn't exist: create account and login
+ * POST /api/auth/login
+ */
+async function login(req, res) {
+  try {
+    const { phone, password } = req.body;
+    
+    // Validation
+    if (!phone || !/^[0-9]{10}$/.test(phone)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid phone number. Must be 10 digits.'
+      });
+    }
+    
+    if (!password || password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 6 characters'
+      });
+    }
+    
+    // Check if user exists
+    let user = await User.findByPhone(phone);
+    
+    if (user) {
+      // USER EXISTS - Verify password and login
+      const isValidPassword = await bcrypt.compare(password, user.password_hash);
+      
+      if (!isValidPassword) {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid phone or password'
+        });
+      }
+      
+      // Check if user is active
+      if (!user.is_active) {
+        return res.status(403).json({
+          success: false,
+          message: 'Account is inactive. Contact support.'
+        });
+      }
+      
+    } else {
+      // USER DOESN'T EXIST - Create new account (auto-register)
+      // Use phone number as default name
+      const defaultName = `User ${phone.slice(-4)}`;
+      
+      user = await User.create({
+        phone,
+        name: defaultName,
+        password
+      });
+      
+      console.log(`✅ New user registered: ${phone}`);
+    }
+    
+    // Generate JWT token
+    const token = generateToken(user);
+    
+    // Set httpOnly cookie with 30-day expiry
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      sameSite: 'lax'
+    });
+    
+    return res.json({
+      success: true,
+      message: user.id ? 'Login successful' : 'Account created successfully',
+      data: {
+        user: {
+          id: user.id,
+          phone: user.phone,
+          name: user.name,
+          role: user.role,
+          balance: user.balance,
+          winning_balance: user.winning_balance
+        },
+        token
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error in login/register:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to login'
+    });
+  }
+}
+
+/**
+ * Register new user
+ * POST /api/auth/register
+ */
+async function register(req, res) {
+  try {
+    const { phone, password, name } = req.body;
+    
+    // Validation
+    if (!phone || !/^[0-9]{10}$/.test(phone)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid phone number. Must be 10 digits.'
+      });
+    }
+    
+    if (!password || password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 6 characters'
+      });
+    }
+    
+    if (!name) {
+      return res.status(400).json({
+        success: false,
+        message: 'Name is required'
+      });
+    }
+    
+    // Check if user already exists
+    const existingUser = await User.findByPhone(phone);
+    
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: 'Phone number already registered'
+      });
+    }
+    
+    // Create user
+    const user = await User.create({
+      phone,
+      name,
+      password
+    });
+    
+    // Generate JWT token
+    const token = generateToken(user);
+    
+    // Set httpOnly cookie with 30-day expiry
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      sameSite: 'lax'
+    });
+    
+    return res.status(201).json({
+      success: true,
+      message: 'Registration successful',
+      data: {
+        user: {
+          id: user.id,
+          phone: user.phone,
+          name: user.name,
+          role: user.role,
+          balance: user.balance,
+          winning_balance: user.winning_balance
+        },
+        token
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error registering:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to register'
+    });
+  }
+}
 
 /**
  * Send OTP to phone number
@@ -79,11 +260,11 @@ async function verifyOTPAndLogin(req, res) {
         });
       }
       
-      // Create user with a default password (OTP-based, so password not used)
+      // Create user with a random password
       user = await User.create({
         phone,
         name,
-        password: Math.random().toString(36).slice(-8) // Random password
+        password: Math.random().toString(36).slice(-8)
       });
     }
     
@@ -98,11 +279,12 @@ async function verifyOTPAndLogin(req, res) {
     // Generate JWT token
     const token = generateToken(user);
     
-    // Set cookie
+    // Set httpOnly cookie with 30-day expiry
     res.cookie('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      sameSite: 'lax'
     });
     
     return res.json({
@@ -185,6 +367,7 @@ async function logout(req, res) {
 }
 
 module.exports = {
+  login,
   sendOTP,
   verifyOTPAndLogin,
   getCurrentUser,
