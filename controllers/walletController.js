@@ -226,9 +226,10 @@ async function addFunds(req, res) {
   
   try {
     const { userId, amount, description } = req.body;
+    const numericAmount = parseFloat(amount);
     
     // Validation
-    if (!userId || amount === undefined || parseFloat(amount) === 0) {
+    if (!userId || isNaN(numericAmount) || numericAmount === 0) {
       return res.status(400).json({
         success: false,
         message: 'User ID and valid non-zero amount are required'
@@ -237,9 +238,9 @@ async function addFunds(req, res) {
     
     await client.query('BEGIN');
     
-    // Lock user row
+    // Lock user row and get current balance
     const userResult = await client.query(
-      'SELECT balance FROM users WHERE id = $1 FOR UPDATE',
+      'SELECT balance, winning_balance FROM users WHERE id = $1 FOR UPDATE',
       [userId]
     );
     
@@ -252,7 +253,16 @@ async function addFunds(req, res) {
     }
     
     const currentBalance = parseFloat(userResult.rows[0].balance);
-    const newBalance = currentBalance + parseFloat(amount);
+    const newBalance = currentBalance + numericAmount;
+    
+    // Safety check: Don't allow balance to go below 0 unless it's a small correction
+    if (newBalance < 0) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({
+        success: false,
+        message: `Insufficient balance. Current balance is ₹${currentBalance}. Cannot deduct ₹${Math.abs(numericAmount)}.`
+      });
+    }
     
     // Update balance
     await client.query(
@@ -260,35 +270,44 @@ async function addFunds(req, res) {
       [newBalance, userId]
     );
     
-    // Record transaction
+    // Record transaction - use absolute amount and appropriate type
+    const transactionType = numericAmount > 0 ? 'deposit' : 'withdrawal';
     await client.query(
       `INSERT INTO transactions 
        (user_id, transaction_type, amount, balance_before, balance_after, description) 
-       VALUES ($1, 'deposit', $2, $3, $4, $5)`,
-      [userId, amount, currentBalance, newBalance, description || 'Funds added by admin']
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [
+        userId, 
+        transactionType, 
+        Math.abs(numericAmount), 
+        currentBalance, 
+        newBalance, 
+        description || (numericAmount > 0 ? 'Admin added funds' : 'Admin deducted funds')
+      ]
     );
     
     await client.query('COMMIT');
     
     return res.json({
       success: true,
-      message: 'Funds added successfully',
+      message: `Successfully ${numericAmount > 0 ? 'added' : 'deducted'} ₹${Math.abs(numericAmount)}`,
       data: {
+        userId,
         previousBalance: currentBalance,
         newBalance,
-        amount: parseFloat(amount)
+        amount: numericAmount
       }
     });
     
   } catch (error) {
-    await client.query('ROLLBACK');
-    console.error('Error adding funds:', error);
+    if (client) await client.query('ROLLBACK');
+    console.error('Error in addFunds:', error);
     return res.status(500).json({
       success: false,
-      message: 'Failed to add funds'
+      message: 'Failed to process balance adjustment'
     });
   } finally {
-    client.release();
+    if (client) client.release();
   }
 }
 

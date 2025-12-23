@@ -49,16 +49,31 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <% games.forEach(game => { %>
+                                    <% 
+                                    function calculateStatus(closeTime) {
+                                        const now = new Date();
+                                        const currentTimeStr = now.getHours().toString().padStart(2, '0') + ':' + 
+                                                             now.getMinutes().toString().padStart(2, '0') + ':' + 
+                                                             now.getSeconds().toString().padStart(2, '0');
+                                        return currentTimeStr < closeTime;
+                                    }
+                                    
+                                    games.forEach(game => { 
+                                        const isOpen = calculateStatus(game.close_time);
+                                    %>
                                         <tr>
                                             <td class="fw-600"><%= game.name %></td>
                                             <td><%= game.open_time %></td>
                                             <td><%= game.close_time %></td>
                                             <td>
                                                 <% if (game.is_active) { %>
-                                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill">Active</span>
+                                                    <% if (isOpen) { %>
+                                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill">Open</span>
+                                                    <% } else { %>
+                                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 rounded-pill">Closed</span>
+                                                    <% } %>
                                                 <% } else { %>
-                                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 rounded-pill">Inactive</span>
+                                                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-3 py-2 rounded-pill">Inactive</span>
                                                 <% } %>
                                             </td>
                                             <td class="text-end">

@@ -90,6 +90,9 @@ async function requireAdmin(req, res, next) {
     const token = req.cookies.token;
     
     if (!token) {
+      if (req.xhr || req.path.includes('/api/') || req.headers.accept?.includes('application/json')) {
+        return res.status(401).json({ success: false, message: 'Authentication required' });
+      }
       return res.redirect('/login');
     }
     
@@ -97,11 +100,16 @@ async function requireAdmin(req, res, next) {
     const user = await User.findById(decoded.userId);
     
     if (!user || !user.is_active) {
+      if (req.xhr || req.path.includes('/api/') || req.headers.accept?.includes('application/json')) {
+        return res.status(401).json({ success: false, message: 'Invalid or inactive user' });
+      }
       return res.redirect('/login');
     }
     
     if (user.role !== 'admin') {
-      // Not admin, redirect to home
+      if (req.xhr || req.path.includes('/api/') || req.headers.accept?.includes('application/json')) {
+        return res.status(403).json({ success: false, message: 'Admin access required' });
+      }
       return res.redirect('/home');
     }
     
@@ -110,6 +118,9 @@ async function requireAdmin(req, res, next) {
     next();
     
   } catch (error) {
+    if (req.xhr || req.path.includes('/api/') || req.headers.accept?.includes('application/json')) {
+      return res.status(401).json({ success: false, message: 'Session expired or invalid token' });
+    }
     return res.redirect('/login');
   }
 }
