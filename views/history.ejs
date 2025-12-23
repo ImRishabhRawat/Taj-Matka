@@ -46,8 +46,8 @@ const title = 'Bet History';
                 <div class="betting-tabs" style="margin-bottom: 1rem;">
                     <button class="tab-btn active" data-filter="all" onclick="filterBets('all')">All</button>
                     <button class="tab-btn" data-filter="pending" onclick="filterBets('pending')">Pending</button>
-                    <button class="tab-btn" data-filter="won" onclick="filterBets('won')">Won</button>
-                    <button class="tab-btn" data-filter="lost" onclick="filterBets('lost')">Lost</button>
+                    <button class="tab-btn" data-filter="win" onclick="filterBets('win')">Won</button>
+                    <button class="tab-btn" data-filter="loss" onclick="filterBets('loss')">Lost</button>
                 </div>
 
                 <!-- Bets List -->
@@ -106,6 +106,7 @@ const title = 'Bet History';
     </div>
 
     <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/js/app.js"></script>
     <script>
         let allBets = [];
@@ -160,51 +161,64 @@ const title = 'Bet History';
             if (filteredBets.length === 0) {
                 document.getElementById('betsList').innerHTML = `
                     <div style="text-align: center; padding: 2rem; color: #666;">
-                        No bets found
+                        No ${currentFilter === 'all' ? '' : currentFilter} bets found
                     </div>
                 `;
                 return;
             }
             
             const html = filteredBets.map(bet => {
-                const statusColor = bet.status === 'won' ? '#00ff88' : 
-                                   bet.status === 'lost' ? '#ff4444' : '#ffaa00';
-                const statusText = bet.status === 'won' ? 'WON' : 
-                                  bet.status === 'lost' ? 'LOST' : 'PENDING';
+                const status = bet.status;
+                const statusColor = status === 'win' ? '#00ff88' : 
+                                   status === 'loss' ? '#ff4444' : '#ffaa00';
+                const statusText = status === 'win' ? 'WON' : 
+                                  status === 'loss' ? 'LOST' : 'PENDING';
                 
                 const date = new Date(bet.created_at);
-                const dateStr = date.toLocaleDateString('en-IN');
+                const dateStr = date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
                 const timeStr = date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
                 
+                // Format bet type
+                const formattedType = bet.bet_type.replace('_', ' ').toUpperCase();
+                
                 return `
-                    <div style="background: var(--bg-card); padding: 1rem; border-radius: 12px; margin-bottom: 0.75rem;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <div style="background: var(--bg-card); padding: 1.25rem; border-radius: 16px; margin-bottom: 1rem; border-left: 4px solid ${statusColor}; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
                             <div>
-                                <div style="font-weight: 700; font-size: 1.1rem; color: #FF4500;">${bet.bet_number}</div>
-                                <div style="font-size: 0.75rem; color: #666;">${bet.game_name || 'Game'}</div>
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                                    <div style="font-weight: 700; font-size: 1.2rem; color: #FF4500;">${bet.bet_number}</div>
+                                    <div style="background: rgba(255, 69, 0, 0.1); color: #FF4500; padding: 0.1rem 0.5rem; border-radius: 4px; font-size: 0.65rem; font-weight: 700;">${formattedType}</div>
+                                </div>
+                                <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;">${bet.game_name}</div>
                             </div>
                             <div style="text-align: right;">
-                                <div style="font-weight: 700; color: ${statusColor};">${statusText}</div>
-                                <div style="font-size: 0.75rem; color: #666;">${bet.bet_type}</div>
+                                <div style="font-weight: 700; color: ${statusColor}; font-size: 0.9rem;">${statusText}</div>
+                                <div style="font-size: 0.75rem; color: var(--text-secondary);">${dateStr}, ${timeStr}</div>
                             </div>
                         </div>
                         
-                        <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: var(--bg-input); border-radius: 8px; margin-bottom: 0.5rem;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; padding: 1rem; background: var(--bg-input); border-radius: 12px;">
                             <div>
-                                <div style="font-size: 0.75rem; color: #666;">Bet Amount</div>
-                                <div style="font-weight: 600;">₹${parseFloat(bet.bet_amount).toFixed(2)}</div>
+                                <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Bet Amount</div>
+                                <div style="font-weight: 700; font-size: 1.1rem;">₹${parseFloat(bet.bet_amount).toFixed(2)}</div>
                             </div>
-                            ${bet.status === 'won' ? `
+                            
+                            ${status === 'win' ? `
                                 <div style="text-align: right;">
-                                    <div style="font-size: 0.75rem; color: #666;">Win Amount</div>
-                                    <div style="font-weight: 700; color: #00ff88;">₹${parseFloat(bet.win_amount).toFixed(2)}</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Winning Amount</div>
+                                    <div style="font-weight: 800; font-size: 1.1rem; color: #00ff88;">+ ₹${parseFloat(bet.payout_amount || 0).toFixed(2)}</div>
                                 </div>
-                            ` : ''}
-                        </div>
-                        
-                        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #666;">
-                            <span>${dateStr}</span>
-                            <span>${timeStr}</span>
+                            ` : (bet.winning_number ? `
+                                <div style="text-align: right;">
+                                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Winning Result</div>
+                                    <div style="font-weight: 700; font-size: 1.1rem; color: var(--text-primary);">${bet.winning_number}</div>
+                                </div>
+                            ` : `
+                                <div style="text-align: right;">
+                                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Result Date</div>
+                                    <div style="font-weight: 600; font-size: 0.9rem;">${bet.session_date ? new Date(bet.session_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }) : 'Today'}</div>
+                                </div>
+                            `)}
                         </div>
                     </div>
                 `;

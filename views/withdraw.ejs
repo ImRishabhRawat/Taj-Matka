@@ -90,31 +90,74 @@
     </div>
 
     <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/js/app.js"></script>
     <script>
-        function submitWithdrawal() {
+        async function submitWithdrawal() {
             const amount = document.getElementById('withdrawAmount').value;
             const paymentMode = document.getElementById('paymentMode').value;
             const phoneNumber = document.getElementById('phoneNumber').value;
             
             // Validation
-            if (!amount || amount <= 0) {
-                alert('Please enter a valid amount');
+            if (!amount || parseFloat(amount) <= 0) {
+                Swal.fire('Error', 'Please enter a valid amount', 'error');
                 return;
             }
             
             if (!paymentMode) {
-                alert('Please select a payment mode');
+                Swal.fire('Error', 'Please select a payment mode', 'error');
                 return;
             }
             
             if (!phoneNumber || phoneNumber.length !== 10) {
-                alert('Please enter a valid 10-digit phone number');
+                Swal.fire('Error', 'Please enter a valid 10-digit phone number', 'error');
                 return;
             }
             
-            // TODO: Submit withdrawal request to backend
-            alert('Withdrawal request submitted!\n\nAmount: ₹' + amount + '\nMode: ' + paymentMode + '\nPhone: ' + phoneNumber + '\n\nYour request will be processed within 30-40 minutes.');
+            // Show loading
+            Swal.fire({
+                title: 'Processing...',
+                text: 'Please wait while we submit your request',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            try {
+                // We use our common app API call or fetch directly
+                const response = await fetch('/api/wallet/withdraw', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        amount: parseFloat(amount),
+                        bankDetails: {
+                            payment_mode: paymentMode,
+                            phone_number: phoneNumber
+                        }
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Request Submitted!',
+                        text: 'Your withdrawal request of ₹' + amount + ' has been received. It will be processed within 30-40 minutes.',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.href = '/home'; // Redirect to home or history
+                    });
+                } else {
+                    Swal.fire('Failed', result.message || 'Withdrawal failed', 'error');
+                }
+            } catch (error) {
+                console.error('Withdrawal error:', error);
+                Swal.fire('Error', 'Server error. Please try again later.', 'error');
+            }
         }
     </script>
 </body>

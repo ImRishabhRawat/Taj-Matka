@@ -11,25 +11,32 @@
 }
 
 :root {
-    /* Brand Colors */
-    --primary-gradient: linear-gradient(135deg, #FF4500 0%, #8B0000 100%);
-    --primary-orange: #FF4500;
-    --primary-dark-red: #8B0000;
+    /* Brand Colors (Taj Matka Gold/Blue) */
+    --primary-gold: #FFD700;
+    --secondary-yellow: #FDB931;
+    --primary-navy: #0A1128;
+    --secondary-blue: #1B3B8C;
+    --functional-red: #D32F2F;
+    
+    /* Gradients */
+    --gold-gradient: linear-gradient(90deg, #FFD700 0%, #FDB931 100%);
+    --header-gradient: linear-gradient(90deg, #0A1128 0%, #1B3B8C 100%);
+    --primary-gradient: var(--gold-gradient); /* Redirect existing usage */
     
     /* Dark Theme */
-    --bg-primary: #0a0a0a;
-    --bg-secondary: #1a1a1a;
-    --bg-card: #2a2a2a;
-    --bg-input: #1f1f1f;
+    --bg-primary: #050a18; /* Darker navy for primary background */
+    --bg-secondary: #0A1128;
+    --bg-card: #0A1128;
+    --bg-input: #121d3a;
     
     /* Text Colors */
-    --text-primary: #ffffff;
-    --text-secondary: #b0b0b0;
-    --text-muted: #666666;
+    --text-primary: #FFFFFF;
+    --text-secondary: #E0E0E0;
+    --text-muted: #94A3B8;
     
     /* Status Colors */
     --status-open: #00ff88;
-    --status-closed: #ff4444;
+    --status-closed: var(--functional-red);
     --status-pending: #ffaa00;
     
     /* Shadows */
@@ -72,9 +79,10 @@ body {
     width: 100%;
     max-width: 500px;
     height: var(--header-height);
-    background: var(--primary-gradient);
+    background: var(--header-gradient);
     z-index: 1000;
     box-shadow: var(--shadow-md);
+    border-bottom: 2px solid var(--primary-gold);
 }
 
 .header-content {
@@ -135,7 +143,7 @@ body {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background: #ffffff;
+    background: var(--primary-gold);
     padding: 0.3rem .5rem;
     border-radius: 15px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
@@ -212,8 +220,8 @@ body {
     width: 100%;
     max-width: 500px;
     height: var(--bottom-nav-height);
-    background: var(--bg-card);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--primary-navy);
+    border-top: 1px solid rgba(255, 215, 0, 0.2);
     display: flex;
     justify-content: space-around;
     align-items: center;
@@ -241,11 +249,11 @@ body {
 }
 
 .nav-item.active {
-    color: #FFD700;
+    color: var(--primary-gold);
 }
 
 .nav-item.active svg {
-    fill: #FFD700;
+    fill: var(--primary-gold);
     filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6));
 }
 
@@ -278,10 +286,11 @@ body {
 }
 
 .game-card {
-    background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+    background: var(--bg-card);
     border-radius: 12px;
     padding: 1rem;
     box-shadow: var(--shadow-sm);
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .game-card-layout {
@@ -374,12 +383,12 @@ body {
 }
 
 .status-open {
-    background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
-    color: #000;
+    background: var(--gold-gradient);
+    color: var(--primary-navy);
 }
 
 .status-closed {
-    background: linear-gradient(90deg, #8B0000 0%, #FF4500 100%);
+    background: var(--functional-red);
     color: #fff;
     cursor: not-allowed;
 }
@@ -452,8 +461,8 @@ body {
 }
 
 .btn-play {
-    background: var(--primary-gradient);
-    color: var(--text-primary);
+    background: var(--gold-gradient);
+    color: var(--primary-navy);
     box-shadow: var(--shadow-sm);
 }
 
@@ -494,9 +503,9 @@ body {
 .tab-btn {
     flex: 1;
     padding: 0.75rem;
-    background: transparent;
-    border: none;
-    color: var(--text-secondary);
+    background: var(--primary-navy);
+    border: 1px solid rgba(255, 215, 0, 0.2);
+    color: var(--primary-gold);
     font-weight: 600;
     border-radius: 8px;
     cursor: pointer;
@@ -504,8 +513,8 @@ body {
 }
 
 .tab-btn.active {
-    background: var(--primary-gradient);
-    color: var(--text-primary);
+    background: var(--gold-gradient);
+    color: var(--primary-navy);
 }
 
 .tab-content {
@@ -551,13 +560,22 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 45px;
+    border: 1px solid #ddd;
+    transition: all 0.2s;
+}
+
+.bet-box:focus-within {
+    border: 3px solid var(--secondary-blue);
+    transform: scale(1.05);
+    z-index: 10;
+    box-shadow: 0 0 15px rgba(27, 59, 140, 0.4);
 }
 
 .bet-box-header {
-    background: var(--primary-gradient);
-    color: #fff;
+    background: var(--gold-gradient);
+    color: var(--primary-navy);
     font-size: 0.75rem;
-    font-weight: 700;
+    font-weight: 800;
     text-align: center;
     padding: 2px 0;
 }
@@ -567,14 +585,15 @@ body {
     border: none;
     outline: none;
     text-align: center;
-    font-size: 0.85rem;
-    padding: 2px;
+    font-size: 0.9rem;
+    padding: 4px;
     background: #fff;
-    color: #000;
+    color: var(--primary-navy);
+    font-weight: 700;
 }
 
 .bet-box-input::placeholder {
-    color: #ccc;
+    color: #cbd5e1;
 }
 
 /* Fixed Betting Footer */
@@ -647,15 +666,15 @@ body {
 }
 
 .play-btn {
-    background: #00a000;
-    color: #fff;
+    background: var(--gold-gradient);
+    color: var(--primary-navy);
     border: none;
     padding: 0.5rem 1.5rem;
     border-radius: 6px;
     font-weight: 700;
     font-size: 1rem;
     cursor: pointer;
-    box-shadow: 0 0 10px rgba(0, 160, 0, 0.3);
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
 }
 
 .play-btn:active {
@@ -1258,8 +1277,8 @@ body {
 }
 
 .sidebar-user-avatar {
-    width: 48px;
-    height: 48px;
+    width: 68px;
+    height: 68px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.2);
     display: flex;
@@ -1347,3 +1366,39 @@ body {
 .quick-amount-btn:active {
     transform: translateY(0) scale(0.98);
 }
+
+/* Sidebar Theme Overhaul */
+.sidebar {
+    background: var(--primary-navy) !important;
+    color: var(--text-primary) !important;
+}
+
+.sidebar-header {
+    background: var(--header-gradient) !important;
+    border-bottom: 2px solid var(--primary-gold) !important;
+}
+
+.sidebar-menu-link {
+    color: var(--text-secondary) !important;
+}
+
+.sidebar-menu-link:active {
+    background: rgba(255, 215, 0, 0.1) !important;
+}
+
+.sidebar-menu-icon svg {
+    fill: var(--primary-gold) !important;
+}
+
+.sidebar-logout .sidebar-menu-icon svg {
+    fill: var(--functional-red) !important;
+}
+
+.sidebar-user-avatar {
+    background: var(--primary-gold) !important;
+}
+
+.sidebar-user-avatar svg {
+    fill: var(--primary-navy) !important;
+}
+

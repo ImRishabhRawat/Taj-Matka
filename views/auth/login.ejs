@@ -8,24 +8,28 @@
     <style>
         /* Pure Login Page Styles */
         .login-container {
+            max-width: 500px;
+            margin: 0 auto;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             background: var(--bg-primary);
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
         }
         
         .login-header {
-            background: linear-gradient(135deg, #FF4500 0%, #8B0000 100%);
-            padding: 3rem 1.5rem;
+            background: var(--header-gradient);
+            padding: 1.3rem 1.5rem;
             text-align: center;
             color: white;
+            border-bottom: 3px solid var(--primary-gold);
         }
         
-        .login-logo {
-            font-size: 2rem;
-            font-weight: 700;
-            letter-spacing: 2px;
+        .login-logo-img {
+            max-width: 180px;
+            height: auto;
             margin-bottom: 0.5rem;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
         }
         
         .login-tagline {
@@ -85,14 +89,15 @@
         .btn-login {
             width: 100%;
             padding: 1rem;
-            background: linear-gradient(135deg, #FF4500 0%, #8B0000 100%);
-            color: white;
+            background: var(--gold-gradient);
+            color: var(--primary-navy);
             border: none;
             border-radius: 8px;
             font-size: 1.1rem;
-            font-weight: 700;
+            font-weight: 800;
             cursor: pointer;
             transition: transform 0.2s;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
         }
         
         .btn-login:active {
@@ -138,14 +143,14 @@
         
         <!-- Header Section -->
         <div class="login-header">
-            <div class="login-logo">TAJ MATKA</div>
+            <img src="/images/logo.png" alt="Taj Matka Logo" class="login-logo-img">
             <div class="login-tagline">Play Smart, Win Big</div>
         </div>
 
         <!-- Form Section -->
         <div class="login-form-container">
             <h1 class="login-title">Welcome</h1>
-            <p class="login-subtitle">Enter your phone and password to continue</p>
+            <p class="login-subtitle ">Enter your phone and password to continue</p>
             
             <div class="error-message" id="errorMessage"></div>
             
