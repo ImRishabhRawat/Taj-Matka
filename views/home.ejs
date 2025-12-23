@@ -124,16 +124,16 @@ const title = 'Home';
         <!-- Bottom Navigation -->
         <nav class="bottom-nav">
             <a href="/results" class="nav-item">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M12 2L2 7l10 5 10-5-10-5z"/>
                     <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
                 </svg>
                 <span>Results</span>
             </a>
             <a href="/history" class="nav-item">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="12" r="10"/>
-                    <polyline points="12 6 12 12 16 14" stroke="var(--bg-primary)" stroke-width="2" fill="none"/>
+                    <polyline points="12 6 12 12 16 14"/>
                 </svg>
                 <span>History</span>
             </a>
@@ -145,24 +145,160 @@ const title = 'Home';
                 <span>Home</span>
             </a>
             <a href="/chart" class="nav-item">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                    <line x1="18" y1="20" x2="18" y2="10" stroke="currentColor" stroke-width="2"/>
-                    <line x1="12" y1="20" x2="12" y2="4" stroke="currentColor" stroke-width="2"/>
-                    <line x1="6" y1="20" x2="6" y2="14" stroke="currentColor" stroke-width="2"/>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="20" x2="18" y2="10"/>
+                    <line x1="12" y1="20" x2="12" y2="4"/>
+                    <line x1="6" y1="20" x2="6" y2="14"/>
                 </svg>
                 <span>Chart</span>
             </a>
             <a href="#" class="nav-item" onclick="shareApp(); return false;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="18" cy="5" r="3"/>
                     <circle cx="6" cy="12" r="3"/>
                     <circle cx="18" cy="19" r="3"/>
-                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" stroke="var(--bg-primary)" stroke-width="2"/>
-                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" stroke="var(--bg-primary)" stroke-width="2"/>
+                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
                 </svg>
                 <span>Share</span>
             </a>
         </nav>
+
+        <!-- Sidebar Menu -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <button class="sidebar-close" id="sidebarClose">×</button>
+                <div class="sidebar-user-info">
+                    <div class="sidebar-user-avatar">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                        </svg>
+                    </div>
+                    <div class="sidebar-user-details">
+                        <div class="sidebar-user-phone" id="sidebarUserPhone">9076972095</div>
+                    </div>
+                </div>
+            </div>
+            
+            <ul class="sidebar-menu">
+                <li class="sidebar-menu-item">
+                    <a href="/profile" class="sidebar-menu-link">
+                        <div class="sidebar-menu-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="#4da6ff">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                            </svg>
+                        </div>
+                        <span class="sidebar-menu-text">User Profile</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-menu-item">
+                    <a href="/winning-history" class="sidebar-menu-link">
+                        <div class="sidebar-menu-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="#FFD700">
+                                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                            </svg>
+                        </div>
+                        <span class="sidebar-menu-text">Winning History</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-menu-item">
+                    <a href="/bid-history" class="sidebar-menu-link">
+                        <div class="sidebar-menu-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="#FFD700">
+                                <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                            </svg>
+                        </div>
+                        <span class="sidebar-menu-text">Bid History</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-menu-item">
+                    <a href="/banking-details" class="sidebar-menu-link">
+                        <div class="sidebar-menu-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="#FF8C00">
+                                <path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/>
+                            </svg>
+                        </div>
+                        <span class="sidebar-menu-text">Banking Details</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-menu-item">
+                    <a href="/game-rate" class="sidebar-menu-link">
+                        <div class="sidebar-menu-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="#4da6ff">
+                                <circle cx="12" cy="12" r="10" fill="#4da6ff"/>
+                                <path d="M12 6v6l4 2" stroke="white" stroke-width="2" fill="none"/>
+                            </svg>
+                        </div>
+                        <span class="sidebar-menu-text">Game Rate</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-menu-item">
+                    <a href="/contact" class="sidebar-menu-link">
+                        <div class="sidebar-menu-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="#4da6ff">
+                                <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                            </svg>
+                        </div>
+                        <span class="sidebar-menu-text">Contact Us</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-menu-item">
+                    <a href="/how-to-play" class="sidebar-menu-link">
+                        <div class="sidebar-menu-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="#FFD700">
+                                <circle cx="12" cy="12" r="10" fill="#FFD700"/>
+                                <polygon points="10 8 16 12 10 16 10 8" fill="white"/>
+                            </svg>
+                        </div>
+                        <span class="sidebar-menu-text">How To Play</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-menu-item">
+                    <a href="#" class="sidebar-menu-link" onclick="shareApp(); return false;">
+                        <div class="sidebar-menu-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="#FF4500">
+                                <circle cx="18" cy="5" r="3" fill="#FF4500"/>
+                                <circle cx="6" cy="12" r="3" fill="#FF4500"/>
+                                <circle cx="18" cy="19" r="3" fill="#FF4500"/>
+                                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" stroke="#FF4500" stroke-width="2"/>
+                                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" stroke="#FF4500" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <span class="sidebar-menu-text">Share</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-menu-item">
+                    <a href="/privacy-policy" class="sidebar-menu-link">
+                        <div class="sidebar-menu-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="#4da6ff">
+                                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
+                            </svg>
+                        </div>
+                        <span class="sidebar-menu-text">Privacy Policy</span>
+                    </a>
+                </li>
+                
+                <li class="sidebar-menu-item sidebar-logout">
+                    <a href="#" class="sidebar-menu-link" onclick="logout(); return false;">
+                        <div class="sidebar-menu-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="#FF4500">
+                                <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                            </svg>
+                        </div>
+                        <span class="sidebar-menu-text">Logout</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
 
     </div>
 

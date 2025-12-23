@@ -105,8 +105,23 @@ document.addEventListener('DOMContentLoaded', () => {
   const menuBtn = document.getElementById('menuBtn');
   if (menuBtn) {
     menuBtn.addEventListener('click', () => {
-      // TODO: Implement sidebar menu in Phase 3
-      alert('Menu functionality coming in Phase 3');
+      toggleSidebar();
+    });
+  }
+
+  // Sidebar overlay handler
+  const sidebarOverlay = document.getElementById('sidebarOverlay');
+  if (sidebarOverlay) {
+    sidebarOverlay.addEventListener('click', () => {
+      closeSidebar();
+    });
+  }
+
+  // Sidebar close button handler
+  const sidebarCloseBtn = document.getElementById('sidebarClose');
+  if (sidebarCloseBtn) {
+    sidebarCloseBtn.addEventListener('click', () => {
+      closeSidebar();
     });
   }
 });
@@ -151,3 +166,39 @@ function shareApp() {
 }
 
 window.shareApp = shareApp;
+
+// Sidebar functions
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  
+  if (sidebar && overlay) {
+    sidebar.classList.toggle('active');
+    overlay.classList.toggle('active');
+  }
+}
+
+function openSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  
+  if (sidebar && overlay) {
+    sidebar.classList.add('active');
+    overlay.classList.add('active');
+  }
+}
+
+function closeSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  
+  if (sidebar && overlay) {
+    sidebar.classList.remove('active');
+    overlay.classList.remove('active');
+  }
+}
+
+window.toggleSidebar = toggleSidebar;
+window.openSidebar = openSidebar;
+window.closeSidebar = closeSidebar;
+

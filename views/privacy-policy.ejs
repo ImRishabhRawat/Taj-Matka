@@ -1,0 +1,112 @@
+<% 
+const currentPage = 'privacy-policy';
+const title = 'Privacy Policy';
+%>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title><%= title %> - Taj Matka</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="mobile-container">
+        <header class="app-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <button class="menu-btn" onclick="window.history.back()">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                    </button>
+                    <h1 class="app-logo">PRIVACY POLICY</h1>
+                </div>
+            </div>
+        </header>
+        <main class="app-main">
+            <div class="page-content">
+                <div style="background: var(--bg-card); padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem;">
+                    <h3 style="color: var(--primary-orange); margin-bottom: 1rem;">Privacy Policy</h3>
+                    <p style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 1rem;">
+                        Last updated: December 24, 2025
+                    </p>
+                    <p style="color: var(--text-secondary); line-height: 1.6;">
+                        At Taj Matka, we are committed to protecting your privacy and ensuring the security of your personal information.
+                    </p>
+                </div>
+
+                <div style="background: var(--bg-card); padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem;">
+                    <h4 style="color: var(--text-primary); margin-bottom: 0.75rem;">Information We Collect</h4>
+                    <ul style="color: var(--text-secondary); line-height: 1.8; padding-left: 1.5rem;">
+                        <li>Phone number for account creation</li>
+                        <li>Banking details for withdrawals</li>
+                        <li>Transaction history</li>
+                        <li>Device information</li>
+                    </ul>
+                </div>
+
+                <div style="background: var(--bg-card); padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem;">
+                    <h4 style="color: var(--text-primary); margin-bottom: 0.75rem;">How We Use Your Information</h4>
+                    <ul style="color: var(--text-secondary); line-height: 1.8; padding-left: 1.5rem;">
+                        <li>To provide and maintain our services</li>
+                        <li>To process your transactions</li>
+                        <li>To send you important notifications</li>
+                        <li>To improve our platform</li>
+                        <li>To prevent fraud and ensure security</li>
+                    </ul>
+                </div>
+
+                <div style="background: var(--bg-card); padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem;">
+                    <h4 style="color: var(--text-primary); margin-bottom: 0.75rem;">Data Security</h4>
+                    <p style="color: var(--text-secondary); line-height: 1.6;">
+                        We implement industry-standard security measures to protect your personal information. All sensitive data is encrypted and stored securely.
+                    </p>
+                </div>
+
+                <div style="background: var(--bg-card); padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem;">
+                    <h4 style="color: var(--text-primary); margin-bottom: 0.75rem;">Information Sharing</h4>
+                    <p style="color: var(--text-secondary); line-height: 1.6;">
+                        We do not sell, trade, or rent your personal information to third parties. We may share information only when required by law or to protect our rights.
+                    </p>
+                </div>
+
+                <div style="background: var(--bg-card); padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem;">
+                    <h4 style="color: var(--text-primary); margin-bottom: 0.75rem;">Your Rights</h4>
+                    <ul style="color: var(--text-secondary); line-height: 1.8; padding-left: 1.5rem;">
+                        <li>Access your personal data</li>
+                        <li>Request data correction</li>
+                        <li>Request data deletion</li>
+                        <li>Withdraw consent</li>
+                    </ul>
+                </div>
+
+                <div style="background: var(--bg-card); padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem;">
+                    <h4 style="color: var(--text-primary); margin-bottom: 0.75rem;">Cookies</h4>
+                    <p style="color: var(--text-secondary); line-height: 1.6;">
+                        We use cookies to enhance your experience and maintain your session. You can disable cookies in your browser settings, but this may affect functionality.
+                    </p>
+                </div>
+
+                <div style="background: var(--bg-card); padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem;">
+                    <h4 style="color: var(--text-primary); margin-bottom: 0.75rem;">Changes to Privacy Policy</h4>
+                    <p style="color: var(--text-secondary); line-height: 1.6;">
+                        We may update this privacy policy from time to time. We will notify you of any changes by posting the new policy on this page.
+                    </p>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #FF4500 0%, #8B0000 100%); padding: 1.5rem; border-radius: 12px;">
+                    <h4 style="color: white; margin-bottom: 0.75rem;">Contact Us</h4>
+                    <p style="color: white; line-height: 1.6;">
+                        If you have any questions about this Privacy Policy, please contact us at support@tajmatka.com or WhatsApp +91 9076972095
+                    </p>
+                </div>
+            </div>
+        </main>
+        <%- include('partials/bottom-nav', { currentPage: 'home' }) %>
+    </div>
+    <script src="/js/app.js"></script>
+</body>
+</html>

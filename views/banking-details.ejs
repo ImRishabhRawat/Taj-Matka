@@ -1,0 +1,74 @@
+<% 
+const currentPage = 'banking-details';
+const title = 'Banking Details';
+%>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title><%= title %> - Taj Matka</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="mobile-container">
+        <header class="app-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <button class="menu-btn" onclick="window.history.back()">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                    </button>
+                    <h1 class="app-logo">BANKING DETAILS</h1>
+                </div>
+            </div>
+        </header>
+        <main class="app-main">
+            <div class="page-content">
+                <div style="background: var(--bg-card); padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem;">
+                    <h3 style="color: var(--primary-orange); margin-bottom: 1rem;">Add Bank Account</h3>
+                    <form id="bankForm" style="display: flex; flex-direction: column; gap: 1rem;">
+                        <div>
+                            <label style="display: block; color: var(--text-secondary); margin-bottom: 0.5rem; font-size: 0.9rem;">Account Holder Name</label>
+                            <input type="text" id="accountName" placeholder="Enter account holder name" style="width: 100%; padding: 0.75rem; background: var(--bg-input); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; font-size: 1rem;">
+                        </div>
+                        <div>
+                            <label style="display: block; color: var(--text-secondary); margin-bottom: 0.5rem; font-size: 0.9rem;">Account Number</label>
+                            <input type="text" id="accountNumber" placeholder="Enter account number" style="width: 100%; padding: 0.75rem; background: var(--bg-input); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; font-size: 1rem;">
+                        </div>
+                        <div>
+                            <label style="display: block; color: var(--text-secondary); margin-bottom: 0.5rem; font-size: 0.9rem;">IFSC Code</label>
+                            <input type="text" id="ifscCode" placeholder="Enter IFSC code" style="width: 100%; padding: 0.75rem; background: var(--bg-input); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; font-size: 1rem;">
+                        </div>
+                        <div>
+                            <label style="display: block; color: var(--text-secondary); margin-bottom: 0.5rem; font-size: 0.9rem;">Bank Name</label>
+                            <input type="text" id="bankName" placeholder="Enter bank name" style="width: 100%; padding: 0.75rem; background: var(--bg-input); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; font-size: 1rem;">
+                        </div>
+                        <button type="submit" style="padding: 1rem; background: var(--primary-gradient); border: none; border-radius: 8px; color: white; font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 0.5rem;">
+                            Save Bank Details
+                        </button>
+                    </form>
+                </div>
+                
+                <div id="savedBanks" style="margin-top: 1.5rem;">
+                    <h3 style="color: var(--text-primary); margin-bottom: 1rem;">Saved Bank Accounts</h3>
+                    <div style="text-align: center; padding: 2rem; color: #666; background: var(--bg-card); border-radius: 12px;">
+                        No bank accounts saved yet
+                    </div>
+                </div>
+            </div>
+        </main>
+        <%- include('partials/bottom-nav', { currentPage: 'home' }) %>
+    </div>
+    <script src="/js/app.js"></script>
+    <script>
+        document.getElementById('bankForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            alert('Bank details saved successfully!');
+        });
+    </script>
+</body>
+</html>

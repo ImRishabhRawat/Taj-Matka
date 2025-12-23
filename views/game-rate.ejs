@@ -1,0 +1,100 @@
+<% 
+const currentPage = 'game-rate';
+const title = 'Game Rate';
+%>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title><%= title %> - Taj Matka</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="mobile-container">
+        <header class="app-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <button class="menu-btn" onclick="window.history.back()">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                    </button>
+                    <h1 class="app-logo">GAME RATE</h1>
+                </div>
+            </div>
+        </header>
+        <main class="app-main">
+            <div class="page-content">
+                <div style="background: var(--bg-card); padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem;">
+                    <h3 style="color: var(--primary-orange); margin-bottom: 1rem; text-align: center;">Winning Rates</h3>
+                    
+                    <div style="background: var(--bg-input); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                            <span style="color: var(--text-primary); font-weight: 600;">Single Digit (Haruf)</span>
+                            <span style="color: #00ff88; font-weight: 700; font-size: 1.1rem;">1:9</span>
+                        </div>
+                        <div style="padding: 0.5rem 0; color: var(--text-secondary); font-size: 0.85rem;">
+                            Win ₹90 on every ₹10 bet
+                        </div>
+                    </div>
+
+                    <div style="background: var(--bg-input); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                            <span style="color: var(--text-primary); font-weight: 600;">Jodi (00-99)</span>
+                            <span style="color: #00ff88; font-weight: 700; font-size: 1.1rem;">1:90</span>
+                        </div>
+                        <div style="padding: 0.5rem 0; color: var(--text-secondary); font-size: 0.85rem;">
+                            Win ₹900 on every ₹10 bet
+                        </div>
+                    </div>
+
+                    <div style="background: var(--bg-input); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                            <span style="color: var(--text-primary); font-weight: 600;">Single Panna</span>
+                            <span style="color: #00ff88; font-weight: 700; font-size: 1.1rem;">1:140</span>
+                        </div>
+                        <div style="padding: 0.5rem 0; color: var(--text-secondary); font-size: 0.85rem;">
+                            Win ₹1400 on every ₹10 bet
+                        </div>
+                    </div>
+
+                    <div style="background: var(--bg-input); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                            <span style="color: var(--text-primary); font-weight: 600;">Double Panna</span>
+                            <span style="color: #00ff88; font-weight: 700; font-size: 1.1rem;">1:280</span>
+                        </div>
+                        <div style="padding: 0.5rem 0; color: var(--text-secondary); font-size: 0.85rem;">
+                            Win ₹2800 on every ₹10 bet
+                        </div>
+                    </div>
+
+                    <div style="background: var(--bg-input); padding: 1rem; border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                            <span style="color: var(--text-primary); font-weight: 600;">Triple Panna</span>
+                            <span style="color: #00ff88; font-weight: 700; font-size: 1.1rem;">1:700</span>
+                        </div>
+                        <div style="padding: 0.5rem 0; color: var(--text-secondary); font-size: 0.85rem;">
+                            Win ₹7000 on every ₹10 bet
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: linear-gradient(135deg, #FF4500 0%, #8B0000 100%); padding: 1.5rem; border-radius: 12px;">
+                    <h4 style="color: white; margin-bottom: 0.75rem;">Important Notes</h4>
+                    <ul style="color: white; line-height: 1.8; padding-left: 1.5rem; font-size: 0.9rem;">
+                        <li>Minimum bet amount: ₹10</li>
+                        <li>Maximum bet amount: ₹10,000</li>
+                        <li>Winnings are credited instantly</li>
+                        <li>All rates are subject to change</li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+        <%- include('partials/bottom-nav', { currentPage: 'home' }) %>
+    </div>
+    <script src="/js/app.js"></script>
+</body>
+</html>

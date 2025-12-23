@@ -97,6 +97,34 @@ app.get('/withdraw', requireAuth, (req, res) => {
   res.render('withdraw', { title: 'Withdraw' });
 });
 
+app.get('/how-to-play', requireAuth, (req, res) => {
+  res.render('how-to-play', { title: 'How To Play' });
+});
+
+app.get('/winning-history', requireAuth, (req, res) => {
+  res.render('winning-history', { title: 'Winning History' });
+});
+
+app.get('/bid-history', requireAuth, (req, res) => {
+  res.render('bid-history', { title: 'Bid History' });
+});
+
+app.get('/banking-details', requireAuth, (req, res) => {
+  res.render('banking-details', { title: 'Banking Details' });
+});
+
+app.get('/game-rate', requireAuth, (req, res) => {
+  res.render('game-rate', { title: 'Game Rate' });
+});
+
+app.get('/contact', requireAuth, (req, res) => {
+  res.render('contact', { title: 'Contact Us' });
+});
+
+app.get('/privacy-policy', requireAuth, (req, res) => {
+  res.render('privacy-policy', { title: 'Privacy Policy' });
+});
+
 // Admin routes (require admin role)
 app.get('/admin/result-entry', requireAdmin, (req, res) => {
   res.render('admin/result-entry', { title: 'Declare Result' });

@@ -1,0 +1,141 @@
+<% 
+const currentPage = 'winning-history';
+const title = 'Winning History';
+%>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title><%= title %> - Taj Matka</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="mobile-container">
+        
+        <!-- Fixed Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <button class="menu-btn" onclick="window.history.back()">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                    </button>
+                    <h1 class="app-logo">WINNING HISTORY</h1>
+                </div>
+                <div class="header-right">
+                    <div class="wallet-balance" id="walletBalance">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                            <line x1="2" y1="10" x2="22" y2="10"></line>
+                        </svg>
+                        <span id="balanceAmount">₹0</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            <div class="page-content">
+                
+                <!-- Wins List -->
+                <div id="winsList">
+                    <div style="text-align: center; padding: 2rem; color: #666;">
+                        Loading winning history...
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <%- include('partials/bottom-nav', { currentPage: 'history' }) %>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/app.js"></script>
+    <script>
+        // Load winning history
+        async function loadWins() {
+            if (!isLoggedIn()) {
+                window.location.href = '/login';
+                return;
+            }
+
+            try {
+                const response = await API.get('/bets/history?status=won&limit=100');
+                if (response.success && response.data.length > 0) {
+                    renderWins(response.data);
+                } else {
+                    document.getElementById('winsList').innerHTML = `
+                        <div style="text-align: center; padding: 2rem; color: #666;">
+                            No winning bets yet
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading wins:', error);
+                document.getElementById('winsList').innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: #ff4444;">
+                        Failed to load winning history
+                    </div>
+                `;
+            }
+        }
+
+        function renderWins(wins) {
+            const html = wins.map(bet => {
+                const date = new Date(bet.created_at);
+                const dateStr = date.toLocaleDateString('en-IN');
+                const timeStr = date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+                
+                return `
+                    <div style="background: var(--bg-card); padding: 1rem; border-radius: 12px; margin-bottom: 0.75rem; border-left: 4px solid #00ff88;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                            <div>
+                                <div style="font-weight: 700; font-size: 1.1rem; color: #FF4500;">${bet.bet_number}</div>
+                                <div style="font-size: 0.75rem; color: #666;">${bet.game_name || 'Game'}</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-weight: 700; color: #00ff88; font-size: 1.2rem;">+₹${parseFloat(bet.win_amount).toFixed(2)}</div>
+                                <div style="font-size: 0.75rem; color: #666;">${bet.bet_type}</div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: var(--bg-input); border-radius: 8px; margin-bottom: 0.5rem;">
+                            <div>
+                                <div style="font-size: 0.75rem; color: #666;">Bet Amount</div>
+                                <div style="font-weight: 600;">₹${parseFloat(bet.bet_amount).toFixed(2)}</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 0.75rem; color: #666;">Profit</div>
+                                <div style="font-weight: 700; color: #00ff88;">₹${(parseFloat(bet.win_amount) - parseFloat(bet.bet_amount)).toFixed(2)}</div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #666;">
+                            <span>${dateStr}</span>
+                            <span>${timeStr}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('winsList').innerHTML = html;
+        }
+
+        // Load wins on page load
+        loadWins();
+        
+        // Load balance
+        if (isLoggedIn()) {
+            loadUserBalance();
+        }
+    </script>
+</body>
+</html>
