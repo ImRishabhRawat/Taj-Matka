@@ -14,6 +14,7 @@ const gameRoutes = require('./routes/gameRoutes');
 const betRoutes = require('./routes/betRoutes');
 const resultRoutes = require('./routes/resultRoutes');
 const walletRoutes = require('./routes/walletRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 
@@ -37,6 +38,7 @@ app.use('/api/games', gameRoutes);
 app.use('/api/bets', betRoutes);
 app.use('/api/results', resultRoutes);
 app.use('/api/wallet', walletRoutes);
+app.use('/admin', adminRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
@@ -128,10 +130,7 @@ app.get('/privacy-policy', requireAuth, (req, res) => {
   res.render('privacy-policy', { title: 'Privacy Policy' });
 });
 
-// Admin routes (require admin role)
-app.get('/admin/result-entry', requireAdmin, (req, res) => {
-  res.render('admin/result-entry', { title: 'Declare Result' });
-});
+// Admin routes are now handled in routes/adminRoutes.js
 
 // 404 handler
 app.use((req, res) => {

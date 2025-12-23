@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('partials/head') %>
+</head>
+<body>
+
+    <div class="wrapper d-flex">
+        <!-- Sidebar -->
+        <%- include('partials/sidebar') %>
+
+        <!-- Page Content -->
+        <div id="content">
+            <!-- Top Navbar -->
+            <nav class="navbar navbar-expand-lg navbar-light">
+                <div class="container-fluid">
+                    <button type="button" id="sidebarCollapse" class="btn btn-toggle-sidebar">
+                        <i class="fas fa-align-left"></i>
+                    </button>
+                    <div class="ms-auto d-flex align-items-center">
+                        <span class="me-3 d-none d-md-inline"><%= user.name %></span>
+                        <img src="https://ui-avatars.com/api/?name=Admin&background=4e73df&color=fff" alt="Admin" class="rounded-circle" width="35">
+                    </div>
+                </div>
+            </nav>
+
+            <div class="container-fluid p-4">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="fw-bold">Withdrawal Requests</h2>
+                        <p class="text-secondary">Review and process user withdrawal requests</p>
+                    </div>
+                </div>
+
+                <div class="card admin-table border-0 shadow-sm">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>User</th>
+                                        <th>Amount</th>
+                                        <th>Bank Details</th>
+                                        <th>Status</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% withdrawals.forEach(w => { %>
+                                        <tr>
+                                            <td>
+                                                <div class="fw-600"><%= new Date(w.created_at).toLocaleDateString() %></div>
+                                                <div class="text-secondary small"><%= new Date(w.created_at).toLocaleTimeString() %></div>
+                                            </td>
+                                            <td>
+                                                <div class="fw-bold"><%= w.user_name || 'User' %></div>
+                                                <div class="text-secondary small"><%= w.user_phone %></div>
+                                            </td>
+                                            <td class="fw-bold text-danger">₹<%= parseFloat(w.amount).toLocaleString() %></td>
+                                            <td>
+                                                <button class="btn btn-sm btn-light border rounded-pill px-3 view-bank" 
+                                                        data-bank='<%= w.bank_details %>'>
+                                                    <i class="fas fa-university me-1"></i> View Details
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <% if (w.status === 'pending') { %>
+                                                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-2 rounded-pill">Pending</span>
+                                                <% } else if (w.status === 'approved') { %>
+                                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill">Approved</span>
+                                                <% } else { %>
+                                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 rounded-pill">Rejected</span>
+                                                <% } %>
+                                            </td>
+                                            <td class="text-end">
+                                                <% if (w.status === 'pending') { %>
+                                                    <button class="btn btn-sm btn-success rounded-pill px-3 me-2 process-withdrawal" 
+                                                            data-id="<%= w.id %>" data-status="approved">
+                                                        <i class="fas fa-check me-1"></i> Approve
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger rounded-pill px-3 process-withdrawal" 
+                                                            data-id="<%= w.id %>" data-status="rejected">
+                                                        <i class="fas fa-times me-1"></i> Reject
+                                                    </button>
+                                                <% } else { %>
+                                                    <small class="text-secondary">Processed at <%= new Date(w.processed_at).toLocaleDateString() %></small>
+                                                <% } %>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                    <% if (withdrawals.length === 0) { %>
+                                        <tr>
+                                            <td colspan="6" class="text-center py-5 text-secondary">
+                                                <i class="fas fa-money-check-alt fa-3x mb-3 d-block opacity-25"></i>
+                                                No withdrawal requests found
+                                            </td>
+                                        </tr>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bank Details Modal -->
+    <div class="modal fade" id="bankModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">Bank / UPI Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4" id="bankDetailsContent">
+                    <!-- Dynamic Content -->
+                </div>
+                <div class="modal-footer border-0 pt-0 pb-4 px-4">
+                    <button type="button" class="btn btn-primary w-100 rounded-3" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('partials/scripts') %>
+
+    <script>
+        const bankModal = new Bootstrap.Modal(document.getElementById('bankModal'));
+        
+        // View Bank Details
+        document.querySelectorAll('.view-bank').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const bank = typeof btn.dataset.bank === 'string' ? JSON.parse(btn.dataset.bank) : btn.dataset.bank;
+                let html = '<ul class="list-group list-group-flush">';
+                
+                for (const [key, value] of Object.entries(bank)) {
+                    if (value) {
+                        const label = key.replace(/_/g, ' ').toUpperCase();
+                        html += `
+                            <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
+                                <span class="text-secondary small fw-bold">${label}</span>
+                                <span class="fw-bold">${value}</span>
+                            </li>
+                        `;
+                    }
+                }
+                html += '</ul>';
+                
+                document.getElementById('bankDetailsContent').innerHTML = html;
+                bankModal.show();
+            });
+        });
+
+        // Process Withdrawal (Approve/Reject)
+        document.querySelectorAll('.process-withdrawal').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const id = btn.dataset.id;
+                const status = btn.dataset.status;
+                const actionText = status === 'approved' ? 'Approve' : 'Reject';
+                
+                const confirmed = await Swal.fire({
+                    title: `${actionText} Withdrawal?`,
+                    text: status === 'approved' 
+                        ? 'Make sure you have transferred the funds to the user.' 
+                        : 'The amount will be refunded to the user\'s winning balance.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: `Yes, ${actionText}`,
+                    confirmButtonColor: status === 'approved' ? '#1cc88a' : '#e74a3b'
+                });
+
+                if (confirmed.isConfirmed) {
+                    try {
+                        // Corrected endpoint from walletController processWithdrawal: PUT /api/wallet/admin/withdrawals/:id
+                        await apiCall(`/api/wallet/admin/withdrawals/${id}`, 'PUT', { status });
+                        Swal.fire('Success', `Withdrawal ${status} successfully`, 'success').then(() => location.reload());
+                    } catch (err) {}
+                }
+            });
+        });
+    </script>
+</body>
+</html>

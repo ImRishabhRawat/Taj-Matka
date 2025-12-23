@@ -1,0 +1,45 @@
+<nav id="sidebar">
+    <div class="sidebar-header">
+        <h3>TAJ MATKA</h3>
+    </div>
+
+    <ul class="list-unstyled components">
+        <li class="<%= title === 'Admin Dashboard' ? 'active' : '' %>">
+            <a href="/admin/dashboard">
+                <i class="fas fa-th-large"></i> Dashboard
+            </a>
+        </li>
+        <li class="<%= title === 'Manage Games' ? 'active' : '' %>">
+            <a href="/admin/games">
+                <i class="fas fa-gamepad"></i> Game Management
+            </a>
+        </li>
+        <li class="<%= title === 'Declare Result' ? 'active' : '' %>">
+            <a href="/admin/result-entry">
+                <i class="fas fa-trophy"></i> Declare Result
+            </a>
+        </li>
+        <li class="<%= title === 'Manage Users' ? 'active' : '' %>">
+            <a href="/admin/users">
+                <i class="fas fa-users"></i> User Management
+            </a>
+        </li>
+        <li class="<%= title === 'Withdrawal Requests' ? 'active' : '' %>">
+            <a href="/admin/withdrawals">
+                <i class="fas fa-money-bill-wave"></i> Withdrawals
+            </a>
+        </li>
+        <li class="mt-5">
+            <a href="/home" class="text-white bg-dark">
+                <i class="fas fa-external-link-alt"></i> Go to User Site
+            </a>
+        </li>
+        <li class="mt-2 text-center">
+            <form action="/api/auth/logout" method="GET">
+                <button type="submit" class="btn btn-link text-danger text-decoration-none">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </form>
+        </li>
+    </ul>
+</nav>

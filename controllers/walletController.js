@@ -228,10 +228,10 @@ async function addFunds(req, res) {
     const { userId, amount, description } = req.body;
     
     // Validation
-    if (!userId || !amount || amount <= 0) {
+    if (!userId || amount === undefined || parseFloat(amount) === 0) {
       return res.status(400).json({
         success: false,
-        message: 'User ID and valid amount are required'
+        message: 'User ID and valid non-zero amount are required'
       });
     }
     

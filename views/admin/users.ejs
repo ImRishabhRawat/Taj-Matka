@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('partials/head') %>
+</head>
+<body>
+
+    <div class="wrapper d-flex">
+        <!-- Sidebar -->
+        <%- include('partials/sidebar') %>
+
+        <!-- Page Content -->
+        <div id="content">
+            <!-- Top Navbar -->
+            <nav class="navbar navbar-expand-lg navbar-light">
+                <div class="container-fluid">
+                    <button type="button" id="sidebarCollapse" class="btn btn-toggle-sidebar">
+                        <i class="fas fa-align-left"></i>
+                    </button>
+                    <div class="ms-auto d-flex align-items-center">
+                        <span class="me-3 d-none d-md-inline"><%= user.name %></span>
+                        <img src="https://ui-avatars.com/api/?name=Admin&background=4e73df&color=fff" alt="Admin" class="rounded-circle" width="35">
+                    </div>
+                </div>
+            </nav>
+
+            <div class="container-fluid p-4">
+                <div class="row align-items-center mb-4">
+                    <div class="col-md-6">
+                        <h2 class="fw-bold">User Management</h2>
+                        <p class="text-secondary">View user details and adjust wallet balances</p>
+                    </div>
+                    <div class="col-md-6">
+                        <form action="/admin/users" method="GET">
+                            <div class="input-group search-group shadow-sm">
+                                <input type="text" name="search" class="form-control" placeholder="Search by phone or name..." value="<%= search %>">
+                                <button class="btn btn-primary" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card admin-table border-0 shadow-sm">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>User Details</th>
+                                        <th>Wallet Balance</th>
+                                        <th>Winning Balance</th>
+                                        <th>Status</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% users.forEach(u => { %>
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <img src="https://ui-avatars.com/api/?name=<%= u.name || u.phone %>&background=random" class="rounded-circle me-3" width="40">
+                                                    <div>
+                                                        <div class="fw-bold"><%= u.name || 'User' %></div>
+                                                        <div class="text-secondary small"><%= u.phone %></div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="fw-bold">₹<%= parseFloat(u.balance).toLocaleString() %></td>
+                                            <td class="fw-bold text-success">₹<%= parseFloat(u.winning_balance).toLocaleString() %></td>
+                                            <td>
+                                                <% if (u.is_active) { %>
+                                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill">Active</span>
+                                                <% } else { %>
+                                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 rounded-pill">Blocked</span>
+                                                <% } %>
+                                            </td>
+                                            <td class="text-end">
+                                                <button class="btn btn-sm btn-outline-primary rounded-pill px-3 me-2 adjust-balance" 
+                                                        data-id="<%= u.id %>" data-phone="<%= u.phone %>" data-balance="<%= u.balance %>">
+                                                    <i class="fas fa-wallet me-1"></i> Add/Sub
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-<%= u.is_active ? 'danger' : 'success' %> rounded-pill px-3 toggle-user-status" 
+                                                        data-id="<%= u.id %>" data-status="<%= u.is_active %>">
+                                                    <%= u.is_active ? 'Block' : 'Unblock' %>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                    <% if (users.length === 0) { %>
+                                        <tr>
+                                            <td colspan="5" class="text-center py-5 text-secondary">
+                                                <i class="fas fa-user-slash fa-3x mb-3 d-block opacity-25"></i>
+                                                No users found
+                                            </td>
+                                        </tr>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Balance Adjustment Modal -->
+    <div class="modal fade" id="balanceModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">Adjust Wallet Balance</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="balanceForm">
+                    <div class="modal-body p-4">
+                        <input type="hidden" id="userId" name="userId">
+                        <div class="mb-3 bg-light p-3 rounded-3">
+                            <div class="small text-secondary">Adjusting balance for:</div>
+                            <div class="fw-bold" id="userDisplayName"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-600">Action Type</label>
+                            <div class="d-flex gap-3">
+                                <div class="form-check flex-grow-1 border rounded-3 p-3">
+                                    <input class="form-check-input" type="radio" name="adjustmentType" id="addType" value="add" checked>
+                                    <label class="form-check-label w-100" for="addType">
+                                        <i class="fas fa-plus-circle text-success me-2"></i> Add Funds
+                                    </label>
+                                </div>
+                                <div class="form-check flex-grow-1 border rounded-3 p-3">
+                                    <input class="form-check-input" type="radio" name="adjustmentType" id="subType" value="sub">
+                                    <label class="form-check-label w-100" for="subType">
+                                        <i class="fas fa-minus-circle text-danger me-2"></i> Deduct Funds
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-600">Amount (₹)</label>
+                            <input type="number" class="form-control rounded-3" id="adjustAmount" name="amount" required min="1" placeholder="Enter amount">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-600">Description / Note</label>
+                            <textarea class="form-control rounded-3" id="adjustNote" name="description" rows="2" placeholder="e.g. Offline deposit bonus,Correction"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 pt-0 pb-4 px-4">
+                        <button type="button" class="btn btn-light rounded-3 px-4" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary rounded-3 px-4">Process Adjustment</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <%- include('partials/scripts') %>
+
+    <script>
+        const balanceModal = new Bootstrap.Modal(document.getElementById('balanceModal'));
+        const balanceForm = document.getElementById('balanceForm');
+        
+        // Open Balance Modal
+        document.querySelectorAll('.adjust-balance').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.dataset.id;
+                const phone = btn.dataset.phone;
+                
+                document.getElementById('userId').value = id;
+                document.getElementById('userDisplayName').textContent = phone;
+                balanceForm.reset();
+                balanceModal.show();
+            });
+        });
+
+        // Handle Balance Adjustment
+        balanceForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(balanceForm);
+            const data = Object.fromEntries(formData.entries());
+            
+            // If sub, make amount negative
+            // Wait, our API addFunds only takes positive amount and adds it.
+            // I should probably have a deductFunds or handle negative amount.
+            // Let's check walletController again.
+            
+            const isAdd = data.adjustmentType === 'add';
+            const finalAmount = isAdd ? parseFloat(data.amount) : -parseFloat(data.amount);
+            
+            try {
+                // We'll use the existing /api/wallet/deposit (admin only) 
+                // but we need to ensure it handles negative if we want to subtract
+                // OR we can create a new endpoint.
+                // For now, let's assume it handles signed amount or we'll update it.
+                
+                await apiCall('/api/wallet/deposit', 'POST', {
+                    userId: data.userId,
+                    amount: finalAmount,
+                    description: data.description || (isAdd ? 'Admin added funds' : 'Admin deducted funds')
+                });
+                
+                Swal.fire('Success', 'Balance adjusted successfully', 'success').then(() => location.reload());
+            } catch (err) {}
+        });
+
+        // Toggle User Status (Block/Unblock)
+        document.querySelectorAll('.toggle-user-status').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const id = btn.dataset.id;
+                const currentStatus = btn.dataset.status === 'true';
+                
+                const confirmed = await Swal.fire({
+                    title: currentStatus ? 'Block User?' : 'Unblock User?',
+                    text: currentStatus ? 'This user will not be able to login or place bets.' : 'This user will regain access to their account.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, Proceed'
+                });
+
+                if (confirmed.isConfirmed) {
+                    try {
+                        await apiCall(`/admin/api/users/${id}/status`, 'PUT', { isActive: !currentStatus });
+                        Swal.fire('Success', `User ${!currentStatus ? 'unblocked' : 'blocked'} successfully`, 'success').then(() => location.reload());
+                    } catch (err) {}
+                }
+            });
+        });
+    </script>
+</body>
+</html>

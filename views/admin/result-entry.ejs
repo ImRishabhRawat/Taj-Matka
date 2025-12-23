@@ -1,281 +1,184 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Declare Result - Taj Matka Admin</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <%- include('partials/head') %>
 </head>
 <body>
-    <div class="mobile-container">
-        
-        <!-- Fixed Header -->
-        <header class="app-header">
-            <div class="header-content">
-                <div class="header-left">
-                    <button class="menu-btn" onclick="window.location.href='/home'">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="19" y1="12" x2="5" y2="12"></line>
-                            <polyline points="12 19 5 12 12 5"></polyline>
-                        </svg>
+
+    <div class="wrapper d-flex">
+        <!-- Sidebar -->
+        <%- include('partials/sidebar') %>
+
+        <!-- Page Content -->
+        <div id="content">
+            <!-- Top Navbar -->
+            <nav class="navbar navbar-expand-lg navbar-light">
+                <div class="container-fluid">
+                    <button type="button" id="sidebarCollapse" class="btn btn-toggle-sidebar">
+                        <i class="fas fa-align-left"></i>
                     </button>
-                    <h1 class="app-logo">ADMIN PANEL</h1>
-                </div>
-                <div class="header-right">
-                    <button class="menu-btn" onclick="logout()">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                            <polyline points="16 17 21 12 16 7"></polyline>
-                            <line x1="21" y1="12" x2="9" y2="12"></line>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-        </header>
-
-        <!-- Main Content -->
-        <main class="app-main">
-            <div class="page-content">
-                
-                <!-- Admin Warning -->
-                <div style="background: linear-gradient(135deg, #ff4444 0%, #8B0000 100%); padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; text-align: center;">
-                    <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">⚠️</div>
-                    <div style="font-weight: 700;">Admin Access Only</div>
-                    <div style="font-size: 0.85rem; opacity: 0.9; margin-top: 0.25rem;">Declare game results</div>
-                </div>
-
-                <!-- Select Game Session -->
-                <div style="background: var(--bg-card); padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem;">
-                    <h3 style="color: #FF4500; margin-bottom: 1rem;">Select Game Session</h3>
-                    
-                    <div class="amount-input-group">
-                        <label>Game</label>
-                        <select id="gameSelect" class="amount-input" onchange="loadSessions()">
-                            <option value="">Select Game</option>
-                        </select>
+                    <div class="ms-auto d-flex align-items-center">
+                        <span class="me-3 d-none d-md-inline"><%= user.name %></span>
+                        <img src="https://ui-avatars.com/api/?name=Admin&background=4e73df&color=fff" alt="Admin" class="rounded-circle" width="35">
                     </div>
-                    
-                    <div class="amount-input-group">
-                        <label>Session Date</label>
-                        <select id="sessionSelect" class="amount-input">
-                            <option value="">Select Session</option>
-                        </select>
+                </div>
+            </nav>
+
+            <div class="container-fluid p-4">
+                <div class="row mb-4">
+                    <div class="col-12 text-center">
+                        <h2 class="fw-bold">Declare Result</h2>
+                        <p class="text-secondary">Select a game and enter the winning number</p>
                     </div>
                 </div>
 
-                <!-- Enter Result -->
-                <div style="background: var(--bg-card); padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem;">
-                    <h3 style="color: #FF4500; margin-bottom: 1rem;">Enter Winning Number</h3>
-                    
-                    <div class="amount-input-group">
-                        <label>Winning Number (00-99)</label>
-                        <input 
-                            type="text" 
-                            id="winningNumber" 
-                            class="amount-input" 
-                            placeholder="Enter 2-digit number"
-                            maxlength="2"
-                            pattern="[0-9]{2}"
-                            style="text-align: center; font-size: 2rem; font-weight: 700; font-family: 'Courier New', monospace;"
-                        >
-                    </div>
-                    
-                    <div id="numberPreview" style="display: none; text-align: center; padding: 1rem; background: var(--bg-input); border-radius: 8px; margin-bottom: 1rem;">
-                        <div style="font-size: 0.85rem; color: #666; margin-bottom: 0.75rem;">Preview</div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                            <div>
-                                <div style="font-size: 0.75rem; color: #666; margin-bottom: 0.25rem;">Haruf Andar</div>
-                                <div id="harufAndar" style="font-size: 1.5rem; font-weight: 700; color: #00ff88;">-</div>
+                <div class="row justify-content-center">
+                    <div class="col-xl-6 col-lg-8">
+                        <div class="card shadow border-0 rounded-4">
+                            <div class="card-body p-4 p-md-5">
+                                <form id="resultForm">
+                                    <div class="mb-4 text-center">
+                                        <label class="form-label d-block fw-bold text-uppercase letter-spacing-1">Current Date</label>
+                                        <h4 class="text-primary fw-bold"><%= new Date().toDateString() %></h4>
+                                        <input type="hidden" name="date" value="<%= today %>">
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label class="form-label fw-600">Select Game</label>
+                                        <select class="form-select form-select-lg rounded-3 border-2" name="gameSessionId" id="gameSessionId" required>
+                                            <option value="" disabled selected>Choose a game...</option>
+                                            <% games.forEach(game => { %>
+                                                <% if (game.session_status !== 'completed') { %>
+                                                    <option value="<%= game.session_id %>">
+                                                        <%= game.name %> (<%= game.open_time %> - <%= game.close_time %>)
+                                                    </option>
+                                                <% } %>
+                                            <% }); %>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <label class="form-label fw-600">Winning Number (00-99)</label>
+                                        <input type="text" 
+                                               name="winningNumber" 
+                                               id="winningNumber" 
+                                               class="form-control form-control-lg rounded-3 border-2 text-center fw-bold fs-2" 
+                                               maxlength="2" 
+                                               pattern="\d{2}" 
+                                               placeholder="00"
+                                               required>
+                                        <div class="form-text text-center">Enter a 2-digit number (e.g., 05, 42, 99)</div>
+                                    </div>
+
+                                    <div class="alert alert-warning rounded-3 border-0 small mb-4">
+                                        <i class="fas fa-exclamation-triangle me-2"></i>
+                                        <strong>CRITICAL:</strong> Declaring a result will automatically process all bets and credit winners. This action cannot be undone.
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary btn-lg w-100 rounded-3 py-3 fw-bold">
+                                        <i class="fas fa-check-circle me-2"></i> DECLARE RESULT
+                                    </button>
+                                </form>
                             </div>
-                            <div>
-                                <div style="font-size: 0.75rem; color: #666; margin-bottom: 0.25rem;">Haruf Bahar</div>
-                                <div id="harufBahar" style="font-size: 1.5rem; font-weight: 700; color: #00ff88;">-</div>
+                        </div>
+
+                        <!-- Today's Declared Results -->
+                        <div class="card mt-5 shadow border-0 rounded-4">
+                            <div class="card-header bg-white py-3 border-0">
+                                <h6 class="m-0 fw-bold text-primary">Declared Today</h6>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Game</th>
+                                                <th class="text-center">Winning No.</th>
+                                                <th>Time Declared</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% let declaredCount = 0; %>
+                                            <% games.forEach(game => { %>
+                                                <% if (game.session_status === 'completed') { %>
+                                                    <% declaredCount++; %>
+                                                    <tr>
+                                                        <td class="fw-600"><%= game.name %></td>
+                                                        <td class="text-center">
+                                                            <span class="badge bg-primary fs-6 px-3"><%= game.winning_number %></span>
+                                                        </td>
+                                                        <td class="text-secondary small">
+                                                            <%= new Date(game.result_declared_at).toLocaleTimeString() %>
+                                                        </td>
+                                                    </tr>
+                                                <% } %>
+                                            <% }); %>
+                                            <% if (declaredCount === 0) { %>
+                                                <tr>
+                                                    <td colspan="3" class="text-center py-4 text-secondary">No results declared yet today</td>
+                                                </tr>
+                                            <% } %>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <button class="btn-place-bet" onclick="declareResult()">
-                        DECLARE RESULT
-                    </button>
                 </div>
-
-                <!-- Recent Results -->
-                <div style="background: var(--bg-card); padding: 1.5rem; border-radius: 12px;">
-                    <h3 style="color: #FF4500; margin-bottom: 1rem;">Recent Results</h3>
-                    <div id="recentResults">
-                        <div style="text-align: center; color: #666; padding: 1rem;">Loading...</div>
-                    </div>
-                </div>
-
             </div>
-        </main>
-
+        </div>
     </div>
 
-    <!-- Scripts -->
-    <script src="/js/app.js"></script>
+    <%- include('partials/scripts') %>
+
     <script>
-        // Check if admin
-        async function checkAdmin() {
-            if (!isLoggedIn()) {
-                alert('Please login');
-                window.location.href = '/login';
-                return;
+        const resultForm = document.getElementById('resultForm');
+        
+        resultForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(resultForm);
+            const data = Object.fromEntries(formData.entries());
+            
+            // Validate winning number
+            if (!/^\d{2}$/.test(data.winningNumber)) {
+                return Swal.fire('Error', 'Please enter a valid 2-digit number (00-99)', 'error');
             }
 
-            try {
-                const response = await API.get('/auth/me');
-                if (response.success) {
-                    if (response.data.role !== 'admin') {
-                        alert('Admin access required');
-                        window.location.href = '/home';
-                    }
-                }
-            } catch (error) {
-                console.error('Error checking admin:', error);
-                window.location.href = '/login';
-            }
-        }
+            // Confirm Action
+            const confirmed = await Swal.fire({
+                title: 'Are you sure?',
+                text: `You are declaring \"${data.winningNumber}\" as the winner. This will process all payouts immediately!`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#4e73df',
+                cancelButtonColor: '#858796',
+                confirmButtonText: 'Yes, Declare Result!'
+            });
 
-        // Load games
-        async function loadGames() {
+            if (!confirmed.isConfirmed) return;
+
             try {
-                const response = await fetch('/api/games');
-                const data = await response.json();
+                const response = await apiCall('/api/results', 'POST', data);
                 
-                if (data.success) {
-                    const select = document.getElementById('gameSelect');
-                    select.innerHTML = '<option value="">Select Game</option>' + 
-                        data.data.map(game => `<option value="${game.id}">${game.name}</option>`).join('');
-                }
-            } catch (error) {
-                console.error('Error loading games:', error);
-            }
-        }
-
-        // Load sessions for selected game
-        async function loadSessions() {
-            const gameId = document.getElementById('gameSelect').value;
-            if (!gameId) {
-                document.getElementById('sessionSelect').innerHTML = '<option value="">Select Session</option>';
-                return;
-            }
-
-            try {
-                const response = await fetch(`/api/games/${gameId}`);
-                const data = await response.json();
-                
-                if (data.success && data.data.session_id) {
-                    const select = document.getElementById('sessionSelect');
-                    select.innerHTML = `<option value="${data.data.session_id}">Today (${data.data.session_date})</option>`;
-                }
-            } catch (error) {
-                console.error('Error loading sessions:', error);
-            }
-        }
-
-        // Preview number
-        document.getElementById('winningNumber').addEventListener('input', (e) => {
-            const value = e.target.value.replace(/[^0-9]/g, '');
-            e.target.value = value;
-            
-            if (value.length === 2) {
-                document.getElementById('numberPreview').style.display = 'block';
-                document.getElementById('harufAndar').textContent = value[0];
-                document.getElementById('harufBahar').textContent = value[1];
-            } else {
-                document.getElementById('numberPreview').style.display = 'none';
-            }
-        });
-
-        // Declare result
-        async function declareResult() {
-            const sessionId = document.getElementById('sessionSelect').value;
-            const winningNumber = document.getElementById('winningNumber').value;
-            
-            if (!sessionId) {
-                alert('Please select a game session');
-                return;
-            }
-            
-            if (!/^\d{2}$/.test(winningNumber)) {
-                alert('Please enter a valid 2-digit winning number (00-99)');
-                return;
-            }
-            
-            if (!confirm(`Declare result ${winningNumber} for this session?\n\nThis action cannot be undone!`)) {
-                return;
-            }
-            
-            try {
-                const token = localStorage.getItem('token');
-                const response = await fetch('/api/results', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        gameSessionId: parseInt(sessionId),
-                        winningNumber: winningNumber
-                    })
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Result Declared!',
+                    html: `
+                        <div class="text-start">
+                            <p><b>Total Bets:</b> ${response.data.totalBets}</p>
+                            <p><b>Winners:</b> ${response.data.winCount}</p>
+                            <p><b>Total Payout:</b> ₹${response.data.totalPayout.toLocaleString()}</p>
+                        </div>
+                    `,
+                    timer: 5000
                 });
                 
-                const data = await response.json();
-                
-                if (data.success) {
-                    alert(`✅ Result declared successfully!\n\nWinning Number: ${winningNumber}\nTotal Bets: ${data.data.totalBets}\nWinners: ${data.data.winCount}\nTotal Payout: ₹${data.data.totalPayout}`);
-                    
-                    // Clear form
-                    document.getElementById('winningNumber').value = '';
-                    document.getElementById('numberPreview').style.display = 'none';
-                    
-                    // Reload recent results
-                    loadRecentResults();
-                } else {
-                    alert(`❌ ${data.message}`);
-                }
-            } catch (error) {
-                console.error('Error declaring result:', error);
-                alert('Failed to declare result');
+                location.reload();
+            } catch (err) {
+                // apiCall already shows error message
             }
-        }
-
-        // Load recent results
-        async function loadRecentResults() {
-            try {
-                const response = await fetch('/api/games/results?limit=10');
-                const data = await response.json();
-                
-                if (data.success && data.data.length > 0) {
-                    const html = data.data.map(result => `
-                        <div style="padding: 0.75rem; background: var(--bg-input); border-radius: 8px; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <div style="font-weight: 600;">${result.game_name}</div>
-                                <div style="font-size: 0.75rem; color: #666;">${result.session_date}</div>
-                            </div>
-                            <div style="font-size: 1.5rem; font-weight: 700; color: #FF4500; font-family: 'Courier New', monospace;">
-                                ${result.winning_number || '--'}
-                            </div>
-                        </div>
-                    `).join('');
-                    document.getElementById('recentResults').innerHTML = html;
-                } else {
-                    document.getElementById('recentResults').innerHTML = '<div style="text-align: center; color: #666; padding: 1rem;">No results yet</div>';
-                }
-            } catch (error) {
-                console.error('Error loading recent results:', error);
-            }
-        }
-
-        // Initialize
-        checkAdmin();
-        loadGames();
-        loadRecentResults();
-
-        // Make functions global
-        window.loadSessions = loadSessions;
-        window.declareResult = declareResult;
+        });
     </script>
 </body>
 </html>

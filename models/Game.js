@@ -248,7 +248,10 @@ async function create(gameData) {
  * @returns {Promise<Object>} Updated game
  */
 async function update(gameId, updates) {
-  const { name, openTime, closeTime, isActive } = updates;
+  const name = updates.name !== undefined ? updates.name : null;
+  const openTime = updates.openTime !== undefined ? updates.openTime : null;
+  const closeTime = updates.closeTime !== undefined ? updates.closeTime : null;
+  const isActive = (updates.isActive !== undefined && updates.isActive !== null) ? updates.isActive : null;
   
   try {
     const result = await pool.query(

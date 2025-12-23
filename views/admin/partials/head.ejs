@@ -1,0 +1,223 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><%= title %> | Taj Matka Admin</title>
+<!-- Bootstrap 5 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --sidebar-width: 280px;
+        --primary-color: #4e73df;
+        --secondary-color: #858796;
+        --success-color: #1cc88a;
+        --info-color: #36b9cc;
+        --warning-color: #f6c23e;
+        --danger-color: #e74a3b;
+        --dark-bg: #1a1c23;
+        --sidebar-bg: #22242c;
+        --card-bg: #ffffff;
+        --body-bg: #f8f9fc;
+    }
+
+    body {
+        font-family: 'Outfit', sans-serif;
+        background-color: var(--body-bg);
+        overflow-x: hidden;
+    }
+
+    /* Sidebar Styling */
+    #sidebar {
+        width: var(--sidebar-width);
+        min-height: 100vh;
+        background: var(--sidebar-bg);
+        color: #fff;
+        transition: all 0.3s;
+        position: fixed;
+        z-index: 1000;
+    }
+
+    #sidebar.active {
+        margin-left: calc(-1 * var(--sidebar-width));
+    }
+
+    #sidebar .sidebar-header {
+        padding: 20px;
+        background: rgba(0,0,0,0.1);
+    }
+
+    #sidebar .sidebar-header h3 {
+        margin: 0;
+        font-weight: 700;
+        font-size: 1.5rem;
+        color: #fff;
+        letter-spacing: 1px;
+    }
+
+    #sidebar ul.components {
+        padding: 20px 0;
+    }
+
+    #sidebar ul li {
+        padding: 5px 20px;
+    }
+
+    #sidebar ul li a {
+        padding: 12px 15px;
+        font-size: 1.1rem;
+        display: block;
+        color: rgba(255,255,255,0.7);
+        text-decoration: none;
+        border-radius: 10px;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+    }
+
+    #sidebar ul li a i {
+        margin-right: 15px;
+        width: 20px;
+        text-align: center;
+    }
+
+    #sidebar ul li a:hover, #sidebar ul li.active > a {
+        color: #fff;
+        background: var(--primary-color);
+        box-shadow: 0 4px 15px rgba(78, 115, 223, 0.3);
+    }
+
+    /* Content Area */
+    #content {
+        width: calc(100% - var(--sidebar-width));
+        margin-left: var(--sidebar-width);
+        transition: all 0.3s;
+        min-height: 100vh;
+    }
+
+    #content.active {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    /* Top Navbar */
+    .navbar {
+        padding: 15px 30px;
+        background: #fff;
+        border: none;
+        border-radius: 0;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+    }
+
+    .btn-toggle-sidebar {
+        background: var(--body-bg);
+        border: none;
+        color: var(--dark-bg);
+        padding: 8px 12px;
+        border-radius: 8px;
+    }
+
+    /* Dashboard Cards */
+    .stat-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        transition: transform 0.3s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .stat-card .card-body {
+        padding: 25px;
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+    }
+
+    .bg-gradient-primary { background: linear-gradient(135deg, #4e73df 0%, #224abe 100%); }
+    .bg-gradient-success { background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%); }
+    .bg-gradient-info { background: linear-gradient(135deg, #36b9cc 0%, #258391 100%); }
+    .bg-gradient-warning { background: linear-gradient(135deg, #f6c23e 0%, #dda20a 100%); }
+
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2e384d;
+        margin-bottom: 5px;
+    }
+
+    .stat-label {
+        color: #858796;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600;
+    }
+
+    /* Admin Table Styles */
+    .admin-table {
+        background: #fff;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    }
+
+    .admin-table thead th {
+        background: #f8f9fc;
+        color: #4e73df;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+        padding: 15px 20px;
+        border: none;
+    }
+
+    .admin-table tbody td {
+        padding: 15px 20px;
+        vertical-align: middle;
+        color: #2e384d;
+        border-color: #f1f3f9;
+    }
+
+    /* Search Bar */
+    .search-group .form-control {
+        border-radius: 10px 0 0 10px;
+        border: 1px solid #e3e6f0;
+        padding: 10px 20px;
+    }
+
+    .search-group .btn {
+        border-radius: 0 10px 10px 0;
+        padding: 10px 20px;
+    }
+
+    /* Mobile Adjustments */
+    @media (max-width: 992px) {
+        #sidebar {
+            margin-left: calc(-1 * var(--sidebar-width));
+        }
+        #sidebar.active {
+            margin-left: 0;
+        }
+        #content {
+            width: 100%;
+            margin-left: 0;
+        }
+        #content.active {
+            margin-left: var(--sidebar-width);
+        }
+    }
+</style>
