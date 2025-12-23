@@ -1,0 +1,211 @@
+<% 
+const currentPage = 'home';
+const title = 'Home';
+%>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title><%= title %> - Taj Matka</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="mobile-container">
+        
+        <!-- Fixed Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <button class="menu-btn" id="menuBtn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
+                    <h1 class="app-logo">TAJ MATKA</h1>
+                </div>
+                <div class="header-right">
+                    <div class="wallet-balance" id="walletBalance">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                            <line x1="2" y1="10" x2="22" y2="10"></line>
+                        </svg>
+                        <span id="balanceAmount">₹0</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            <div class="page-content">
+                
+                <!-- Welcome Banner -->
+                <div class="welcome-banner" style="background: linear-gradient(135deg, #FF4500 0%, #8B0000 100%); padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; text-align: center;">
+                    <h2 style="font-size: 1.3rem; margin-bottom: 0.5rem;">🎰 Welcome to Taj Matka</h2>
+                    <p style="font-size: 0.9rem; opacity: 0.9;">Choose your game and start playing!</p>
+                </div>
+
+                <!-- Games Grid -->
+                <div class="games-grid" id="gamesGrid">
+                    <div style="text-align: center; padding: 2rem; color: #666;">
+                        Loading games...
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <a href="/home" class="nav-item active">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                <span>Home</span>
+            </a>
+            <a href="/results" class="nav-item">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                    <path d="M2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                </svg>
+                <span>Results</span>
+            </a>
+            <a href="/history" class="nav-item">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <span>History</span>
+            </a>
+            <a href="/chart" class="nav-item">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                </svg>
+                <span>Chart</span>
+            </a>
+            <a href="/profile" class="nav-item">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                <span>Profile</span>
+            </a>
+        </nav>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/app.js"></script>
+    <script src="/js/timer.js"></script>
+    <script>
+        // Store timers globally
+        window.gameTimers = {};
+
+        // Load games and initialize timers
+        async function loadGames() {
+            try {
+                const response = await fetch('/api/games');
+                const data = await response.json();
+                
+                if (data.success && data.data.length > 0) {
+                    renderGames(data.data);
+                } else {
+                    document.getElementById('gamesGrid').innerHTML = `
+                        <div style="text-align: center; padding: 2rem; color: #666;">
+                            No games available
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading games:', error);
+                document.getElementById('gamesGrid').innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: #ff4444;">
+                        Failed to load games. Please refresh.
+                    </div>
+                `;
+            }
+        }
+
+        function renderGames(games) {
+            const gamesHtml = games.map(game => `
+                <div class="game-card">
+                    <div class="game-card-header">
+                        <h3 class="game-name">${game.name}</h3>
+                        <div class="game-status">
+                            <span class="status-dot ${game.isOpen ? 'open' : 'closed'}"></span>
+                            <span>${game.isOpen ? 'Open' : 'Closed'}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="game-info">
+                        <div class="game-time">
+                            <div style="font-size: 0.75rem; color: #666; margin-bottom: 0.25rem;">Open Time</div>
+                            <div style="font-weight: 600;">${game.open_time}</div>
+                        </div>
+                        <div class="game-time">
+                            <div style="font-size: 0.75rem; color: #666; margin-bottom: 0.25rem;">Close Time</div>
+                            <div style="font-weight: 600;">${game.close_time}</div>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center; margin-bottom: 1rem;">
+                        <div style="font-size: 0.75rem; color: #666; margin-bottom: 0.25rem;">Time Left</div>
+                        <div class="game-timer" id="timer-${game.id}">00:00:00</div>
+                    </div>
+                    
+                    <div class="game-actions">
+                        <button 
+                            class="btn btn-play" 
+                            id="play-btn-${game.id}"
+                            onclick="window.location.href='/betting/${game.id}'"
+                            ${game.isOpen ? '' : 'disabled'}
+                        >
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            </svg>
+                            ${game.isOpen ? 'Play Now' : 'Closed'}
+                        </button>
+                        <button class="btn btn-secondary" onclick="window.location.href='/results?game=${game.id}'">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M12 6v6l4 2"></path>
+                            </svg>
+                            Results
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('gamesGrid').innerHTML = gamesHtml;
+            
+            // Initialize timers for each game
+            games.forEach(game => {
+                if (game.timeLeft > 0) {
+                    const timer = initGameTimer(
+                        game.id,
+                        game.timeLeft,
+                        `timer-${game.id}`,
+                        `play-btn-${game.id}`
+                    );
+                    window.gameTimers[game.id] = timer;
+                }
+            });
+        }
+
+        // Load games on page load
+        loadGames();
+
+        // Load wallet balance
+        if (isLoggedIn()) {
+            loadUserBalance();
+        }
+    </script>
+</body>
+</html>

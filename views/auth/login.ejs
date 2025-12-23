@@ -1,0 +1,78 @@
+<%- include('../partials/header') %>
+
+<main class="main-content">
+    <div class="container">
+        <h2>Login</h2>
+        <p>OTP-based login placeholder. Phase 3 will implement the full UI.</p>
+        
+        <form id="loginForm">
+            <input type="tel" id="phone" placeholder="Enter 10-digit mobile number" required>
+            <button type="submit">Send OTP</button>
+        </form>
+        
+        <div id="otpSection" style="display: none;">
+            <input type="text" id="otp" placeholder="Enter OTP" required>
+            <input type="text" id="name" placeholder="Your Name (for new users)">
+            <button id="verifyBtn">Verify & Login</button>
+        </div>
+        
+        <div id="message"></div>
+    </div>
+</main>
+
+<%- include('../partials/footer') %>
+
+<script>
+const loginForm = document.getElementById('loginForm');
+const otpSection = document.getElementById('otpSection');
+const message = document.getElementById('message');
+
+loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const phone = document.getElementById('phone').value;
+    
+    try {
+        const response = await fetch('/api/auth/send-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            message.textContent = data.message;
+            otpSection.style.display = 'block';
+        } else {
+            message.textContent = data.message;
+        }
+    } catch (error) {
+        message.textContent = 'Failed to send OTP';
+    }
+});
+
+document.getElementById('verifyBtn').addEventListener('click', async () => {
+    const phone = document.getElementById('phone').value;
+    const otp = document.getElementById('otp').value;
+    const name = document.getElementById('name').value;
+    
+    try {
+        const response = await fetch('/api/auth/verify-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone, otp, name })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            localStorage.setItem('token', data.data.token);
+            window.location.href = '/home';
+        } else {
+            message.textContent = data.message;
+        }
+    } catch (error) {
+        message.textContent = 'Failed to verify OTP';
+    }
+});
+</script>

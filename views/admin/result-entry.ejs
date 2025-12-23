@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Declare Result - Taj Matka Admin</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="mobile-container">
+        
+        <!-- Fixed Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <button class="menu-btn" onclick="window.location.href='/home'">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                    </button>
+                    <h1 class="app-logo">ADMIN PANEL</h1>
+                </div>
+                <div class="header-right">
+                    <button class="menu-btn" onclick="logout()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            <div class="page-content">
+                
+                <!-- Admin Warning -->
+                <div style="background: linear-gradient(135deg, #ff4444 0%, #8B0000 100%); padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; text-align: center;">
+                    <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">⚠️</div>
+                    <div style="font-weight: 700;">Admin Access Only</div>
+                    <div style="font-size: 0.85rem; opacity: 0.9; margin-top: 0.25rem;">Declare game results</div>
+                </div>
+
+                <!-- Select Game Session -->
+                <div style="background: var(--bg-card); padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem;">
+                    <h3 style="color: #FF4500; margin-bottom: 1rem;">Select Game Session</h3>
+                    
+                    <div class="amount-input-group">
+                        <label>Game</label>
+                        <select id="gameSelect" class="amount-input" onchange="loadSessions()">
+                            <option value="">Select Game</option>
+                        </select>
+                    </div>
+                    
+                    <div class="amount-input-group">
+                        <label>Session Date</label>
+                        <select id="sessionSelect" class="amount-input">
+                            <option value="">Select Session</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Enter Result -->
+                <div style="background: var(--bg-card); padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem;">
+                    <h3 style="color: #FF4500; margin-bottom: 1rem;">Enter Winning Number</h3>
+                    
+                    <div class="amount-input-group">
+                        <label>Winning Number (00-99)</label>
+                        <input 
+                            type="text" 
+                            id="winningNumber" 
+                            class="amount-input" 
+                            placeholder="Enter 2-digit number"
+                            maxlength="2"
+                            pattern="[0-9]{2}"
+                            style="text-align: center; font-size: 2rem; font-weight: 700; font-family: 'Courier New', monospace;"
+                        >
+                    </div>
+                    
+                    <div id="numberPreview" style="display: none; text-align: center; padding: 1rem; background: var(--bg-input); border-radius: 8px; margin-bottom: 1rem;">
+                        <div style="font-size: 0.85rem; color: #666; margin-bottom: 0.75rem;">Preview</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div>
+                                <div style="font-size: 0.75rem; color: #666; margin-bottom: 0.25rem;">Haruf Andar</div>
+                                <div id="harufAndar" style="font-size: 1.5rem; font-weight: 700; color: #00ff88;">-</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 0.75rem; color: #666; margin-bottom: 0.25rem;">Haruf Bahar</div>
+                                <div id="harufBahar" style="font-size: 1.5rem; font-weight: 700; color: #00ff88;">-</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-place-bet" onclick="declareResult()">
+                        DECLARE RESULT
+                    </button>
+                </div>
+
+                <!-- Recent Results -->
+                <div style="background: var(--bg-card); padding: 1.5rem; border-radius: 12px;">
+                    <h3 style="color: #FF4500; margin-bottom: 1rem;">Recent Results</h3>
+                    <div id="recentResults">
+                        <div style="text-align: center; color: #666; padding: 1rem;">Loading...</div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/app.js"></script>
+    <script>
+        // Check if admin
+        async function checkAdmin() {
+            if (!isLoggedIn()) {
+                alert('Please login');
+                window.location.href = '/login';
+                return;
+            }
+
+            try {
+                const response = await API.get('/auth/me');
+                if (response.success) {
+                    if (response.data.role !== 'admin') {
+                        alert('Admin access required');
+                        window.location.href = '/home';
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking admin:', error);
+                window.location.href = '/login';
+            }
+        }
+
+        // Load games
+        async function loadGames() {
+            try {
+                const response = await fetch('/api/games');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const select = document.getElementById('gameSelect');
+                    select.innerHTML = '<option value="">Select Game</option>' + 
+                        data.data.map(game => `<option value="${game.id}">${game.name}</option>`).join('');
+                }
+            } catch (error) {
+                console.error('Error loading games:', error);
+            }
+        }
+
+        // Load sessions for selected game
+        async function loadSessions() {
+            const gameId = document.getElementById('gameSelect').value;
+            if (!gameId) {
+                document.getElementById('sessionSelect').innerHTML = '<option value="">Select Session</option>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/games/${gameId}`);
+                const data = await response.json();
+                
+                if (data.success && data.data.session_id) {
+                    const select = document.getElementById('sessionSelect');
+                    select.innerHTML = `<option value="${data.data.session_id}">Today (${data.data.session_date})</option>`;
+                }
+            } catch (error) {
+                console.error('Error loading sessions:', error);
+            }
+        }
+
+        // Preview number
+        document.getElementById('winningNumber').addEventListener('input', (e) => {
+            const value = e.target.value.replace(/[^0-9]/g, '');
+            e.target.value = value;
+            
+            if (value.length === 2) {
+                document.getElementById('numberPreview').style.display = 'block';
+                document.getElementById('harufAndar').textContent = value[0];
+                document.getElementById('harufBahar').textContent = value[1];
+            } else {
+                document.getElementById('numberPreview').style.display = 'none';
+            }
+        });
+
+        // Declare result
+        async function declareResult() {
+            const sessionId = document.getElementById('sessionSelect').value;
+            const winningNumber = document.getElementById('winningNumber').value;
+            
+            if (!sessionId) {
+                alert('Please select a game session');
+                return;
+            }
+            
+            if (!/^\d{2}$/.test(winningNumber)) {
+                alert('Please enter a valid 2-digit winning number (00-99)');
+                return;
+            }
+            
+            if (!confirm(`Declare result ${winningNumber} for this session?\n\nThis action cannot be undone!`)) {
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/results', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        gameSessionId: parseInt(sessionId),
+                        winningNumber: winningNumber
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(`✅ Result declared successfully!\n\nWinning Number: ${winningNumber}\nTotal Bets: ${data.data.totalBets}\nWinners: ${data.data.winCount}\nTotal Payout: ₹${data.data.totalPayout}`);
+                    
+                    // Clear form
+                    document.getElementById('winningNumber').value = '';
+                    document.getElementById('numberPreview').style.display = 'none';
+                    
+                    // Reload recent results
+                    loadRecentResults();
+                } else {
+                    alert(`❌ ${data.message}`);
+                }
+            } catch (error) {
+                console.error('Error declaring result:', error);
+                alert('Failed to declare result');
+            }
+        }
+
+        // Load recent results
+        async function loadRecentResults() {
+            try {
+                const response = await fetch('/api/games/results?limit=10');
+                const data = await response.json();
+                
+                if (data.success && data.data.length > 0) {
+                    const html = data.data.map(result => `
+                        <div style="padding: 0.75rem; background: var(--bg-input); border-radius: 8px; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 600;">${result.game_name}</div>
+                                <div style="font-size: 0.75rem; color: #666;">${result.session_date}</div>
+                            </div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: #FF4500; font-family: 'Courier New', monospace;">
+                                ${result.winning_number || '--'}
+                            </div>
+                        </div>
+                    `).join('');
+                    document.getElementById('recentResults').innerHTML = html;
+                } else {
+                    document.getElementById('recentResults').innerHTML = '<div style="text-align: center; color: #666; padding: 1rem;">No results yet</div>';
+                }
+            } catch (error) {
+                console.error('Error loading recent results:', error);
+            }
+        }
+
+        // Initialize
+        checkAdmin();
+        loadGames();
+        loadRecentResults();
+
+        // Make functions global
+        window.loadSessions = loadSessions;
+        window.declareResult = declareResult;
+    </script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+{
+  "name": "taj-matka",
+  "version": "1.0.0",
+  "description": "High-performance mobile-only lottery (Matka) application",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "db:setup": "node scripts/setupDatabase.js"
+  },
+  "keywords": ["matka", "lottery", "betting"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.2.1",
+    "ejs": "^3.1.10",
+    "pg": "^8.11.3",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "dotenv": "^17.2.3",
+    "cookie-parser": "^1.4.6",
+    "express-validator": "^7.0.1",
+    "morgan": "^1.10.0",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  }
+}
