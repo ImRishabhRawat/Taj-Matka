@@ -335,6 +335,26 @@ async function placeBets() {
 }
 
 /**
+ * Clear all bet inputs (Cancel action)
+ */
+function clearAllBets() {
+    const inputs = document.querySelectorAll('.bet-box-input');
+    let hasValues = false;
+    
+    inputs.forEach(input => {
+        if (input.value) {
+            input.value = '';
+            hasValues = true;
+        }
+    });
+
+    if (hasValues) {
+        updateTotalAmount();
+        showNotification('Cleared', 'All selections have been removed', 'success');
+    }
+}
+
+/**
  * UI Helper: Custom Notification
  */
 function showNotification(title, message, type = 'success') {
@@ -396,4 +416,5 @@ if (!document.getElementById('notifyStyles')) {
 window.addCrossingBets = addCrossingBets;
 window.addPasteBets = addPasteBets;
 window.placeBets = placeBets;
+window.clearAllBets = clearAllBets;
 window.showNotification = showNotification;

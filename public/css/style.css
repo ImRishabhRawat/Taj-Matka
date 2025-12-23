@@ -601,6 +601,31 @@ body {
     font-size: 0.9rem;
     font-weight: 600;
     font-family: 'Courier New', Courier, monospace;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.cancel-btn {
+    background: rgba(255, 68, 68, 0.2);
+    color: #ff4444;
+    border: 1px solid #ff4444;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 900;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.cancel-btn:active {
+    transform: scale(0.9);
+    background: #ff4444;
+    color: white;
 }
 
 .footer-center {
