@@ -18,7 +18,7 @@ const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 
-app.get('/top-debug', (req, res) => res.send('Top Debug OK'));
+
 
 // Middleware
 app.use(morgan('dev')); // Logging
@@ -40,7 +40,6 @@ app.use('/api/games', gameRoutes);
 app.use('/api/bets', betRoutes);
 app.use('/api/results', resultRoutes);
 app.use('/api/wallet', walletRoutes);
-app.get('/admin/debug-test', (req, res) => res.send('Admin Debug Test OK'));
 app.use('/admin', adminRoutes);
 
 // Health check
