@@ -28,11 +28,9 @@
                                 <li><a class="dropdown-item" href="/profile"><i class="fas fa-user fa-sm fa-fw me-2 text-gray-400"></i> Profile</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
-                                    <form action="/api/auth/logout" method="GET">
-                                        <button type="submit" class="dropdown-item text-danger">
-                                            <i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i> Logout
-                                        </button>
-                                    </form>
+                                    <button type="button" onclick="handleLogout()" class="dropdown-item text-danger">
+                                        <i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i> Logout
+                                    </button>
                                 </li>
                             </ul>
                         </div>

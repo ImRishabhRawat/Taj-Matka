@@ -35,11 +35,9 @@
             </a>
         </li>
         <li class="mt-2 text-center">
-            <form action="/api/auth/logout" method="GET">
-                <button type="submit" class="btn btn-link text-danger text-decoration-none">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </button>
-            </form>
+            <button type="button" onclick="handleLogout()" class="btn btn-link text-danger text-decoration-none">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
         </li>
     </ul>
 </nav>

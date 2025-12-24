@@ -48,4 +48,14 @@
             throw error;
         }
     }
+    async function handleLogout() {
+        try {
+            const result = await apiCall('/api/auth/logout', 'POST');
+            if (result.success) {
+                window.location.href = '/login';
+            }
+        } catch (error) {
+            console.error('Logout failed:', error);
+        }
+    }
 </script>

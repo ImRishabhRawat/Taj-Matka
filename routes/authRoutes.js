@@ -15,6 +15,6 @@ router.post('/verify-otp', authController.verifyOTPAndLogin);
 
 // Protected routes
 router.get('/me', authenticate, authController.getCurrentUser);
-router.post('/logout', authenticate, authController.logout);
+router.post('/logout', authController.logout);
 
 module.exports = router;
