@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('partials/head') %>
+    <style>
+        .game-card {
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-left: 5px solid #4e73df;
+        }
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+        }
+        .game-card.active {
+            background-color: #f8f9fc;
+            border-left: 5px solid #1cc88a;
+        }
+        .stats-table-container {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .number-badge {
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #4e73df;
+            color: white;
+            font-weight: bold;
+        }
+        .amount-text {
+            font-weight: 600;
+            color: #1cc88a;
+        }
+        .sort-icon {
+            cursor: pointer;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="wrapper d-flex">
+        <!-- Sidebar -->
+        <%- include('partials/sidebar') %>
+
+        <!-- Page Content -->
+        <div id="content">
+            <!-- Top Navbar -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
+                <div class="container-fluid">
+                    <button type="button" id="sidebarCollapse" class="btn btn-toggle-sidebar">
+                        <i class="fas fa-align-left"></i>
+                    </button>
+                    <h4 class="ms-3 mb-0 fw-bold">Bid Monitor</h4>
+                    
+                    <div class="ms-auto d-flex align-items-center">
+                        <div class="dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <span class="me-2 d-none d-md-inline"><%= user.name || 'Admin' %></span>
+                                <img src="https://ui-avatars.com/api/?name=Admin&background=4e73df&color=fff" alt="Admin" class="rounded-circle" width="35">
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3">
+                                <li><button type="button" onclick="handleLogout()" class="dropdown-item text-danger"><i class="fas fa-sign-out-alt fa-sm fa-fw me-2"></i> Logout</button></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="container-fluid px-4">
+                <div class="row">
+                    <!-- Games List -->
+                    <div class="col-lg-4 mb-4">
+                        <div class="card shadow border-0 rounded-4">
+                            <div class="card-header bg-white py-3">
+                                <h6 class="m-0 fw-bold text-primary">Active Games</h6>
+                            </div>
+                            <div class="card-body p-2" style="max-height: 700px; overflow-y: auto;">
+                                <% games.forEach(game => { %>
+                                    <div class="card game-card mb-2 border-0 shadow-sm" onclick="fetchBidStats('<%= game.id %>', '<%= game.name %>', this)">
+                                        <div class="card-body p-3">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <h6 class="fw-bold mb-1"><%= game.name %></h6>
+                                                <span class="badge <%= game.session_status === 'completed' ? 'bg-success' : 'bg-warning text-dark' %>">
+                                                    <%= game.session_status || 'Pending' %>
+                                                </span>
+                                            </div>
+                                            <div class="small text-muted">
+                                                <i class="far fa-clock me-1"></i> <%= game.open_time %> - <%= game.close_time %>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% }); %>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bid Monitor Stats -->
+                    <div class="col-lg-8">
+                        <div class="card shadow border-0 rounded-4" id="stats-container" style="display: none;">
+                            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                                <h6 class="m-0 fw-bold text-primary" id="selected-game-name">Bid Stats</h6>
+                                <button class="btn btn-sm btn-outline-primary" onclick="refreshStats()">
+                                    <i class="fas fa-sync-alt"></i> Refresh
+                                </button>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive stats-table-container">
+                                    <table class="table table-hover align-middle mb-0" id="bids-table">
+                                        <thead class="bg-light sticky-top">
+                                            <tr>
+                                                <th class="ps-4">Number <i class="fas fa-sort sort-icon" onclick="sortTable(0)"></i></th>
+                                                <th>Total Bets <i class="fas fa-sort sort-icon" onclick="sortTable(1)"></i></th>
+                                                <th class="text-end pe-4">Total Amount <i class="fas fa-sort sort-icon" onclick="sortTable(2)"></i></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="bids-body">
+                                            <!-- Data populated by JS -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-white py-3">
+                                <div class="row text-center mb-3">
+                                    <div class="col-4">
+                                        <div class="small text-muted">Least Money</div>
+                                        <div class="fw-bold text-success" id="least-money-num">-</div>
+                                    </div>
+                                    <div class="col-4 border-start border-end">
+                                        <div class="small text-muted">Most Money</div>
+                                        <div class="fw-bold text-danger" id="most-money-num">-</div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="small text-muted">Total Collection</div>
+                                        <div class="fw-bold text-primary" id="total-collection">₹0</div>
+                                    </div>
+                                </div>
+                                <div class="d-grid">
+                                    <button class="btn btn-primary p-2 fw-bold" onclick="openDeclareModal()">
+                                        <i class="fas fa-trophy me-2"></i> Declare / Schedule Result
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Empty State -->
+                        <div class="card shadow border-0 rounded-4 p-5 text-center" id="empty-state">
+                            <i class="fas fa-chart-bar fa-5x text-light mb-4"></i>
+                            <h5 class="text-secondary">Select a game to view bid statistics</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Declare Result Modal -->
+    <div class="modal fade" id="declareModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">Declare Winning Number</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Winning Number (00-99)</label>
+                        <input type="text" id="winning-number" class="form-control form-control-lg text-center fw-bold" maxlength="2" placeholder="00">
+                    </div>
+                    <div class="alert alert-info border-0 rounded-3 small">
+                        <i class="fas fa-info-circle me-1"></i> 
+                        <strong>Instant:</strong> Process payouts immediately.<br>
+                        <strong>Scheduled:</strong> Pre-set the number for later auto-declaration.
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-warning fw-bold" onclick="submitResult('schedule')">
+                        <i class="fas fa-clock"></i> Schedule
+                    </button>
+                    <button type="button" class="btn btn-success fw-bold" onclick="submitResult('declare')">
+                        <i class="fas fa-check-circle"></i> Instant Declare
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('partials/scripts') %>
+    
+    <script>
+        let currentGameId = null;
+        let currentSessionId = null;
+        let statsData = [];
+        let declareModal = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            declareModal = new bootstrap.Modal(document.getElementById('declareModal'));
+        });
+
+        async function fetchBidStats(gameId, gameName, element) {
+            currentGameId = gameId;
+            
+            // UI updates
+            document.querySelectorAll('.game-card').forEach(c => c.classList.remove('active'));
+            element.classList.add('active');
+            document.getElementById('empty-state').style.display = 'none';
+            document.getElementById('stats-container').style.display = 'block';
+            document.getElementById('selected-game-name').innerText = `Bid Stats: ${gameName}`;
+            
+            showLoader();
+            
+            try {
+                const response = await fetch(`/admin/api/bids/${gameId}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    statsData = result.data;
+                    currentSessionId = result.session.id; // Store current session ID
+                    renderStatsTable();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while fetching stats');
+            } finally {
+                hideLoader();
+            }
+        }
+
+        function openDeclareModal() {
+            if (!currentSessionId) {
+                alert('Please select a game first');
+                return;
+            }
+            document.getElementById('winning-number').value = '';
+            declareModal.show();
+        }
+
+        async function submitResult(type) {
+            const winningNumber = document.getElementById('winning-number').value;
+            
+            if (!winningNumber || winningNumber.length !== 2) {
+                alert('Please enter a valid 2-digit winning number');
+                return;
+            }
+
+            const endpoint = type === 'declare' ? '/admin/api/results/declare' : '/admin/api/results/schedule';
+            const confirmMsg = type === 'declare' 
+                ? `Are you sure you want to INSTANTLY declare ${winningNumber} as the winning number? This will process all payouts immediately.`
+                : `Are you sure you want to SCHEDULE ${winningNumber} as the winning number? Process will run automatically at close time.`;
+
+            if (!confirm(confirmMsg)) return;
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sessionId: currentSessionId,
+                        winningNumber: winningNumber
+                    })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert(result.message);
+                    declareModal.hide();
+                    refreshStats();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while submitting result');
+            }
+        }
+
+        function refreshStats() {
+            const activeCard = document.querySelector('.game-card.active');
+            if (activeCard) {
+                activeCard.click();
+            }
+        }
+
+        function renderStatsTable() {
+            const tbody = document.getElementById('bids-body');
+            tbody.innerHTML = '';
+            
+            let totalColl = 0;
+            let maxAmt = -1;
+            let minAmt = Infinity;
+            let maxNum = '-';
+            let minNum = '-';
+            
+            statsData.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="ps-4">
+                        <div class="number-badge">${item.number}</div>
+                    </td>
+                    <td>${item.count}</td>
+                    <td class="text-end pe-4">
+                        <span class="amount-text">₹${item.amount.toLocaleString()}</span>
+                    </td>
+                `;
+                tbody.appendChild(row);
+                
+                totalColl += item.amount;
+                if (item.amount > maxAmt) {
+                    maxAmt = item.amount;
+                    maxNum = item.number;
+                }
+                if (item.amount < minAmt) {
+                    minAmt = item.amount;
+                    minNum = item.number;
+                }
+            });
+            
+            document.getElementById('total-collection').innerText = `₹${totalColl.toLocaleString()}`;
+            document.getElementById('most-money-num').innerText = `${maxNum} (₹${maxAmt.toLocaleString()})`;
+            document.getElementById('least-money-num').innerText = `${minNum} (₹${minAmt.toLocaleString()})`;
+        }
+
+        function sortTable(columnIndex) {
+            if (columnIndex === 0) {
+                statsData.sort((a, b) => a.number.localeCompare(b.number));
+            } else if (columnIndex === 1) {
+                statsData.sort((a, b) => b.count - a.count);
+            } else if (columnIndex === 2) {
+                statsData.sort((a, b) => b.amount - a.amount);
+            }
+            renderStatsTable();
+        }
+
+        function showLoader() {
+            document.getElementById('bids-body').innerHTML = '<tr><td colspan="3" class="text-center py-5"><div class="spinner-border text-primary" role="status"></div></td></tr>';
+        }
+
+        function hideLoader() {
+            // Loader is removed when rendering table
+        }
+    </script>
+</body>
+</html>

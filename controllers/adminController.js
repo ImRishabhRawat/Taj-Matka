@@ -133,6 +133,86 @@ async function getWithdrawals(req, res) {
 }
 
 /**
+ * Market Monitor - View all games and their bid stats
+ */
+async function getMarketMonitor(req, res) {
+  try {
+    const games = await Game.getAllWithTodaySessions();
+    res.render('admin/bid-monitor', {
+      title: 'Bid Monitor',
+      user: req.user,
+      games: games
+    });
+  } catch (error) {
+    console.error('Error getting market monitor:', error);
+    res.status(500).send('Internal Server Error');
+  }
+}
+
+/**
+ * Get Bid Stats API
+ */
+async function getBidStatsAPI(req, res) {
+  try {
+    const { gameId } = req.params;
+    const session = await Game.getOrCreateTodaySession(gameId);
+    if (!session) {
+      return res.status(404).json({ success: false, message: 'Session not found' });
+    }
+    
+    const Bet = require('../models/Bet'); 
+    const stats = await Bet.getBidStats(session.id);
+    
+    res.json({
+      success: true,
+      data: stats,
+      session: session
+    });
+  } catch (error) {
+    console.error('Error getting bid stats API:', error);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+}
+
+/**
+ * Declare Result (Manual/Instant)
+ */
+async function declareResult(req, res) {
+  try {
+    const { sessionId, winningNumber } = req.body;
+    const gameService = require('../services/gameService');
+    
+    const result = await gameService.processResult(sessionId, winningNumber);
+    
+    res.json({ success: true, message: 'Result declared and payouts processed', session: result.session });
+  } catch (error) {
+    console.error('Error declaring result:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+}
+
+/**
+ * Schedule Result
+ */
+async function scheduleResult(req, res) {
+  try {
+    const { sessionId, winningNumber } = req.body;
+    
+    await pool.query(
+      `UPDATE game_sessions 
+       SET scheduled_winning_number = $1, is_scheduled = true 
+       WHERE id = $2 AND status = 'pending'`,
+      [winningNumber, sessionId]
+    );
+
+    res.json({ success: true, message: 'Result scheduled successfully' });
+  } catch (error) {
+    console.error('Error scheduling result:', error);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+}
+
+/**
  * Update User Status (Block/Unblock)
  */
 async function updateUserStatus(req, res) {
@@ -159,5 +239,9 @@ module.exports = {
   getResultEntry,
   getUsers,
   getWithdrawals,
-  updateUserStatus
+  updateUserStatus,
+  getMarketMonitor,
+  getBidStatsAPI,
+  declareResult,
+  scheduleResult
 };

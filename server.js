@@ -14,6 +14,10 @@ const server = app.listen(PORT, () => {
   console.log(`📡 Server running on http://localhost:${PORT}`);
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`⏰ Started at: ${new Date().toLocaleString()}\n`);
+  
+  // Initialize scheduler for automated results
+  const { initScheduler } = require('./utils/scheduler');
+  initScheduler();
 });
 
 // Graceful shutdown

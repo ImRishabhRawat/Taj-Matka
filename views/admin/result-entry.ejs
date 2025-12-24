@@ -2,6 +2,36 @@
 <html lang="en">
 <head>
     <%- include('partials/head') %>
+    <style>
+        .game-card {
+            transition: all 0.3s ease;
+            border-radius: 15px;
+            overflow: hidden;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .game-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 5px 12px;
+            border-radius: 20px;
+        }
+        .declare-btn {
+            border-radius: 10px;
+            font-weight: 600;
+            padding: 8px 15px;
+        }
+        .winning-num-input {
+            font-size: 1.5rem;
+            text-align: center;
+            font-weight: bold;
+            letter-spacing: 5px;
+            border-radius: 10px;
+        }
+    </style>
 </head>
 <body>
 
@@ -12,173 +42,152 @@
         <!-- Page Content -->
         <div id="content">
             <!-- Top Navbar -->
-            <nav class="navbar navbar-expand-lg navbar-light">
+            <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
                 <div class="container-fluid">
                     <button type="button" id="sidebarCollapse" class="btn btn-toggle-sidebar">
                         <i class="fas fa-align-left"></i>
                     </button>
+                    <h4 class="ms-3 mb-0 fw-bold">Declare Results</h4>
+                    
                     <div class="ms-auto d-flex align-items-center">
-                        <span class="me-3 d-none d-md-inline"><%= user.name %></span>
-                        <img src="https://ui-avatars.com/api/?name=Admin&background=4e73df&color=fff" alt="Admin" class="rounded-circle" width="35">
+                        <div class="dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <span class="me-2 d-none d-md-inline"><%= user.name || 'Admin' %></span>
+                                <img src="https://ui-avatars.com/api/?name=Admin&background=4e73df&color=fff" alt="Admin" class="rounded-circle" width="35">
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3">
+                                <li><button type="button" onclick="handleLogout()" class="dropdown-item text-danger"><i class="fas fa-sign-out-alt fa-sm fa-fw me-2"></i> Logout</button></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </nav>
 
-            <div class="container-fluid p-4">
+            <div class="container-fluid px-4">
                 <div class="row mb-4">
-                    <div class="col-12 text-center">
-                        <h2 class="fw-bold">Declare Result</h2>
-                        <p class="text-secondary">Select a game and enter the winning number</p>
+                    <div class="col-md-8">
+                        <h5 class="fw-bold text-dark">Today's Games (<%= today %>)</h5>
+                        <p class="text-secondary small">Enter winning numbers and process payouts for today's sessions.</p>
                     </div>
                 </div>
 
-                <div class="row justify-content-center">
-                    <div class="col-xl-6 col-lg-8">
-                        <div class="card shadow border-0 rounded-4">
-                            <div class="card-body p-4 p-md-5">
-                                <form id="resultForm">
-                                    <div class="mb-4 text-center">
-                                        <label class="form-label d-block fw-bold text-uppercase letter-spacing-1">Current Date</label>
-                                        <h4 class="text-primary fw-bold"><%= new Date().toDateString() %></h4>
-                                        <input type="hidden" name="date" value="<%= today %>">
+                <div class="row g-4">
+                    <% games.forEach(game => { %>
+                        <div class="col-xl-4 col-md-6">
+                            <div class="card game-card h-100">
+                                <div class="card-body p-4">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <div>
+                                            <h5 class="fw-bold mb-1"><%= game.name %></h5>
+                                            <div class="small text-muted">
+                                                <i class="far fa-clock me-1"></i> <%= game.open_time %> - <%= game.close_time %>
+                                            </div>
+                                        </div>
+                                        <span class="status-badge <%= game.session_status === 'completed' ? 'bg-success text-white' : 'bg-warning text-dark' %>">
+                                            <%= game.session_status ? game.session_status.toUpperCase() : 'PENDING' %>
+                                        </span>
                                     </div>
 
-                                    <div class="mb-4">
-                                        <label class="form-label fw-600">Select Game</label>
-                                        <select class="form-select form-select-lg rounded-3 border-2" name="gameSessionId" id="gameSessionId" required>
-                                            <option value="" disabled selected>Choose a game...</option>
-                                            <% games.forEach(game => { %>
-                                                <% if (game.session_status !== 'completed') { %>
-                                                    <option value="<%= game.session_id %>">
-                                                        <%= game.name %> (<%= game.open_time %> - <%= game.close_time %>)
-                                                    </option>
-                                                <% } %>
-                                            <% }); %>
-                                        </select>
-                                    </div>
+                                    <hr class="my-3 opacity-25">
 
-                                    <div class="mb-4">
-                                        <label class="form-label fw-600">Winning Number (00-99)</label>
-                                        <input type="text" 
-                                               name="winningNumber" 
-                                               id="winningNumber" 
-                                               class="form-control form-control-lg rounded-3 border-2 text-center fw-bold fs-2" 
-                                               maxlength="2" 
-                                               pattern="\d{2}" 
-                                               placeholder="00"
-                                               required>
-                                        <div class="form-text text-center">Enter a 2-digit number (e.g., 05, 42, 99)</div>
-                                    </div>
-
-                                    <div class="alert alert-warning rounded-3 border-0 small mb-4">
-                                        <i class="fas fa-exclamation-triangle me-2"></i>
-                                        <strong>CRITICAL:</strong> Declaring a result will automatically process all bets and credit winners. This action cannot be undone.
-                                    </div>
-
-                                    <button type="submit" class="btn btn-primary btn-lg w-100 rounded-3 py-3 fw-bold">
-                                        <i class="fas fa-check-circle me-2"></i> DECLARE RESULT
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-
-                        <!-- Today's Declared Results -->
-                        <div class="card mt-5 shadow border-0 rounded-4">
-                            <div class="card-header bg-white py-3 border-0">
-                                <h6 class="m-0 fw-bold text-primary">Declared Today</h6>
-                            </div>
-                            <div class="card-body p-0">
-                                <div class="table-responsive">
-                                    <table class="table table-hover mb-0">
-                                        <thead>
-                                            <tr>
-                                                <th>Game</th>
-                                                <th class="text-center">Winning No.</th>
-                                                <th>Time Declared</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <% let declaredCount = 0; %>
-                                            <% games.forEach(game => { %>
-                                                <% if (game.session_status === 'completed') { %>
-                                                    <% declaredCount++; %>
-                                                    <tr>
-                                                        <td class="fw-600"><%= game.name %></td>
-                                                        <td class="text-center">
-                                                            <span class="badge bg-primary fs-6 px-3"><%= game.winning_number %></span>
-                                                        </td>
-                                                        <td class="text-secondary small">
-                                                            <%= new Date(game.result_declared_at).toLocaleTimeString() %>
-                                                        </td>
-                                                    </tr>
-                                                <% } %>
-                                            <% }); %>
-                                            <% if (declaredCount === 0) { %>
-                                                <tr>
-                                                    <td colspan="3" class="text-center py-4 text-secondary">No results declared yet today</td>
-                                                </tr>
-                                            <% } %>
-                                        </tbody>
-                                    </table>
+                                    <% if (game.session_status === 'completed') { %>
+                                        <div class="text-center py-2">
+                                            <div class="small text-muted mb-1">Declared Winning Number</div>
+                                            <div class="display-6 fw-bold text-primary"><%= game.winning_number %></div>
+                                            <div class="small text-muted mt-2">
+                                                <i class="fas fa-check-circle text-success me-1"></i> Payouts Processed
+                                            </div>
+                                        </div>
+                                    <% } else { %>
+                                        <div class="mb-3">
+                                            <label class="form-label small fw-bold">Enter Winning Number (00-99)</label>
+                                            <input type="text" id="win-<%= game.session_id %>" class="form-control winning-num-input" maxlength="2" placeholder="--">
+                                        </div>
+                                        <div class="d-grid gap-2">
+                                            <button class="btn btn-primary declare-btn" onclick="declareResult('<%= game.session_id %>', '<%= game.name %>')">
+                                                <i class="fas fa-check-circle me-1"></i> Declare Result
+                                            </button>
+                                            <button class="btn btn-outline-warning declare-btn btn-sm" onclick="scheduleResult('<%= game.session_id %>', '<%= game.name %>')">
+                                                <i class="fas fa-clock me-1"></i> Schedule Result
+                                            </button>
+                                        </div>
+                                    <% } %>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    <% }); %>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Scripts -->
     <%- include('partials/scripts') %>
 
     <script>
-        const resultForm = document.getElementById('resultForm');
-        
-        resultForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
+        async function declareResult(sessionId, gameName) {
+            const winningNumber = document.getElementById(`win-${sessionId}`).value;
             
-            const formData = new FormData(resultForm);
-            const data = Object.fromEntries(formData.entries());
-            
-            // Validate winning number
-            if (!/^\d{2}$/.test(data.winningNumber)) {
-                return Swal.fire('Error', 'Please enter a valid 2-digit number (00-99)', 'error');
+            if (!winningNumber || winningNumber.length !== 2) {
+                alert('Please enter a valid 2-digit winning number');
+                return;
             }
 
-            // Confirm Action
-            const confirmed = await Swal.fire({
-                title: 'Are you sure?',
-                text: `You are declaring \"${data.winningNumber}\" as the winner. This will process all payouts immediately!`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#4e73df',
-                cancelButtonColor: '#858796',
-                confirmButtonText: 'Yes, Declare Result!'
-            });
-
-            if (!confirmed.isConfirmed) return;
+            if (!confirm(`Are you sure you want to declare ${winningNumber} as the winning number for ${gameName}? This action is irreversible and will process all payouts!`)) {
+                return;
+            }
 
             try {
-                const response = await apiCall('/api/results', 'POST', data);
-                
-                await Swal.fire({
-                    icon: 'success',
-                    title: 'Result Declared!',
-                    html: `
-                        <div class="text-start">
-                            <p><b>Total Bets:</b> ${response.data.totalBets}</p>
-                            <p><b>Winners:</b> ${response.data.winCount}</p>
-                            <p><b>Total Payout:</b> ₹${response.data.totalPayout.toLocaleString()}</p>
-                        </div>
-                    `,
-                    timer: 5000
+                const response = await fetch('/admin/api/results/declare', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sessionId, winningNumber })
                 });
-                
-                location.reload();
-            } catch (err) {
-                // apiCall already shows error message
+
+                const result = await response.json();
+                if (result.success) {
+                    alert(result.message || 'Result declared successfully!');
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while declaring result');
             }
-        });
+        }
+
+        async function scheduleResult(sessionId, gameName) {
+            const winningNumber = document.getElementById(`win-${sessionId}`).value;
+            
+            if (!winningNumber || winningNumber.length !== 2) {
+                alert('Please enter a valid 2-digit winning number');
+                return;
+            }
+
+            if (!confirm(`Schedule ${winningNumber} for ${gameName}? It will be automatically declared at the game's close time.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/admin/api/results/schedule', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sessionId, winningNumber })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert(result.message || 'Result scheduled successfully!');
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while scheduling result');
+            }
+        }
     </script>
 </body>
 </html>

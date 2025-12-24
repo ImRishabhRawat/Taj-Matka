@@ -242,6 +242,13 @@ async function getPendingBetsBySession(gameSessionId) {
  * @param {number} payoutAmount - Payout amount (for wins)
  * @returns {Promise<Object>} Updated bet
  */
+/**
+ * Update bet status
+ * @param {number} betId - Bet ID
+ * @param {string} status - New status
+ * @param {number} payoutAmount - Payout amount (for wins)
+ * @returns {Promise<Object>} Updated bet
+ */
 async function updateStatus(betId, status, payoutAmount = 0) {
   try {
     const result = await pool.query(
@@ -258,6 +265,51 @@ async function updateStatus(betId, status, payoutAmount = 0) {
   }
 }
 
+/**
+ * Get bid statistics for a session (00-99 distribution)
+ * @param {number} gameSessionId - Game session ID
+ * @returns {Promise<Array>} Array of stats for each number
+ */
+async function getBidStats(gameSessionId) {
+  try {
+    const result = await pool.query(
+      `SELECT 
+        bet_number, 
+        SUM(bet_amount) as total_amount, 
+        COUNT(*) as total_bets 
+       FROM bets 
+       WHERE game_session_id = $1 AND bet_type = 'jodi'
+       GROUP BY bet_number`,
+      [gameSessionId]
+    );
+    
+    // Create a map of existing results
+    const statsMap = {};
+    result.rows.forEach(row => {
+      statsMap[row.bet_number] = {
+        amount: parseFloat(row.total_amount),
+        count: parseInt(row.total_bets)
+      };
+    });
+    
+    // Fill in all numbers 00-99
+    const fullStats = [];
+    for (let i = 0; i <= 99; i++) {
+      const num = i.toString().padStart(2, '0');
+      fullStats.push({
+        number: num,
+        amount: statsMap[num] ? statsMap[num].amount : 0,
+        count: statsMap[num] ? statsMap[num].count : 0
+      });
+    }
+    
+    return fullStats;
+  } catch (error) {
+    console.error('Error getting bid stats:', error);
+    throw error;
+  }
+}
+
 module.exports = {
   create,
   createMultiple,
@@ -266,5 +318,6 @@ module.exports = {
   getUserWinningBets,
   getUserStats,
   getPendingBetsBySession,
+  getBidStats,
   updateStatus
 };
