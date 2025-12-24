@@ -1,26 +1,20 @@
 require('dotenv').config();
 const { Pool } = require('pg');
 
-// PostgreSQL connection pool
+const isProduction = process.env.NODE_ENV === 'production';
+
 const pool = new Pool({
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  database: process.env.DB_NAME,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  max: 20, // Maximum number of clients in the pool
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
+  // Use connectionString if it exists (Render), otherwise use local object
+  connectionString: process.env.DATABASE_URL,
+  host: process.env.DATABASE_URL ? undefined : process.env.DB_HOST,
+  port: process.env.DATABASE_URL ? undefined : process.env.DB_PORT,
+  user: process.env.DATABASE_URL ? undefined : process.env.DB_USER,
+  password: process.env.DATABASE_URL ? undefined : process.env.DB_PASSWORD,
+  database: process.env.DATABASE_URL ? undefined : process.env.DB_NAME,
+  
+  // SSL is required for Render but usually disabled for local Dev
+  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
 });
 
-// Test connection
-pool.on('connect', () => {
-  console.log('✅ PostgreSQL connected');
-});
-
-pool.on('error', (err) => {
-  console.error('❌ Unexpected PostgreSQL error:', err);
-  process.exit(-1);
-});
-
+pool.on('connect', () => console.log('✅ Connected to Database'));
 module.exports = pool;
