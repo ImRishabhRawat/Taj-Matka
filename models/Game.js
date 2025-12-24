@@ -42,23 +42,25 @@ async function findById(gameId) {
 }
 
 /**
- * Get or create today's game session
+ * Get or create game session for a specific date
  * @param {number} gameId - Game ID
+ * @param {string} date - Date string (YYYY-MM-DD)
  * @returns {Promise<Object>} Game session
  */
-async function getOrCreateTodaySession(gameId) {
+async function getOrCreateSession(gameId, date = null) {
   const client = await pool.connect();
   
   try {
     await client.query('BEGIN');
     
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    // Default to today if no date provided
+    const sessionDate = date || new Date().toISOString().split('T')[0];
     
     // Try to find existing session
     let result = await client.query(
       `SELECT * FROM game_sessions 
        WHERE game_id = $1 AND session_date = $2`,
-      [gameId, today]
+      [gameId, sessionDate]
     );
     
     if (result.rows.length > 0) {
@@ -71,7 +73,7 @@ async function getOrCreateTodaySession(gameId) {
       `INSERT INTO game_sessions (game_id, session_date, status) 
        VALUES ($1, $2, 'pending') 
        RETURNING *`,
-      [gameId, today]
+      [gameId, sessionDate]
     );
     
     await client.query('COMMIT');
@@ -83,6 +85,15 @@ async function getOrCreateTodaySession(gameId) {
   } finally {
     client.release();
   }
+}
+
+/**
+ * Get or create today's game session
+ * @param {number} gameId - Game ID
+ * @returns {Promise<Object>} Game session
+ */
+async function getOrCreateTodaySession(gameId) {
+  return getOrCreateSession(gameId);
 }
 
 /**
@@ -275,6 +286,7 @@ module.exports = {
   getAllActive,
   findById,
   getOrCreateTodaySession,
+  getOrCreateSession,
   getSessionById,
   getGameWithTodaySession,
   getAllWithTodaySessions,
