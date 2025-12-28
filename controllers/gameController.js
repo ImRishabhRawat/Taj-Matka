@@ -262,5 +262,40 @@ module.exports = {
   getResults,
   createGame,
   updateGame,
-  getChartData
+  getChartData,
+  deleteGame
 };
+
+/**
+ * Delete game (admin only)
+ * DELETE /api/games/:id
+ */
+async function deleteGame(req, res) {
+  try {
+    const { id } = req.params;
+    
+    // Attempt to delete
+    // Note: If there are foreign key constraints (like bets, sessions), this might fail
+    // or cascade depending on DB setup. 
+    const deleted = await Game.deleteGame(parseInt(id));
+    
+    if (!deleted) {
+      return res.status(404).json({
+        success: false,
+        message: 'Game not found'
+      });
+    }
+    
+    return res.json({
+      success: true,
+      message: 'Game deleted successfully'
+    });
+    
+  } catch (error) {
+    console.error('Error deleting game:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to delete game. It might have associated data.'
+    });
+  }
+}

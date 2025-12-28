@@ -19,5 +19,6 @@ router.get('/:id/status', gameController.getGameStatus);
 // Admin routes
 router.post('/', authenticate, isAdmin, gameController.createGame);
 router.put('/:id', authenticate, isAdmin, gameController.updateGame);
+router.delete('/:id', authenticate, isAdmin, gameController.deleteGame);
 
 module.exports = router;

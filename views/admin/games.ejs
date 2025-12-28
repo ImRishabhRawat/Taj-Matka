@@ -85,6 +85,10 @@
                                                         data-id="<%= game.id %>" data-status="<%= game.is_active %>">
                                                     <i class="fas fa-power-off me-1"></i> <%= game.is_active ? 'Deactivate' : 'Activate' %>
                                                 </button>
+                                                <button class="btn btn-sm btn-outline-danger rounded-pill px-3 ms-2 delete-game" 
+                                                        data-id="<%= game.id %>">
+                                                    <i class="fas fa-trash me-1"></i> Delete
+                                                </button>
                                             </td>
                                         </tr>
                                     <% }); %>
@@ -197,6 +201,41 @@
                     await apiCall(`/api/games/${id}`, 'PUT', { isActive: !currentStatus });
                     location.reload();
                 } catch (err) {}
+            });
+        });
+
+        // Delete Game
+        document.querySelectorAll('.delete-game').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const id = btn.dataset.id;
+                
+                const result = await Swal.fire({
+                    title: 'Are you sure?',
+                    text: "You won't be able to revert this! This will permanently delete the game.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, delete it!'
+                });
+
+                if (result.isConfirmed) {
+                    try {
+                        await apiCall(`/api/games/${id}`, 'DELETE');
+                        Swal.fire(
+                            'Deleted!',
+                            'Game has been deleted.',
+                            'success'
+                        ).then(() => location.reload());
+                    } catch (err) {
+                        console.error(err);
+                        Swal.fire(
+                            'Error!',
+                            'Failed to delete game. It might have associated data.',
+                            'error'
+                        );
+                    }
+                }
             });
         });
     </script>

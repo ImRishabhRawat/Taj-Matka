@@ -25,50 +25,94 @@ async function processResult(sessionId, winningNumber) {
     }
 
     const session = updateSessionResult.rows[0];
+    const winNumStr = winningNumber.toString();
+    const andarDigit = winNumStr[0];
+    const baharDigit = winNumStr[1];
 
     // 2. Fetch all pending bets for this session
-    const bets = await Bet.getPendingBetsBySession(sessionId);
+    const betsResult = await client.query(
+      `SELECT * FROM bets 
+       WHERE game_session_id = $1 AND status = 'pending'`,
+      [sessionId]
+    );
+    const bets = betsResult.rows;
     
-    // 3. Process each bet
+    const winningBets = [];
+    const losingBetIds = [];
+    
+    // 3. Logic: Classify bets
     for (const bet of bets) {
-      const isWin = bet.bet_number === winningNumber;
+      let isWin = false;
       
+      // Handle different bet types
+      if (bet.bet_type === 'jodi') {
+        isWin = bet.bet_number === winNumStr;
+      } else if (bet.bet_type === 'haruf_andar') {
+        isWin = bet.bet_number === andarDigit;
+      } else if (bet.bet_type === 'haruf_bahar') {
+        isWin = bet.bet_number === baharDigit;
+      }
+
       if (isWin) {
-        const payout = bet.bet_amount * bet.payout_multiplier;
-        
-        // Update bet status
-        await client.query(
-          `UPDATE bets SET status = 'win', payout_amount = $1 WHERE id = $2`,
-          [payout, bet.id]
-        );
-        
-        // Update user balance (Winning balance)
-        await client.query(
-          `UPDATE users SET winning_balance = winning_balance + $1 WHERE id = $2`,
-          [payout, bet.user_id]
-        );
-        
-        // Record transaction
-        const userResult = await client.query('SELECT winning_balance FROM users WHERE id = $1', [bet.user_id]);
-        const newWinningBalance = userResult.rows[0].winning_balance;
-        
-        await client.query(
-          `INSERT INTO transactions 
-           (user_id, transaction_type, amount, balance_before, balance_after, description, reference_id, reference_type) 
-           VALUES ($1, 'win', $2, $3, $4, $5, $6, 'bet')`,
-          [bet.user_id, payout, newWinningBalance - payout, newWinningBalance, `Win payout for session ${sessionId} (${winningNumber})`, bet.id]
-        );
+        winningBets.push(bet);
       } else {
-        // Update bet status to loss
-        await client.query(
-          `UPDATE bets SET status = 'loss' WHERE id = $1`,
-          [bet.id]
-        );
+        losingBetIds.push(bet.id);
       }
     }
 
-    // 4. Reset/Prepare for next session (Handled by getOrCreateTodaySession later, 
-    // but we can proactively trigger it if needed or just let it be on-demand)
+    // 4. Batch Process Losers
+    if (losingBetIds.length > 0) {
+       await client.query(
+         `UPDATE bets SET status = 'loss' WHERE id = ANY($1::int[])`,
+         [losingBetIds]
+       );
+    }
+
+    // 5. Process Winners
+    // Group by user to minimize User table locking/updates
+    const userWinnings = new Map(); // userId -> { totalPayout, bets }
+
+    for (const bet of winningBets) {
+      const amount = parseFloat(bet.bet_amount);
+      const multiplier = parseFloat(bet.payout_multiplier);
+      const payout = amount * multiplier;
+
+      // Update the individual bet first
+      await client.query(
+        `UPDATE bets SET status = 'win', payout_amount = $1 WHERE id = $2`,
+        [payout, bet.id]
+      );
+
+      // Aggregate for user update
+      if (!userWinnings.has(bet.user_id)) {
+        userWinnings.set(bet.user_id, { totalPayout: 0, count: 0 });
+      }
+      const userData = userWinnings.get(bet.user_id);
+      userData.totalPayout += payout;
+      userData.count += 1;
+    }
+
+    // Update Users and Insert Transactions
+    for (const [userId, data] of userWinnings) {
+      const { totalPayout, count } = data;
+      
+      // Update User Balance
+      const userUpdate = await client.query(
+           `UPDATE users SET winning_balance = winning_balance + $1 WHERE id = $2 RETURNING winning_balance`,
+           [totalPayout, userId]
+      );
+      
+      const newWinningBalance = parseFloat(userUpdate.rows[0].winning_balance);
+      const prevBalance = newWinningBalance - totalPayout;
+
+      // Create Transaction
+      await client.query(
+        `INSERT INTO transactions 
+         (user_id, transaction_type, amount, balance_before, balance_after, description, reference_id, reference_type) 
+         VALUES ($1, 'win', $2, $3, $4, $5, $6, 'game_session')`,
+        [userId, totalPayout, prevBalance, newWinningBalance, `Win payout for ${count} bet(s) in session ${sessionId} (${winningNumber})`, sessionId]
+      );
+    }
     
     await client.query('COMMIT');
     return { success: true, session };

@@ -446,6 +446,99 @@ async function getBidHistory(req, res) {
   }
 }
 
+/**
+ * Get User Details Page
+ */
+async function getUserDetails(req, res) {
+  try {
+    const { id } = req.params;
+    const userDetails = await User.findById(id);
+    
+    if (!userDetails) {
+      return res.status(404).send('User not found');
+    }
+
+    // Initialize history object
+    const history = {
+      bids: [],
+      wins: [],
+      withdrawals: [],
+      transactions: []
+    };
+
+    // Fetch Bidding History
+    const bidsResult = await pool.query(
+      `SELECT b.*, g.name as game_name 
+       FROM bets b 
+       JOIN game_sessions gs ON b.game_session_id = gs.id 
+       JOIN games g ON gs.game_id = g.id
+       WHERE b.user_id = $1 
+       ORDER BY b.created_at DESC LIMIT 50`,
+      [id]
+    );
+    history.bids = bidsResult.rows;
+
+    // Fetch Winning History
+    const winsResult = await pool.query(
+      `SELECT b.*, g.name as game_name 
+       FROM bets b 
+       JOIN game_sessions gs ON b.game_session_id = gs.id 
+       JOIN games g ON gs.game_id = g.id
+       WHERE b.user_id = $1 AND b.status = 'win' 
+       ORDER BY b.created_at DESC LIMIT 50`,
+      [id]
+    );
+    history.wins = winsResult.rows;
+
+    // Fetch Withdrawal History
+    const withdrawalsResult = await pool.query(
+      `SELECT * FROM withdrawal_requests WHERE user_id = $1 ORDER BY created_at DESC LIMIT 20`,
+      [id]
+    );
+    history.withdrawals = withdrawalsResult.rows;
+
+    // Fetch Wallet History (Transactions)
+    const transactionsResult = await pool.query(
+      `SELECT * FROM transactions WHERE user_id = $1 ORDER BY created_at DESC LIMIT 50`,
+      [id]
+    );
+    history.transactions = transactionsResult.rows;
+
+    // Fetch Bank Details (Last used in withdrawal specific to this user)
+    // Since we don't store it in user table properly yet, we try to pick from last withdrawal
+    let bankDetails = null;
+    const lastWithdrawal = withdrawalsResult.rows.find(w => w.bank_details);
+    if (lastWithdrawal && lastWithdrawal.bank_details) {
+      bankDetails = lastWithdrawal.bank_details;
+    }
+
+    res.render('admin/user-details', {
+      title: 'User Details',
+      user: req.user,
+      userDetails: userDetails,
+      bankDetails: bankDetails,
+      history: history
+    });
+  } catch (error) {
+    console.error('Error getting user details:', error);
+    res.status(500).send('Internal Server Error');
+  }
+}
+
+/**
+ * Delete User
+ */
+async function deleteUser(req, res) {
+  try {
+    const { id } = req.params;
+    await pool.query('DELETE FROM users WHERE id = $1', [id]);
+    res.json({ success: true, message: 'User deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+}
+
 module.exports = {
   getDashboard,
   getGames,
@@ -460,5 +553,7 @@ module.exports = {
   getMarketStatsByDateAPI,
   getGameRates,
   updateGameRates,
-  getBidHistory
+  getBidHistory,
+  getUserDetails,
+  deleteUser
 };

@@ -21,6 +21,8 @@ router.get('/dashboard', adminController.getDashboard);
 router.get('/games', adminController.getGames);
 router.get('/result-entry', adminController.getResultEntry);
 router.get('/users', adminController.getUsers);
+router.get('/users/:id', adminController.getUserDetails);
+router.delete('/api/users/:id', adminController.deleteUser);
 router.put('/api/users/:id/status', adminController.updateUserStatus);
 router.get('/withdrawals', adminController.getWithdrawals);
 router.get('/api/bids/:gameId', adminController.getBidStatsAPI);

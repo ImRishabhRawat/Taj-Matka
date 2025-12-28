@@ -294,8 +294,27 @@ module.exports = {
   getResults,
   create,
   update,
+  deleteGame,
   getChartData
 };
+
+/**
+ * Delete game permanently
+ * @param {number} gameId - Game ID
+ * @returns {Promise<boolean>} True if deleted
+ */
+async function deleteGame(gameId) {
+  try {
+    const result = await pool.query(
+      'DELETE FROM games WHERE id = $1 RETURNING id',
+      [gameId]
+    );
+    return result.rows.length > 0;
+  } catch (error) {
+    console.error('Error deleting game:', error);
+    throw error;
+  }
+}
 
 /**
  * Get chart data (matrix of games vs dates)

@@ -35,10 +35,15 @@
                 <i class="fas fa-chart-line"></i> Bid Monitor
             </a>
         </li>
-        <li class="<%= title === 'Manage Users' ? 'active' : '' %>">
-            <a href="/admin/users">
-                <i class="fas fa-users"></i> User Management
+        <li class="<%= ['Manage Users', 'User Details'].includes(title) ? 'active' : '' %>">
+            <a href="#userSubmenu" data-bs-toggle="collapse" aria-expanded="<%= ['Manage Users', 'User Details'].includes(title) %>" class="dropdown-toggle d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-users"></i> User Management</span>
             </a>
+            <ul class="collapse list-unstyled ps-3 <%= ['Manage Users', 'User Details'].includes(title) ? 'show' : '' %>" id="userSubmenu">
+                <li class="<%= title === 'Manage Users' ? 'active' : '' %>">
+                    <a href="/admin/users" style="padding-left: 10px; font-size: 0.95rem;">All Users</a>
+                </li>
+            </ul>
         </li>
         <li class="<%= title === 'Withdrawal Requests' ? 'active' : '' %>">
             <a href="/admin/withdrawals">
