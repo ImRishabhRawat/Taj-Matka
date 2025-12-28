@@ -355,36 +355,69 @@ async function getBidStats(gameSessionId) {
   try {
     const result = await pool.query(
       `SELECT 
+        bet_type,
         bet_number, 
         SUM(bet_amount) as total_amount, 
         COUNT(*) as total_bets 
        FROM bets 
-       WHERE game_session_id = $1 AND bet_type = 'jodi'
-       GROUP BY bet_number`,
+       WHERE game_session_id = $1
+       GROUP BY bet_type, bet_number`,
       [gameSessionId]
     );
     
-    // Create a map of existing results
-    const statsMap = {};
-    result.rows.forEach(row => {
-      statsMap[row.bet_number] = {
-        amount: parseFloat(row.total_amount),
-        count: parseInt(row.total_bets)
-      };
-    });
-    
-    // Fill in all numbers 00-99
-    const fullStats = [];
+    // Initialize stats containers
+    const stats = {
+      jodi: [],
+      haruf_andar: [],
+      haruf_bahar: []
+    };
+
+    // Helper to create map
+    const createMap = (type) => {
+      const map = {};
+      result.rows
+        .filter(row => row.bet_type === type)
+        .forEach(row => {
+          map[row.bet_number] = {
+            amount: parseFloat(row.total_amount),
+            count: parseInt(row.total_bets)
+          };
+        });
+      return map;
+    };
+
+    const jodiMap = createMap('jodi');
+    const andarMap = createMap('haruf_andar');
+    const baharMap = createMap('haruf_bahar');
+
+    // Fill in 00-99 for Jodi
     for (let i = 0; i <= 99; i++) {
-      const num = i.toString().padStart(2, '0');
-      fullStats.push({
-        number: num,
-        amount: statsMap[num] ? statsMap[num].amount : 0,
-        count: statsMap[num] ? statsMap[num].count : 0
-      });
+        const num = i.toString().padStart(2, '0');
+        stats.jodi.push({
+            number: num,
+            amount: jodiMap[num] ? jodiMap[num].amount : 0,
+            count: jodiMap[num] ? jodiMap[num].count : 0
+        });
+    }
+
+    // Fill in 0-9 for Haruf
+    for (let i = 0; i <= 9; i++) {
+        const num = i.toString();
+        
+        stats.haruf_andar.push({
+            number: num,
+            amount: andarMap[num] ? andarMap[num].amount : 0,
+            count: andarMap[num] ? andarMap[num].count : 0
+        });
+
+        stats.haruf_bahar.push({
+            number: num,
+            amount: baharMap[num] ? baharMap[num].amount : 0,
+            count: baharMap[num] ? baharMap[num].count : 0
+        });
     }
     
-    return fullStats;
+    return stats;
   } catch (error) {
     console.error('Error getting bid stats:', error);
     throw error;

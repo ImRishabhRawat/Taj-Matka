@@ -102,11 +102,25 @@
                     <!-- Bid Monitor Stats -->
                     <div class="col-lg-8">
                         <div class="card shadow border-0 rounded-4" id="stats-container" style="display: none;">
-                            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                                <h6 class="m-0 fw-bold text-primary" id="selected-game-name">Bid Stats</h6>
-                                <button class="btn btn-sm btn-outline-primary" onclick="refreshStats()">
-                                    <i class="fas fa-sync-alt"></i> Refresh
-                                </button>
+                            <div class="card-header bg-white py-3">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="m-0 fw-bold text-primary" id="selected-game-name">Bid Stats</h6>
+                                    <button class="btn btn-sm btn-outline-primary" onclick="refreshStats()">
+                                        <i class="fas fa-sync-alt"></i> Refresh
+                                    </button>
+                                </div>
+                                <!-- Tabs -->
+                                <ul class="nav nav-pills nav-fill" id="betTypeTabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active fw-bold" id="jodi-tab" data-bs-toggle="pill" data-bs-target="#jodi" type="button" role="tab" onclick="switchTab('jodi')">Jodi (00-99)</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link fw-bold" id="andar-tab" data-bs-toggle="pill" data-bs-target="#andar" type="button" role="tab" onclick="switchTab('haruf_andar')">Haruf Andar</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link fw-bold" id="bahar-tab" data-bs-toggle="pill" data-bs-target="#bahar" type="button" role="tab" onclick="switchTab('haruf_bahar')">Haruf Bahar</button>
+                                    </li>
+                                </ul>
                             </div>
                             <div class="card-body p-0">
                                 <div class="table-responsive stats-table-container">
@@ -127,15 +141,15 @@
                             <div class="card-footer bg-white py-3">
                                 <div class="row text-center mb-3">
                                     <div class="col-4">
-                                        <div class="small text-muted">Least Money</div>
+                                        <div class="small text-muted">Least Money (Tab)</div>
                                         <div class="fw-bold text-success" id="least-money-num">-</div>
                                     </div>
                                     <div class="col-4 border-start border-end">
-                                        <div class="small text-muted">Most Money</div>
+                                        <div class="small text-muted">Most Money (Tab)</div>
                                         <div class="fw-bold text-danger" id="most-money-num">-</div>
                                     </div>
                                     <div class="col-4">
-                                        <div class="small text-muted">Total Collection</div>
+                                        <div class="small text-muted">Total Collection (All)</div>
                                         <div class="fw-bold text-primary" id="total-collection">₹0</div>
                                     </div>
                                 </div>
@@ -195,7 +209,8 @@
     <script>
         let currentGameId = null;
         let currentSessionId = null;
-        let statsData = [];
+        let allStats = { jodi: [], haruf_andar: [], haruf_bahar: [] };
+        let currentTab = 'jodi';
         let declareModal = null;
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -212,6 +227,9 @@
             document.getElementById('stats-container').style.display = 'block';
             document.getElementById('selected-game-name').innerText = `Bid Stats: ${gameName}`;
             
+            // Reset tab to Jodi
+            document.getElementById('jodi-tab').click();
+            
             showLoader();
             
             try {
@@ -219,8 +237,8 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    statsData = result.data;
-                    currentSessionId = result.session.id; // Store current session ID
+                    allStats = result.data; // Store full structure
+                    currentSessionId = result.session.id;
                     renderStatsTable();
                 } else {
                     alert('Error: ' + result.message);
@@ -231,6 +249,11 @@
             } finally {
                 hideLoader();
             }
+        }
+
+        function switchTab(tabName) {
+            currentTab = tabName;
+            renderStatsTable();
         }
 
         function openDeclareModal() {
@@ -292,26 +315,45 @@
             const tbody = document.getElementById('bids-body');
             tbody.innerHTML = '';
             
-            let totalColl = 0;
+            const statsData = allStats[currentTab] || [];
+            
+            let tabTotal = 0;
             let maxAmt = -1;
             let minAmt = Infinity;
             let maxNum = '-';
             let minNum = '-';
             
+            // Calculate Grand Total across all tabs
+            let grandTotal = 0;
+            ['jodi', 'haruf_andar', 'haruf_bahar'].forEach(key => {
+                if (allStats[key]) {
+                    allStats[key].forEach(i => grandTotal += i.amount);
+                }
+            });
+
             statsData.forEach(item => {
                 const row = document.createElement('tr');
+                
+                // Highlight row if bet is placed
+                if (item.amount > 0) {
+                    row.style.backgroundColor = '#e0f2f1'; 
+                    row.style.borderLeft = '4px solid #009688'; 
+                }
+
                 row.innerHTML = `
                     <td class="ps-4">
-                        <div class="number-badge">${item.number}</div>
+                        <div class="number-badge" ${item.amount > 0 ? 'style="background-color: #009688;"' : ''}>${item.number}</div>
                     </td>
-                    <td>${item.count}</td>
+                    <td>
+                        <span ${item.amount > 0 ? 'class="fw-bold text-dark"' : ''}>${item.count}</span>
+                    </td>
                     <td class="text-end pe-4">
-                        <span class="amount-text">₹${item.amount.toLocaleString()}</span>
+                        <span class="amount-text" ${item.amount > 0 ? 'style="color: #00695c; font-size: 1.1em;"' : ''}>₹${item.amount.toLocaleString()}</span>
                     </td>
                 `;
                 tbody.appendChild(row);
                 
-                totalColl += item.amount;
+                tabTotal += item.amount;
                 if (item.amount > maxAmt) {
                     maxAmt = item.amount;
                     maxNum = item.number;
@@ -322,12 +364,20 @@
                 }
             });
             
-            document.getElementById('total-collection').innerText = `₹${totalColl.toLocaleString()}`;
+            if (statsData.length === 0) {
+                 tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted py-4">No data available</td></tr>';
+                 minAmt = 0; maxAmt = 0;
+            }
+
+            document.getElementById('total-collection').innerText = `₹${grandTotal.toLocaleString()}`;
             document.getElementById('most-money-num').innerText = `${maxNum} (₹${maxAmt.toLocaleString()})`;
             document.getElementById('least-money-num').innerText = `${minNum} (₹${minAmt.toLocaleString()})`;
         }
 
         function sortTable(columnIndex) {
+            const statsData = allStats[currentTab];
+            if (!statsData) return;
+
             if (columnIndex === 0) {
                 statsData.sort((a, b) => a.number.localeCompare(b.number));
             } else if (columnIndex === 1) {
