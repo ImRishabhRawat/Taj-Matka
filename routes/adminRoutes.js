@@ -13,6 +13,9 @@ router.use(requireAdmin);
 // Monitor routes
 router.get('/bid-monitor', adminController.getMarketMonitor);
 router.get('/market-monitor', adminController.getMarketMonitor);
+router.get('/game-rates', adminController.getGameRates);
+router.post('/game-rates', adminController.updateGameRates);
+router.get('/bid-history', adminController.getBidHistory);
 
 router.get('/dashboard', adminController.getDashboard);
 router.get('/games', adminController.getGames);

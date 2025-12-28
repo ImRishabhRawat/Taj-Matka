@@ -126,6 +126,87 @@ async function getUserBets(userId, limit = 50, offset = 0) {
 }
 
 /**
+ * Get all bets (Admin)
+ * @param {Object} filters - Filter criteria
+ * @param {number} limit - Number of bets to fetch
+ * @param {number} offset - Offset for pagination
+ * @returns {Promise<Object>} { rows: Array, total: number }
+ */
+async function getAllBets(filters = {}, limit = 50, offset = 0) {
+  try {
+    let query = `
+       SELECT 
+        b.*,
+        u.name as user_name,
+        u.phone as user_phone,
+        g.name as game_name,
+        gs.session_date,
+        gs.winning_number
+       FROM bets b
+       JOIN users u ON b.user_id = u.id
+       JOIN game_sessions gs ON b.game_session_id = gs.id
+       JOIN games g ON gs.game_id = g.id
+       WHERE 1=1
+    `;
+    
+    const params = [];
+    let paramCount = 1;
+
+    if (filters.startDate) {
+      query += ` AND b.created_at >= $${paramCount}`;
+      params.push(filters.startDate);
+      paramCount++;
+    }
+
+    if (filters.endDate) {
+      query += ` AND b.created_at <= $${paramCount}`;
+      params.push(filters.endDate);
+      paramCount++;
+    }
+
+    if (filters.gameId) {
+      query += ` AND g.id = $${paramCount}`;
+      params.push(filters.gameId);
+      paramCount++;
+    }
+
+    if (filters.betType) {
+      query += ` AND b.bet_type = $${paramCount}`;
+      params.push(filters.betType);
+      paramCount++;
+    }
+    
+    if (filters.search) {
+      query += ` AND (u.name ILIKE $${paramCount} OR u.phone ILIKE $${paramCount})`;
+      params.push(`%${filters.search}%`);
+      paramCount++;
+    }
+
+    // Get total count for pagination
+    // Creating a separate count query from the base query construction
+    // This is a bit inefficient but safe. Optimized way is window function count(*) OVER()
+    
+    const countQueryStr = `SELECT COUNT(*) as total FROM (${query}) as subquery`;
+    const countResult = await pool.query(countQueryStr, params);
+    const total = parseInt(countResult.rows[0].total);
+
+    // Add ordering and pagination
+    query += ` ORDER BY b.created_at DESC LIMIT $${paramCount} OFFSET $${paramCount+1}`;
+    params.push(limit, offset);
+
+    const result = await pool.query(query, params);
+    
+    return {
+      rows: result.rows,
+      total: total
+    };
+  } catch (error) {
+    console.error('Error getting all bets:', error);
+    throw error;
+  }
+}
+
+/**
  * Get bets by game session
  * @param {number} gameSessionId - Game session ID
  * @param {string} status - Bet status filter (optional)
@@ -319,5 +400,6 @@ module.exports = {
   getUserStats,
   getPendingBetsBySession,
   getBidStats,
-  updateStatus
+  updateStatus,
+  getAllBets
 };

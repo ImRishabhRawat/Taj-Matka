@@ -79,15 +79,21 @@ function calculateTotalAmount(bets) {
 /**
  * Get payout multiplier based on bet type
  * @param {string} betType - 'jodi', 'haruf_andar', 'haruf_bahar'
+ * @param {Object} rates - Optional dynamic rates { rate_jodi, rate_haruf }
  * @returns {number} Multiplier
  */
-function getPayoutMultiplier(betType) {
-  const multipliers = {
+function getPayoutMultiplier(betType, rates = {}) {
+  const defaultMultipliers = {
     'jodi': 90,
     'haruf_andar': 9,
     'haruf_bahar': 9
   };
-  return multipliers[betType] || 0;
+
+  // If dynamic rates provided, use them
+  if (rates.rate_jodi && betType === 'jodi') return parseFloat(rates.rate_jodi);
+  if (rates.rate_haruf && betType.includes('haruf')) return parseFloat(rates.rate_haruf);
+
+  return defaultMultipliers[betType] || 0;
 }
 
 module.exports = {

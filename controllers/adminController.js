@@ -6,6 +6,8 @@
 const User = require('../models/User');
 const Game = require('../models/Game');
 const Transaction = require('../models/Transaction');
+const Settings = require('../models/Settings');
+const Bet = require('../models/Bet');
 const pool = require('../config/database');
 
 /**
@@ -369,6 +371,81 @@ async function updateUserStatus(req, res) {
   }
 }
 
+/**
+ * Game Rates Management
+ */
+async function getGameRates(req, res) {
+  try {
+    const rates = await Settings.getAll();
+    res.render('admin/game-rates', {
+      title: 'Game Rates',
+      user: req.user,
+      rates: rates
+    });
+  } catch (error) {
+    console.error('Error getting game rates:', error);
+    res.status(500).send('Internal Server Error');
+  }
+}
+
+async function updateGameRates(req, res) {
+  try {
+    const { rate_jodi, rate_haruf } = req.body;
+    
+    await Settings.set('rate_jodi', rate_jodi);
+    await Settings.set('rate_haruf', rate_haruf);
+    
+    res.json({ success: true, message: 'Rates updated successfully' });
+  } catch (error) {
+    console.error('Error updating game rates:', error);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+}
+
+/**
+ * Bid History
+ */
+async function getBidHistory(req, res) {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+    
+    // Filters
+    const filters = {
+      search: req.query.search || '',
+      startDate: req.query.startDate || '',
+      endDate: req.query.endDate || '',
+      gameId: req.query.gameId || '',
+      betType: req.query.betType || ''
+    };
+
+    const { rows: bets, total } = await Bet.getAllBets(filters, limit, offset);
+    
+    // Fetch games for filter
+    const games = await Game.getAllActive();
+    
+    const totalPages = Math.ceil(total / limit);
+    
+    res.render('admin/bid-history', {
+      title: 'Bid History',
+      user: req.user,
+      bets: bets,
+      games: games,
+      pagination: {
+        page: page,
+        limit: limit,
+        total: total,
+        totalPages: totalPages
+      },
+      filters: filters
+    });
+  } catch (error) {
+    console.error('Error getting bid history:', error);
+    res.status(500).send('Internal Server Error');
+  }
+}
+
 module.exports = {
   getDashboard,
   getGames,
@@ -380,5 +457,8 @@ module.exports = {
   getBidStatsAPI,
   declareResult,
   scheduleResult,
-  getMarketStatsByDateAPI
+  getMarketStatsByDateAPI,
+  getGameRates,
+  updateGameRates,
+  getBidHistory
 };

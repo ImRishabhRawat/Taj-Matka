@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('partials/head') %>
+</head>
+<body>
+
+    <div class="wrapper d-flex">
+        <!-- Sidebar -->
+        <%- include('partials/sidebar') %>
+
+        <!-- Page Content -->
+        <div id="content">
+            <!-- Top Navbar -->
+            <nav class="navbar navbar-expand-lg navbar-light">
+                <div class="container-fluid">
+                    <button type="button" id="sidebarCollapse" class="btn btn-toggle-sidebar">
+                        <i class="fas fa-align-left"></i>
+                    </button>
+                    <div class="ms-auto d-flex align-items-center">
+                        <span class="me-3 d-none d-md-inline"><%= user.name %></span>
+                        <img src="https://ui-avatars.com/api/?name=Admin&background=4e73df&color=fff" alt="Admin" class="rounded-circle" width="35">
+                    </div>
+                </div>
+            </nav>
+
+            <div class="container-fluid p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2 class="fw-bold">Bid History</h2>
+                        <p class="text-secondary">View global betting history</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                         <button class="btn btn-outline-primary" onclick="location.href=window.location.pathname">
+                            <i class="fas fa-sync-alt me-1"></i> Reset Filters
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-body p-4">
+                        <form method="GET" action="/admin/bid-history" class="row g-3">
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold small text-muted text-uppercase">Search User</label>
+                                <input type="text" name="search" class="form-control rounded-3" placeholder="Name or Phone" value="<%= filters.search %>">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-bold small text-muted text-uppercase">Game</label>
+                                <select name="gameId" class="form-select rounded-3">
+                                    <option value="">All Games</option>
+                                    <% games.forEach(game => { %>
+                                        <option value="<%= game.id %>" <%= filters.gameId == game.id ? 'selected' : '' %>><%= game.name %></option>
+                                    <% }); %>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-bold small text-muted text-uppercase">Bet Type</label>
+                                <select name="betType" class="form-select rounded-3">
+                                    <option value="">All Types</option>
+                                    <option value="jodi" <%= filters.betType == 'jodi' ? 'selected' : '' %>>Jodi</option>
+                                    <option value="haruf_andar" <%= filters.betType == 'haruf_andar' ? 'selected' : '' %>>Haruf Andar</option>
+                                    <option value="haruf_bahar" <%= filters.betType == 'haruf_bahar' ? 'selected' : '' %>>Haruf Bahar</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-bold small text-muted text-uppercase">From Date</label>
+                                <input type="date" name="startDate" class="form-control rounded-3" value="<%= filters.startDate %>">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label fw-bold small text-muted text-uppercase">To Date</label>
+                                <input type="date" name="endDate" class="form-control rounded-3" value="<%= filters.endDate %>">
+                            </div>
+                            <div class="col-md-1 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary w-100 rounded-3">
+                                    <i class="fas fa-filter"></i>
+                                </button>
+                            </div>
+                            <!-- Hidden input to preserve limit when filtering -->
+                            <input type="hidden" name="limit" value="<%= pagination.limit %>">
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card admin-table border-0">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Date/Time</th>
+                                        <th>User</th>
+                                        <th>Game</th>
+                                        <th>Type</th>
+                                        <th>Number</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Result</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if (bets.length === 0) { %>
+                                        <tr>
+                                            <td colspan="8" class="text-center py-5 text-muted">
+                                                <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
+                                                <p>No bets found matching your criteria</p>
+                                            </td>
+                                        </tr>
+                                    <% } else { %>
+                                        <% bets.forEach(bet => { 
+                                            const betDate = new Date(bet.created_at).toLocaleString();
+                                            let statusBadge = 'bg-warning-subtle text-warning';
+                                            if (bet.status === 'win') statusBadge = 'bg-success-subtle text-success';
+                                            if (bet.status === 'loss') statusBadge = 'bg-danger-subtle text-danger';
+                                        %>
+                                            <tr>
+                                                <td class="small"><%= betDate %></td>
+                                                <td>
+                                                    <div class="fw-bold"><%= bet.user_name || 'Unknown' %></div>
+                                                    <div class="small text-muted"><%= bet.user_phone %></div>
+                                                </td>
+                                                <td>
+                                                    <div class="fw-600"><%= bet.game_name %></div>
+                                                    <div class="small text-muted"><%= new Date(bet.session_date).toLocaleDateString() %></div>
+                                                </td>
+                                                <td>
+                                                    <span class="badge bg-light text-dark border"><%= bet.bet_type.replace('_', ' ').toUpperCase() %></span>
+                                                </td>
+                                                <td class="fw-bold fs-5 font-monospace"><%= bet.bet_number %></td>
+                                                <td class="fw-bold">₹<%= bet.bet_amount %></td>
+                                                <td>
+                                                    <span class="badge <%= statusBadge %> border rounded-pill px-3">
+                                                        <%= bet.status.toUpperCase() %>
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <% if (bet.winning_number) { %>
+                                                        <span class="badge bg-dark text-white"><%= bet.winning_number %></span>
+                                                    <% } else { %>
+                                                        <span class="text-muted">-</span>
+                                                    <% } %>
+                                                </td>
+                                            </tr>
+                                        <% }); %>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Pagination & Footer -->
+                    <div class="card-footer bg-white border-0 py-3">
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+                            <div class="d-flex align-items-center text-muted small">
+                                <span class="me-2">Show</span>
+                                <select class="form-select form-select-sm d-inline-block w-auto border-0 bg-light" 
+                                        onchange="updateLimit(this.value)">
+                                    <option value="10" <%= pagination.limit === 10 ? 'selected' : '' %>>10</option>
+                                    <option value="25" <%= pagination.limit === 25 ? 'selected' : '' %>>25</option>
+                                    <option value="50" <%= pagination.limit === 50 ? 'selected' : '' %>>50</option>
+                                    <option value="100" <%= pagination.limit === 100 ? 'selected' : '' %>>100</option>
+                                </select>
+                                <span class="ms-2">entries</span>
+                                <span class="ms-3 border-start ps-3">
+                                    Total: <strong><%= pagination.total %></strong> records
+                                </span>
+                            </div>
+
+                            <nav>
+                                <ul class="pagination pagination-sm mb-0">
+                                    <% 
+                                    const currentUrlParams = new URLSearchParams(filters);
+                                    currentUrlParams.set('limit', pagination.limit);
+                                    
+                                    const getPageUrl = (p) => {
+                                        const pParams = new URLSearchParams(currentUrlParams);
+                                        pParams.set('page', p);
+                                        return '/admin/bid-history?' + pParams.toString();
+                                    }
+                                    %>
+
+                                    <li class="page-item <%= pagination.page === 1 ? 'disabled' : '' %>">
+                                        <a class="page-link rounded-start-3" href="<%= getPageUrl(pagination.page - 1) %>">
+                                            <i class="fas fa-chevron-left"></i>
+                                        </a>
+                                    </li>
+                                    
+                                    <li class="page-item active">
+                                        <span class="page-link"><%= pagination.page %> / <%= pagination.totalPages || 1 %></span>
+                                    </li>
+
+                                    <li class="page-item <%= pagination.page >= pagination.totalPages ? 'disabled' : '' %>">
+                                        <a class="page-link rounded-end-3" href="<%= getPageUrl(pagination.page + 1) %>">
+                                            <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('partials/scripts') %>
+
+    <script>
+        function updateLimit(newLimit) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('limit', newLimit);
+            url.searchParams.set('page', 1); // Reset to page 1 on limit change
+            window.location.href = url.toString();
+        }
+    </script>
+</body>
+</html>

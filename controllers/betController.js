@@ -6,6 +6,7 @@
 const Bet = require('../models/Bet');
 const Game = require('../models/Game');
 const User = require('../models/User');
+const Settings = require('../models/Settings');
 const { 
   generateCrossingBets, 
   applyPalti, 
@@ -55,6 +56,9 @@ async function placeBet(req, res) {
       return res.status(400).json({ success: false, message: 'Betting is closed for this session' });
     }
     
+    // Get dynamic rates
+    const rates = await Settings.getAll();
+
     // 3. Prepare bets array (Unified Logic)
     let betsToPlace = [];
     
@@ -65,7 +69,7 @@ async function placeBet(req, res) {
         if (type === 'andar') type = 'haruf_andar';
         if (type === 'bahar') type = 'haruf_bahar';
         
-        const payoutMultiplier = getPayoutMultiplier(type);
+        const payoutMultiplier = getPayoutMultiplier(type, rates);
         betsToPlace.push({
           gameSessionId: session.id,
           betType: type,
@@ -83,13 +87,13 @@ async function placeBet(req, res) {
         betType: 'jodi',
         betNumber: combo.number,
         betAmount: parseFloat(amount),
-        payoutMultiplier: getPayoutMultiplier('jodi')
+        payoutMultiplier: getPayoutMultiplier('jodi', rates)
       }));
     }
     // Mode C: Multiple Numbers / Copy-Paste / Haruf
     else if (Array.isArray(numbers)) {
       const actualBetType = betType === 'andar' ? 'haruf_andar' : (betType === 'bahar' ? 'haruf_bahar' : (betType || 'jodi'));
-      const payoutMultiplier = getPayoutMultiplier(actualBetType);
+      const payoutMultiplier = getPayoutMultiplier(actualBetType, rates);
 
       for (const num of numbers) {
         // Skip invalid numbers
