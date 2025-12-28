@@ -10,6 +10,7 @@ const { authenticate } = require('../middleware/auth');
 const { isAdmin } = require('../middleware/admin');
 
 // Public/User routes
+router.get('/chart-data', gameController.getChartData); // Specific route first
 router.get('/', gameController.getAllGames);
 router.get('/results', gameController.getResults);
 router.get('/:id', gameController.getGameById);

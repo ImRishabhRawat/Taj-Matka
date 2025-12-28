@@ -293,5 +293,78 @@ module.exports = {
   isGameOpen,
   getResults,
   create,
-  update
+  update,
+  getChartData
 };
+
+/**
+ * Get chart data (matrix of games vs dates)
+ * @param {number} days - Number of days to look back
+ * @returns {Promise<Object>} Chart data structure
+ */
+async function getChartData(days = 30) {
+  try {
+    // 1. Get all active games for columns
+    const gamesResult = await pool.query(
+      'SELECT id, name FROM games WHERE is_active = true ORDER BY open_time ASC'
+    );
+    const games = gamesResult.rows;
+    
+    // 2. Get session data for the date range
+    // Calculate cutoff date in JS
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - days);
+    const cutoffDateStr = cutoffDate.toISOString().split('T')[0];
+
+    // We want dates in DESC order
+    const result = await pool.query(
+      `SELECT 
+        gs.session_date,
+        gs.winning_number,
+        gs.game_id
+       FROM game_sessions gs
+       JOIN games g ON gs.game_id = g.id
+       WHERE g.is_active = true 
+       AND gs.status = 'completed'
+       AND gs.session_date >= $1
+       ORDER BY gs.session_date DESC`,
+       [cutoffDateStr]
+    );
+    
+    // 3. Process data into rows
+    // Map: DateString -> { gameId: winningNumber }
+    const dateMap = new Map();
+    
+    result.rows.forEach(row => {
+      // Format date to YYYY-MM-DD to ensure key consistency
+      // Date object from pg might need formatting
+      const dateKey = new Date(row.session_date).toISOString().split('T')[0];
+      
+      if (!dateMap.has(dateKey)) {
+        dateMap.set(dateKey, {});
+      }
+      
+      const dayData = dateMap.get(dateKey);
+      dayData[row.game_id] = row.winning_number;
+    });
+    
+    // Sort dates descending
+    const sortedDates = Array.from(dateMap.keys()).sort((a, b) => b.localeCompare(a));
+    
+    const chartData = sortedDates.map(date => {
+      return {
+        date,
+        results: dateMap.get(date)
+      };
+    });
+    
+    return {
+      games,
+      chartData
+    };
+    
+  } catch (error) {
+    console.error('Error getting chart data:', error);
+    throw error;
+  }
+}

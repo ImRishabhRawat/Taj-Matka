@@ -231,11 +231,36 @@ async function updateGame(req, res) {
   }
 }
 
+/**
+ * Get chart data
+ * GET /api/games/chart-data
+ */
+async function getChartData(req, res) {
+  try {
+    const { days = 30 } = req.query;
+    
+    const data = await Game.getChartData(parseInt(days));
+    
+    return res.json({
+      success: true,
+      data
+    });
+    
+  } catch (error) {
+    console.error('Error getting chart data:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to get chart data'
+    });
+  }
+}
+
 module.exports = {
   getAllGames,
   getGameById,
   getGameStatus,
   getResults,
   createGame,
-  updateGame
+  updateGame,
+  getChartData
 };

@@ -18,7 +18,7 @@ const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 
-
+// Trigger restart 3
 
 // Middleware
 app.use(morgan('dev')); // Logging
