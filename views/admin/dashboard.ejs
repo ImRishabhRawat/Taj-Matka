@@ -49,102 +49,225 @@
                 <!-- Stats Row -->
                 <div class="row">
                     <div class="col-xl-3 col-md-6 mb-4">
-                        <div class="card stat-card h-100">
+                        <div class="card stat-card h-100 border-0 shadow-sm rounded-4">
                             <div class="card-body">
-                                <div class="stat-icon bg-gradient-primary text-white">
-                                    <i class="fas fa-users"></i>
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="stat-icon bg-primary bg-opacity-10 text-primary rounded-circle p-3 me-3">
+                                        <i class="fas fa-users fa-lg"></i>
+                                    </div>
+                                    <div class="stat-label text-secondary fw-semibold">Total Users</div>
                                 </div>
-                                <div class="stat-label">Total Users</div>
-                                <div class="stat-value"><%= stats.userCount %></div>
+                                <div class="stat-value h3 fw-bold mb-0 text-dark"><%= stats.userCount %></div>
                             </div>
                         </div>
                     </div>
 
                     <div class="col-xl-3 col-md-6 mb-4">
-                        <div class="card stat-card h-100">
+                        <div class="card stat-card h-100 border-0 shadow-sm rounded-4">
                             <div class="card-body">
-                                <div class="stat-icon bg-gradient-success text-white">
-                                    <i class="fas fa-gamepad"></i>
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="stat-icon bg-success bg-opacity-10 text-success rounded-circle p-3 me-3">
+                                        <i class="fas fa-gamepad fa-lg"></i>
+                                    </div>
+                                    <div class="stat-label text-secondary fw-semibold">Total Players Today</div>
                                 </div>
-                                <div class="stat-label">Active Games</div>
-                                <div class="stat-value"><%= stats.activeGamesCount %></div>
+                                <div class="stat-value h3 fw-bold mb-0 text-dark"><%= stats.todayPlayersCount %></div>
                             </div>
                         </div>
                     </div>
 
                     <div class="col-xl-3 col-md-6 mb-4">
-                        <div class="card stat-card h-100">
-                            <div class="card-body text-decoration-none" onclick="location.href='/admin/withdrawals'" style="cursor: pointer;">
-                                <div class="stat-icon bg-gradient-warning text-white">
-                                    <i class="fas fa-clock"></i>
+                        <div class="card stat-card h-100 border-0 shadow-sm rounded-4">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="stat-icon bg-info bg-opacity-10 text-info rounded-circle p-3 me-3">
+                                        <i class="fas fa-user-plus fa-lg"></i>
+                                    </div>
+                                    <div class="stat-label text-secondary fw-semibold">Today Registration</div>
                                 </div>
-                                <div class="stat-label">Pending Withdrawals</div>
-                                <div class="stat-value"><%= stats.pendingWithdrawalsCount %></div>
+                                <div class="stat-value h3 fw-bold mb-0 text-dark"><%= stats.todayRegistrationCount %></div>
                             </div>
                         </div>
                     </div>
 
                     <div class="col-xl-3 col-md-6 mb-4">
-                        <div class="card stat-card h-100">
+                        <div class="card stat-card h-100 border-0 shadow-sm rounded-4">
                             <div class="card-body">
-                                <div class="stat-icon bg-gradient-info text-white">
-                                    <i class="fas fa-wallet"></i>
+                                <div class="d-flex align-items-center mb-2">
+                                    <div class="stat-icon bg-warning bg-opacity-10 text-warning rounded-circle p-3 me-3">
+                                        <i class="fas fa-sign-in-alt fa-lg"></i>
+                                    </div>
+                                    <div class="stat-label text-secondary fw-semibold">Today Login Users</div>
                                 </div>
-                                <div class="stat-label">User Liabilities</div>
-                                <div class="stat-value">₹<%= parseFloat(stats.totalBalance).toLocaleString() %></div>
+                                <div class="stat-value h3 fw-bold mb-0 text-dark"><%= stats.todayLoginCount %></div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Content Row -->
-                <div class="row">
-                    <div class="col-lg-8 mb-4">
-                        <div class="card shadow border-0 rounded-4">
-                            <div class="card-header bg-white py-3 border-0">
-                                <h6 class="m-0 fw-bold text-primary">Quick Actions</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="row g-3">
-                                    <div class="col-md-4">
-                                        <a href="/admin/result-entry" class="btn btn-primary w-100 p-3 rounded-3 d-flex flex-column align-items-center">
-                                            <i class="fas fa-trophy mb-2 fa-2x"></i>
-                                            Declare Results
-                                        </a>
+                <!-- New Sections Row -->
+                <div class="row g-4 mb-4">
+                    <!-- Market Bid Details Section -->
+                    <div class="col-lg-6">
+                        <div class="card shadow border-0 rounded-4 h-100">
+                            <div class="card-body p-4">
+                                <h5 class="fw-bold mb-4 text-dark">Market Bid Details for <span id="displayDate" class="text-primary"><%= new Date().toLocaleDateString('en-GB').replace(/\//g, '-') %></span></h5>
+                                
+                                <form id="marketStatsForm" class="mb-4">
+                                    <div class="mb-3">
+                                        <input type="date" id="statsDate" class="form-control form-control-lg rounded-3 border-light bg-light" required value="<%= new Date().toISOString().split('T')[0] %>">
                                     </div>
-                                    <div class="col-md-4">
-                                        <a href="/admin/users" class="btn btn-success w-100 p-3 rounded-3 d-flex flex-column align-items-center">
-                                            <i class="fas fa-user-plus mb-2 fa-2x"></i>
-                                            Manage Users
-                                        </a>
+                                    <div class="mb-3">
+                                        <select id="statsGameId" class="form-select form-select-lg rounded-3 border-light bg-light" required>
+                                            <option value="" selected disabled>Select Game Name</option>
+                                            <% if (typeof games !== 'undefined' && games.length > 0) { %>
+                                                <% games.forEach(game => { %>
+                                                    <option value="<%= game.id %>"><%= game.name %></option>
+                                                <% }); %>
+                                            <% } else { %>
+                                                <option value="" disabled>No active games available</option>
+                                            <% } %>
+                                        </select>
                                     </div>
-                                    <div class="col-md-4">
-                                        <a href="/admin/games" class="btn btn-info text-white w-100 p-3 rounded-3 d-flex flex-column align-items-center">
-                                            <i class="fas fa-plus-circle mb-2 fa-2x"></i>
-                                            Manage Games
-                                        </a>
+                                    <div class="d-flex justify-content-end">
+                                        <button type="submit" class="btn btn-success px-4 py-2 rounded-3 fw-bold">Submit</button>
+                                    </div>
+                                </form>
+
+                                <div class="stats-results">
+                                    <!-- Total Bid -->
+                                    <div class="d-flex justify-content-between align-items-center p-3 mb-2 rounded-3" style="border: 1px dashed #ccc;">
+                                        <span class="fw-bold text-dark">Total Bid Amount</span>
+                                        <span class="fw-bold text-dark me-auto ms-5" id="totalBidValue">Rs 0</span>
+                                        <button class="btn btn-primary btn-sm px-3 rounded-pill" onclick="viewDetails('bids')">View</button>
+                                    </div>
+                                    
+                                    <!-- Total Win -->
+                                    <div class="d-flex justify-content-between align-items-center p-3 mb-2 rounded-3" style="border: 1px dashed #ccc;">
+                                        <span class="fw-bold text-dark">Total Win Amount</span>
+                                        <span class="fw-bold text-dark me-auto ms-5" id="totalWinValue">Rs 0</span>
+                                        <button class="btn btn-primary btn-sm px-3 rounded-pill" onclick="viewDetails('wins')">View</button>
+                                    </div>
+
+                                    <!-- Profit -->
+                                    <div class="d-flex justify-content-between align-items-center p-3 mt-3 rounded-3 bg-success text-white">
+                                        <span class="fw-bold">Total Profit Amount</span>
+                                        <span class="fw-bold" id="totalProfitValue">Rs 0</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-lg-4 mb-4">
-                        <div class="card shadow border-0 rounded-4">
-                            <div class="card-header bg-white py-3 border-0">
-                                <h6 class="m-0 fw-bold text-primary">Notifications</h6>
+                    <!-- Useful Features / Quick Actions Section -->
+                    <div class="col-lg-6">
+                        <div class="row g-4 h-100">
+                             <!-- Useful Features Placeholder -->
+                            <div class="col-12">
+                                <div class="card shadow border-0 rounded-4">
+                                    <div class="card-header bg-white py-3 border-0">
+                                        <h6 class="m-0 fw-bold text-primary">Useful Features</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="p-5 text-center bg-light rounded-3 border-dashed">
+                                            <i class="fas fa-tools fa-3x text-secondary mb-3"></i>
+                                            <h5 class="text-secondary">More Features Coming Soon</h5>
+                                            <p class="text-muted small">This section is reserved for future enhancements.</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="card-body text-center py-5">
-                                <i class="fas fa-bell fa-3x text-light mb-3"></i>
-                                <p class="text-secondary">No new notifications</p>
+                            
+                            <!-- Existing Quick Actions (Moved here or kept below?) -->
+                            <!-- I will keep the original Quick Actions below the new row if explicit replacement is hard, but here I am creating a split layout. -->
+                            <!-- Let's put Quick Actions here instead of the placeholder to save space if needed, but USER ask for "another section". -->
+                            
+                             <div class="col-12">
+                                <div class="card shadow border-0 rounded-4 h-100">
+                                    <div class="card-header bg-white py-3 border-0">
+                                        <h6 class="m-0 fw-bold text-primary">Quick Actions</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <a href="/admin/result-entry" class="btn btn-primary w-100 p-3 rounded-3 d-flex flex-column align-items-center">
+                                                    <i class="fas fa-trophy mb-2 fa-2x"></i>
+                                                    Declare Results
+                                                </a>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <a href="/admin/users" class="btn btn-success w-100 p-3 rounded-3 d-flex flex-column align-items-center">
+                                                    <i class="fas fa-user-plus mb-2 fa-2x"></i>
+                                                    Manage Users
+                                                </a>
+                                            </div>
+                                            <div class="col-12">
+                                                <a href="/admin/games" class="btn btn-info text-white w-100 p-3 rounded-3 d-flex flex-column align-items-center">
+                                                    <i class="fas fa-plus-circle mb-2 fa-2x"></i>
+                                                    Manage Games
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Previous Quick Actions & Notifications (Removing/Replacing original block) -->
+                <!-- Use hidden div for original structure that we replaced entirely -->
             </div>
         </div>
     </div>
 
     <%- include('partials/scripts') %>
+
+    <script>
+        // Market Stats Logic
+        document.getElementById('marketStatsForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const date = document.getElementById('statsDate').value;
+            const gameId = document.getElementById('statsGameId').value;
+            
+            // Update display date
+            const formattedDate = new Date(date).toLocaleDateString('en-GB').replace(/\//g, '-');
+            document.getElementById('displayDate').textContent = formattedDate;
+
+            try {
+                const response = await fetch(`/admin/api/market-stats?gameId=${gameId}&date=${date}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    const data = result.data;
+                    document.getElementById('totalBidValue').textContent = 'Rs ' + data.totalBid;
+                    document.getElementById('totalWinValue').textContent = 'Rs ' + data.totalWin;
+                    document.getElementById('totalProfitValue').textContent = 'Rs ' + data.profit;
+                } else {
+                    alert('Failed to fetch stats');
+                }
+            } catch (error) {
+                console.error('Error fetching stats:', error);
+                alert('An error occurred');
+            }
+        });
+
+        // View Details Button Handler (Placeholder)
+        function viewDetails(type) {
+            // Need to know current game and date
+            const date = document.getElementById('statsDate').value;
+            const gameId = document.getElementById('statsGameId').value;
+            
+            if (!gameId) {
+                alert('Please select a game first');
+                return;
+            }
+            
+            // Redirect to bid monitor with filters?
+            // Since bid monitor might accept params, let's assume query params
+            window.location.href = `/admin/bid-monitor?gameId=${gameId}&date=${date}`;
+        }
+    </script>
 </body>
 </html>

@@ -21,17 +21,40 @@ async function getDashboard(req, res) {
     // Get total balance across all users
     const totalBalanceResult = await pool.query('SELECT SUM(balance + winning_balance) as total FROM users');
     
+    const today = new Date().toISOString().split('T')[0];
+    
+    // Get distinct users who played today
+    const activePlayersResult = await pool.query(
+      `SELECT COUNT(DISTINCT user_id) 
+       FROM bets 
+       WHERE created_at::date = $1`,
+       [today]
+    );
+
+    // Get today's registrations
+    const todayRegistrationsResult = await pool.query(
+      `SELECT COUNT(*) FROM users WHERE created_at::date = $1`,
+      [today]
+    );
+
     const stats = {
       userCount: userCountResult.rows[0].count,
       activeGamesCount: activeGamesCountResult.rows[0].count,
       pendingWithdrawalsCount: pendingWithdrawalsCountResult.rows[0].count,
-      totalBalance: totalBalanceResult.rows[0].total || 0
+      totalBalance: totalBalanceResult.rows[0].total || 0,
+      todayPlayersCount: activePlayersResult.rows[0].count,
+      todayRegistrationCount: todayRegistrationsResult.rows[0].count,
+      todayLoginCount: 0 // Placeholder as we don't track logins yet
     };
+
+    // Get all games for the dropdown
+    const games = await Game.getAllActive();
 
     res.render('admin/dashboard', { 
       title: 'Admin Dashboard', 
       user: req.user,
-      stats: stats
+      stats: stats,
+      games: games
     });
   } catch (error) {
     console.error('Error getting admin dashboard:', error);
@@ -214,6 +237,60 @@ async function scheduleResult(req, res) {
 
 
 /**
+ * Get Market Stats by Date API
+ */
+async function getMarketStatsByDateAPI(req, res) {
+  try {
+    const { gameId, date } = req.query;
+    
+    // Find session
+    const sessionResult = await pool.query(
+      'SELECT id FROM game_sessions WHERE game_id = $1 AND session_date = $2',
+      [gameId, date]
+    );
+    
+    if (sessionResult.rows.length === 0) {
+      return res.json({
+        success: true,
+        data: {
+          totalBid: 0,
+          totalWin: 0,
+          profit: 0
+        }
+      });
+    }
+    
+    const sessionId = sessionResult.rows[0].id;
+    
+    // Calculate stats
+    const statsResult = await pool.query(
+      `SELECT 
+        COALESCE(SUM(bet_amount), 0) as total_bid,
+        COALESCE(SUM(payout_amount), 0) as total_win
+       FROM bets 
+       WHERE game_session_id = $1`,
+      [sessionId]
+    );
+    
+    const totalBid = parseFloat(statsResult.rows[0].total_bid);
+    const totalWin = parseFloat(statsResult.rows[0].total_win);
+    
+    res.json({
+      success: true,
+      data: {
+        totalBid,
+        totalWin,
+        profit: totalBid - totalWin
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error getting market stats:', error);
+    res.status(500).json({ success: false, message: 'Internal Server Error' });
+  }
+}
+
+/**
  * Update User Status (Block/Unblock)
  */
 async function updateUserStatus(req, res) {
@@ -244,5 +321,6 @@ module.exports = {
   getMarketMonitor,
   getBidStatsAPI,
   declareResult,
-  scheduleResult
+  scheduleResult,
+  getMarketStatsByDateAPI
 };
