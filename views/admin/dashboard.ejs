@@ -2,6 +2,16 @@
 <html lang="en">
 <head>
     <%- include('partials/head') %>
+    <style>
+        .nav-tabs .nav-link {
+            color: #6c757d; /* text-muted */
+            border-bottom: 3px solid transparent;
+        }
+        .nav-tabs .nav-link.active {
+            color: #0d6efd; /* text-primary */
+            border-bottom: 3px solid #0d6efd;
+        }
+    </style>
 </head>
 <body>
 
@@ -120,12 +130,12 @@
                                     <div class="mb-3">
                                         <select id="statsGameId" class="form-select form-select-lg rounded-3 border-light bg-light" required>
                                             <option value="" selected disabled>Select Game Name</option>
-                                            <% if (typeof games !== 'undefined' && games.length > 0) { %>
-                                                <% games.forEach(game => { %>
+                                            <% if (typeof games !== 'undefined' && games && games.length > 0) { %>
+                                                <% games.forEach(function(game) { %>
                                                     <option value="<%= game.id %>"><%= game.name %></option>
                                                 <% }); %>
                                             <% } else { %>
-                                                <option value="" disabled>No active games available</option>
+                                                <option value="" disabled>No active games found</option>
                                             <% } %>
                                         </select>
                                     </div>
@@ -162,17 +172,95 @@
                     <!-- Useful Features / Quick Actions Section -->
                     <div class="col-lg-6">
                         <div class="row g-4 h-100">
-                             <!-- Useful Features Placeholder -->
+                             <!-- Useful Features / Top Performers Section -->
                             <div class="col-12">
-                                <div class="card shadow border-0 rounded-4">
-                                    <div class="card-header bg-white py-3 border-0">
-                                        <h6 class="m-0 fw-bold text-primary">Useful Features</h6>
+                                <div class="card shadow border-0 rounded-4 h-100">
+                                    <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                                        <h6 class="m-0 fw-bold text-primary">
+                                            <%= typeof period !== 'undefined' && period === 'week' ? "This Week's" : "Today's" %> Top Performers
+                                        </h6>
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light rounded-pill px-3 dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                                <%= typeof period !== 'undefined' && period === 'week' ? 'This Week' : 'Today' %>
+                                            </button>
+                                            <ul class="dropdown-menu border-0 shadow">
+                                                <li><a class="dropdown-item <%= typeof period === 'undefined' || period === 'today' ? 'active' : '' %>" href="?period=today">Today</a></li>
+                                                <li><a class="dropdown-item <%= typeof period !== 'undefined' && period === 'week' ? 'active' : '' %>" href="?period=week">This Week</a></li>
+                                            </ul>
+                                        </div>
                                     </div>
-                                    <div class="card-body">
-                                        <div class="p-5 text-center bg-light rounded-3 border-dashed">
-                                            <i class="fas fa-tools fa-3x text-secondary mb-3"></i>
-                                            <h5 class="text-secondary">More Features Coming Soon</h5>
-                                            <p class="text-muted small">This section is reserved for future enhancements.</p>
+                                    <div class="card-body p-0">
+                                        <ul class="nav nav-tabs nav-fill border-0 mb-3" id="statsTabs" role="tablist">
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link active rounded-0 border-0 fw-bold bg-transparent" id="winners-tab" data-bs-toggle="tab" data-bs-target="#winners" type="button" role="tab">Top Winners</button>
+                                            </li>
+                                            <li class="nav-item" role="presentation">
+                                                <button class="nav-link rounded-0 border-0 fw-bold bg-transparent" id="bidders-tab" data-bs-toggle="tab" data-bs-target="#bidders" type="button" role="tab">Top Bidders</button>
+                                            </li>
+                                        </ul>
+                                        
+                                        <div class="tab-content px-3 pb-3" id="statsTabsContent">
+                                            <!-- Top Winners -->
+                                            <div class="tab-pane fade show active" id="winners" role="tabpanel">
+                                                <% if (typeof topWinners !== 'undefined' && topWinners && topWinners.length > 0) { %>
+                                                    <div class="list-group list-group-flush">
+                                                        <% topWinners.forEach((winner, index) => { %>
+                                                            <div class="list-group-item border-0 d-flex align-items-center px-2 py-2 mb-1 rounded-3 hover-bg-light">
+                                                                <div class="me-3 position-relative">
+                                                                    <img src="https://ui-avatars.com/api/?name=<%= winner.name %>&background=random" class="rounded-circle" width="40" height="40">
+                                                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark border border-white" style="font-size: 0.6rem;">
+                                                                        #<%= index + 1 %>
+                                                                    </span>
+                                                                </div>
+                                                                <div class="flex-grow-1">
+                                                                    <h6 class="mb-0 fw-bold text-dark"><%= winner.name %></h6>
+                                                                    <small class="text-muted"><%= winner.phone %></small>
+                                                                </div>
+                                                                <div class="text-end">
+                                                                    <span class="d-block fw-bold text-success">+ ₹<%= parseFloat(winner.total_win).toLocaleString() %></span>
+                                                                    <small class="text-success bg-success bg-opacity-10 px-2 py-0.5 rounded-pill" style="font-size: 0.7rem;">Won</small>
+                                                                </div>
+                                                            </div>
+                                                        <% }); %>
+                                                    </div>
+                                                <% } else { %>
+                                                    <div class="text-center py-4">
+                                                        <i class="fas fa-trophy text-muted fa-2x mb-2 opacity-50"></i>
+                                                        <p class="text-muted mb-0 small">No winners yet today</p>
+                                                    </div>
+                                                <% } %>
+                                            </div>
+
+                                            <!-- Top Bidders -->
+                                            <div class="tab-pane fade" id="bidders" role="tabpanel">
+                                                <% if (typeof topBidders !== 'undefined' && topBidders && topBidders.length > 0) { %>
+                                                    <div class="list-group list-group-flush">
+                                                        <% topBidders.forEach((bidder, index) => { %>
+                                                            <div class="list-group-item border-0 d-flex align-items-center px-2 py-2 mb-1 rounded-3 hover-bg-light">
+                                                                <div class="me-3 position-relative">
+                                                                    <img src="https://ui-avatars.com/api/?name=<%= bidder.name %>&background=random" class="rounded-circle" width="40" height="40">
+                                                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info text-white border border-white" style="font-size: 0.6rem;">
+                                                                        #<%= index + 1 %>
+                                                                    </span>
+                                                                </div>
+                                                                <div class="flex-grow-1">
+                                                                    <h6 class="mb-0 fw-bold text-dark"><%= bidder.name %></h6>
+                                                                    <small class="text-muted"><%= bidder.phone %></small>
+                                                                </div>
+                                                                <div class="text-end">
+                                                                    <span class="d-block fw-bold text-primary">₹<%= parseFloat(bidder.total_bid).toLocaleString() %></span>
+                                                                    <small class="text-primary bg-primary bg-opacity-10 px-2 py-0.5 rounded-pill" style="font-size: 0.7rem;">Bet</small>
+                                                                </div>
+                                                            </div>
+                                                        <% }); %>
+                                                    </div>
+                                                <% } else { %>
+                                                    <div class="text-center py-4">
+                                                        <i class="fas fa-coins text-muted fa-2x mb-2 opacity-50"></i>
+                                                        <p class="text-muted mb-0 small">No bets placed yet today</p>
+                                                    </div>
+                                                <% } %>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

@@ -21,21 +21,74 @@ async function getDashboard(req, res) {
     // Get total balance across all users
     const totalBalanceResult = await pool.query('SELECT SUM(balance + winning_balance) as total FROM users');
     
-    const today = new Date().toISOString().split('T')[0];
+    const period = req.query.period || 'today';
+    let dateFilter;
     
+    // Always use today for the "Today's Players" count regardless of filter
+    const todayDate = new Date().toISOString().split('T')[0];
+
     // Get distinct users who played today
     const activePlayersResult = await pool.query(
       `SELECT COUNT(DISTINCT user_id) 
        FROM bets 
        WHERE created_at::date = $1`,
-       [today]
+       [todayDate]
     );
 
-    // Get today's registrations
+     // Get today's registrations
     const todayRegistrationsResult = await pool.query(
       `SELECT COUNT(*) FROM users WHERE created_at::date = $1`,
-      [today]
+      [todayDate]
     );
+    
+    if (period === 'week') {
+      // Calculate date 7 days ago
+      const d = new Date();
+      d.setDate(d.getDate() - 7);
+      dateFilter = d.toISOString().split('T')[0];
+    } else {
+      // Default to today
+      dateFilter = new Date().toISOString().split('T')[0];
+    }
+
+    // Get Top 5 Winners
+    // For 'today' we use exact match, for 'week' we use >=
+    const winnerQuery = period === 'week' 
+      ? `SELECT u.name, u.phone, SUM(b.payout_amount) as total_win
+         FROM bets b
+         JOIN users u ON b.user_id = u.id
+         WHERE b.created_at::date >= $1 AND b.status = 'win'
+         GROUP BY u.id, u.name, u.phone
+         ORDER BY total_win DESC
+         LIMIT 5`
+      : `SELECT u.name, u.phone, SUM(b.payout_amount) as total_win
+         FROM bets b
+         JOIN users u ON b.user_id = u.id
+         WHERE b.created_at::date = $1 AND b.status = 'win'
+         GROUP BY u.id, u.name, u.phone
+         ORDER BY total_win DESC
+         LIMIT 5`;
+
+    const topWinnersResult = await pool.query(winnerQuery, [dateFilter]);
+
+    // Get Top 5 Bidders
+    const bidderQuery = period === 'week'
+      ? `SELECT u.name, u.phone, SUM(b.bet_amount) as total_bid
+         FROM bets b
+         JOIN users u ON b.user_id = u.id
+         WHERE b.created_at::date >= $1
+         GROUP BY u.id, u.name, u.phone
+         ORDER BY total_bid DESC
+         LIMIT 5`
+      : `SELECT u.name, u.phone, SUM(b.bet_amount) as total_bid
+         FROM bets b
+         JOIN users u ON b.user_id = u.id
+         WHERE b.created_at::date = $1
+         GROUP BY u.id, u.name, u.phone
+         ORDER BY total_bid DESC
+         LIMIT 5`;
+
+    const topBiddersResult = await pool.query(bidderQuery, [dateFilter]);
 
     const stats = {
       userCount: userCountResult.rows[0].count,
@@ -49,12 +102,17 @@ async function getDashboard(req, res) {
 
     // Get all games for the dropdown
     const games = await Game.getAllActive();
+    console.log(`[Dashboard] Fetched ${games.length} active games for dropdown.`);
 
     res.render('admin/dashboard', { 
       title: 'Admin Dashboard', 
       user: req.user,
+      user: req.user,
       stats: stats,
-      games: games
+      games: games,
+      topWinners: topWinnersResult.rows,
+      topBidders: topBiddersResult.rows,
+      period: period
     });
   } catch (error) {
     console.error('Error getting admin dashboard:', error);
