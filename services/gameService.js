@@ -132,10 +132,8 @@ async function checkScheduledResults() {
   try {
     const now = new Date();
     const today = now.toISOString().split('T')[0];
-    const currentTime = now.toTimeString().split(' ')[0]; // HH:MM:SS
 
     // Find sessions that are scheduled, pending, and past their close time
-    // We join with games to get the close_time
     const result = await pool.query(
       `SELECT gs.*, g.close_time 
        FROM game_sessions gs
@@ -148,12 +146,39 @@ async function checkScheduledResults() {
     );
 
     for (const session of result.rows) {
-      // If it's a past date, always process. 
-      // If it's today, check if current time is >= close_time
-      const isPastDate = session.session_date.toISOString().split('T')[0] < today;
-      const isPastCloseTime = currentTime >= session.close_time;
+      // Robust Date Comparison
+      // Create a Date object for the session date
+      const sessionDate = new Date(session.session_date);
+      
+      // Parse close_time (HH:MM:SS)
+      const [hours, minutes, seconds] = session.close_time.split(':').map(Number);
+      
+      // Create a specific expiry Date object
+      // usage of local time components
+      const closeDateTime = new Date(
+        sessionDate.getFullYear(),
+        sessionDate.getMonth(),
+        sessionDate.getDate(),
+        hours,
+        minutes,
+        seconds || 0
+      );
 
-      if (isPastDate || isPastCloseTime) {
+      // Determine strictly if we should declare
+      let shouldDeclare = false;
+
+      // 1. If the session date is strictly in the past (yesterday or older), declare it.
+      if (session.session_date.toISOString().split('T')[0] < today) {
+        shouldDeclare = true;
+      } 
+      // 2. If it is today, check if NOW >= CloseDateTime
+      else {
+        if (now >= closeDateTime) {
+          shouldDeclare = true;
+        }
+      }
+
+      if (shouldDeclare) {
         console.log(`🕒 Auto-declaring result for session ${session.id} (Game: ${session.game_id})`);
         await processResult(session.id, session.scheduled_winning_number);
       }
