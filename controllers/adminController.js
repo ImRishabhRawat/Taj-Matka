@@ -145,6 +145,11 @@ async function getGames(req, res) {
 async function getResultEntry(req, res) {
   try {
     const today = new Date().toISOString().split('T')[0];
+    
+    // Ensure sessions exist for all active games
+    const activeGames = await Game.getAllActive();
+    await Promise.all(activeGames.map(game => Game.getOrCreateTodaySession(game.id)));
+
     const games = await Game.getAllWithTodaySessions();
     
     res.render('admin/result-entry', { 

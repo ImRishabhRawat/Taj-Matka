@@ -155,6 +155,8 @@ async function getAllWithTodaySessions() {
         gs.id as session_id,
         gs.session_date,
         gs.winning_number,
+        gs.scheduled_winning_number,
+        gs.is_scheduled,
         gs.status as session_status,
         gs.result_declared_at
        FROM games g

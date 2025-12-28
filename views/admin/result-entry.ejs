@@ -98,16 +98,24 @@
                                                 <i class="fas fa-check-circle text-success me-1"></i> Payouts Processed
                                             </div>
                                         </div>
+                                    <% } else if (game.is_scheduled) { %>
+                                        <div class="text-center py-2">
+                                            <div class="small text-muted mb-1">Scheduled Winning Number</div>
+                                            <div class="display-6 fw-bold text-warning"><%= game.scheduled_winning_number %></div>
+                                            <div class="small text-muted mt-2">
+                                                <i class="fas fa-clock text-warning me-1"></i> Will declare at <%= game.close_time %>
+                                            </div>
+                                        </div>
                                     <% } else { %>
                                         <div class="mb-3">
                                             <label class="form-label small fw-bold">Enter Winning Number (00-99)</label>
                                             <input type="text" id="win-<%= game.session_id %>" class="form-control winning-num-input" maxlength="2" placeholder="--">
                                         </div>
                                         <div class="d-grid gap-2">
-                                            <button class="btn btn-primary declare-btn" onclick="declareResult('<%= game.session_id %>', '<%= game.name %>')">
+                                            <button id="btn-declare-<%= game.session_id %>" class="btn btn-primary declare-btn" onclick="declareResult('<%= game.session_id %>', '<%= game.name %>')">
                                                 <i class="fas fa-check-circle me-1"></i> Declare Result
                                             </button>
-                                            <button class="btn btn-outline-warning declare-btn btn-sm" onclick="scheduleResult('<%= game.session_id %>', '<%= game.name %>')">
+                                            <button id="btn-schedule-<%= game.session_id %>" class="btn btn-outline-warning declare-btn btn-sm" onclick="scheduleResult('<%= game.session_id %>', '<%= game.name %>')">
                                                 <i class="fas fa-clock me-1"></i> Schedule Result
                                             </button>
                                         </div>
@@ -127,6 +135,9 @@
     <script>
         async function declareResult(sessionId, gameName) {
             const winningNumber = document.getElementById(`win-${sessionId}`).value;
+            const btnDeclare = document.getElementById(`btn-declare-${sessionId}`);
+            const btnSchedule = document.getElementById(`btn-schedule-${sessionId}`);
+            const inputField = document.getElementById(`win-${sessionId}`);
             
             if (!winningNumber || winningNumber.length !== 2) {
                 alert('Please enter a valid 2-digit winning number');
@@ -136,6 +147,12 @@
             if (!confirm(`Are you sure you want to declare ${winningNumber} as the winning number for ${gameName}? This action is irreversible and will process all payouts!`)) {
                 return;
             }
+
+            // Disable UI
+            if(btnDeclare) btnDeclare.disabled = true;
+            if(btnSchedule) btnSchedule.disabled = true;
+            if(inputField) inputField.disabled = true;
+            if(btnDeclare) btnDeclare.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Declaring...';
 
             try {
                 const response = await fetch('/admin/api/results/declare', {
@@ -150,15 +167,29 @@
                     window.location.reload();
                 } else {
                     alert('Error: ' + result.message);
+                    // Re-enable UI
+                    if(btnDeclare) btnDeclare.disabled = false;
+                    if(btnSchedule) btnSchedule.disabled = false;
+                    if(inputField) inputField.disabled = false;
+                    if(btnDeclare) btnDeclare.innerHTML = '<i class="fas fa-check-circle me-1"></i> Declare Result';
+                    
                 }
             } catch (error) {
                 console.error('Error:', error);
                 alert('An error occurred while declaring result');
+                // Re-enable UI
+                if(btnDeclare) btnDeclare.disabled = false;
+                if(btnSchedule) btnSchedule.disabled = false;
+                if(inputField) inputField.disabled = false;
+                if(btnDeclare) btnDeclare.innerHTML = '<i class="fas fa-check-circle me-1"></i> Declare Result';
             }
         }
 
         async function scheduleResult(sessionId, gameName) {
             const winningNumber = document.getElementById(`win-${sessionId}`).value;
+            const btnDeclare = document.getElementById(`btn-declare-${sessionId}`);
+            const btnSchedule = document.getElementById(`btn-schedule-${sessionId}`);
+            const inputField = document.getElementById(`win-${sessionId}`);
             
             if (!winningNumber || winningNumber.length !== 2) {
                 alert('Please enter a valid 2-digit winning number');
@@ -169,6 +200,12 @@
                 return;
             }
 
+             // Disable UI
+             if(btnDeclare) btnDeclare.disabled = true;
+             if(btnSchedule) btnSchedule.disabled = true;
+             if(inputField) inputField.disabled = true;
+             if(btnSchedule) btnSchedule.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Scheduling...';
+
             try {
                 const response = await fetch('/admin/api/results/schedule', {
                     method: 'POST',
@@ -178,14 +215,26 @@
 
                 const result = await response.json();
                 if (result.success) {
+                    // Update UI to show scheduled state specifically (or just reload)
+                     if(btnSchedule) btnSchedule.innerHTML = '<i class="fas fa-check me-1"></i> Scheduled';
                     alert(result.message || 'Result scheduled successfully!');
                     window.location.reload();
                 } else {
                     alert('Error: ' + result.message);
+                     // Re-enable UI
+                    if(btnDeclare) btnDeclare.disabled = false;
+                    if(btnSchedule) btnSchedule.disabled = false;
+                    if(inputField) inputField.disabled = false;
+                    if(btnSchedule) btnSchedule.innerHTML = '<i class="fas fa-clock me-1"></i> Schedule Result';
                 }
             } catch (error) {
                 console.error('Error:', error);
                 alert('An error occurred while scheduling result');
+                 // Re-enable UI
+                 if(btnDeclare) btnDeclare.disabled = false;
+                 if(btnSchedule) btnSchedule.disabled = false;
+                 if(inputField) inputField.disabled = false;
+                 if(btnSchedule) btnSchedule.innerHTML = '<i class="fas fa-clock me-1"></i> Schedule Result';
             }
         }
 
