@@ -15,119 +15,138 @@ const pool = require("../config/database");
  */
 async function getDashboard(req, res) {
   try {
-    // Fetch some stats for the dashboard
+    const todayDate = new Date().toISOString().split("T")[0];
+
+    // Basic user stats
     const userCountResult = await pool.query(
       "SELECT COUNT(*) FROM users WHERE role = $1",
       ["user"],
     );
-    const activeGamesCountResult = await pool.query(
-      "SELECT COUNT(*) FROM games WHERE is_active = true",
-    );
-    const pendingWithdrawalsCountResult = await pool.query(
-      "SELECT COUNT(*) FROM withdrawal_requests WHERE status = 'pending'",
+
+    const activeUsersResult = await pool.query(
+      "SELECT COUNT(*) FROM users WHERE role = 'user' AND is_active = true",
     );
 
-    // Get total balance across all users
-    const totalBalanceResult = await pool.query(
-      "SELECT SUM(balance + winning_balance) as total FROM users",
+    const inactiveUsersResult = await pool.query(
+      "SELECT COUNT(*) FROM users WHERE role = 'user' AND is_active = false",
     );
 
-    const period = req.query.period || "today";
-    let dateFilter;
+    const todayRegistrationsResult = await pool.query(
+      "SELECT COUNT(*) FROM users WHERE created_at::date = $1",
+      [todayDate],
+    );
 
-    // Always use today for the "Today's Players" count regardless of filter
-    const todayDate = new Date().toISOString().split("T")[0];
+    // Today's collection (total bets placed today)
+    const todayCollectionResult = await pool.query(
+      "SELECT COALESCE(SUM(bet_amount), 0) as total FROM bets WHERE created_at::date = $1",
+      [todayDate],
+    );
 
-    // Get distinct users who played today
-    const activePlayersResult = await pool.query(
-      `SELECT COUNT(DISTINCT user_id) 
+    // Wallet balance (total balance across all users)
+    const walletBalanceResult = await pool.query(
+      "SELECT COALESCE(SUM(balance + winning_balance), 0) as total FROM users",
+    );
+
+    // Bid report stats
+    const bidStatsResult = await pool.query(
+      `SELECT 
+        COALESCE(SUM(bet_amount), 0) as total_bid,
+        COALESCE(SUM(payout_amount), 0) as total_winning,
+        COUNT(*) as total_bids
        FROM bets 
        WHERE created_at::date = $1`,
       [todayDate],
     );
 
-    // Get today's registrations
-    const todayRegistrationsResult = await pool.query(
-      `SELECT COUNT(*) FROM users WHERE created_at::date = $1`,
+    // Deposit and withdrawal stats for today
+    const depositStatsResult = await pool.query(
+      `SELECT COALESCE(SUM(amount), 0) as total 
+       FROM transactions 
+       WHERE transaction_type = 'deposit' AND created_at::date = $1`,
       [todayDate],
     );
 
-    if (period === "week") {
-      // Calculate date 7 days ago
-      const d = new Date();
-      d.setDate(d.getDate() - 7);
-      dateFilter = d.toISOString().split("T")[0];
-    } else {
-      // Default to today
-      dateFilter = new Date().toISOString().split("T")[0];
-    }
-
-    // Get Top 5 Winners
-    // For 'today' we use exact match, for 'week' we use >=
-    const winnerQuery =
-      period === "week"
-        ? `SELECT u.name, u.phone, SUM(b.payout_amount) as total_win
-         FROM bets b
-         JOIN users u ON b.user_id = u.id
-         WHERE b.created_at::date >= $1 AND b.status = 'win'
-         GROUP BY u.id, u.name, u.phone
-         ORDER BY total_win DESC
-         LIMIT 5`
-        : `SELECT u.name, u.phone, SUM(b.payout_amount) as total_win
-         FROM bets b
-         JOIN users u ON b.user_id = u.id
-         WHERE b.created_at::date = $1 AND b.status = 'win'
-         GROUP BY u.id, u.name, u.phone
-         ORDER BY total_win DESC
-         LIMIT 5`;
-
-    const topWinnersResult = await pool.query(winnerQuery, [dateFilter]);
-
-    // Get Top 5 Bidders
-    const bidderQuery =
-      period === "week"
-        ? `SELECT u.name, u.phone, SUM(b.bet_amount) as total_bid
-         FROM bets b
-         JOIN users u ON b.user_id = u.id
-         WHERE b.created_at::date >= $1
-         GROUP BY u.id, u.name, u.phone
-         ORDER BY total_bid DESC
-         LIMIT 5`
-        : `SELECT u.name, u.phone, SUM(b.bet_amount) as total_bid
-         FROM bets b
-         JOIN users u ON b.user_id = u.id
-         WHERE b.created_at::date = $1
-         GROUP BY u.id, u.name, u.phone
-         ORDER BY total_bid DESC
-         LIMIT 5`;
-
-    const topBiddersResult = await pool.query(bidderQuery, [dateFilter]);
-
-    const stats = {
-      userCount: userCountResult.rows[0].count,
-      activeGamesCount: activeGamesCountResult.rows[0].count,
-      pendingWithdrawalsCount: pendingWithdrawalsCountResult.rows[0].count,
-      totalBalance: totalBalanceResult.rows[0].total || 0,
-      todayPlayersCount: activePlayersResult.rows[0].count,
-      todayRegistrationCount: todayRegistrationsResult.rows[0].count,
-      todayLoginCount: 0, // Placeholder as we don't track logins yet
-    };
-
-    // Get all games for the dropdown
-    const games = await Game.getAllActive();
-    console.log(
-      `[Dashboard] Fetched ${games.length} active games for dropdown.`,
+    const withdrawalStatsResult = await pool.query(
+      `SELECT COALESCE(SUM(amount), 0) as total 
+       FROM transactions 
+       WHERE transaction_type = 'withdrawal' AND created_at::date = $1`,
+      [todayDate],
     );
 
+    // Total deposits and bonuses (all time)
+    const totalDepositsResult = await pool.query(
+      "SELECT COALESCE(SUM(amount), 0) as total FROM transactions WHERE transaction_type = 'deposit'",
+    );
+
+    // Withdrawal request stats
+    const withdrawalRequestsResult = await pool.query(
+      `SELECT 
+        COUNT(*) FILTER (WHERE status = 'pending') as pending,
+        COUNT(*) FILTER (WHERE status = 'approved') as approved,
+        COUNT(*) FILTER (WHERE status = 'rejected') as rejected
+       FROM withdrawal_requests`,
+    );
+
+    // Game stats
+    const gameStatsResult = await pool.query(
+      "SELECT COUNT(*) as total FROM games WHERE is_active = true",
+    );
+
+    const todaySessionsResult = await pool.query(
+      "SELECT COUNT(*) as total FROM game_sessions WHERE session_date = $1",
+      [todayDate],
+    );
+
+    const todayPlayersResult = await pool.query(
+      "SELECT COUNT(DISTINCT user_id) as total FROM bets WHERE created_at::date = $1",
+      [todayDate],
+    );
+
+    const stats = {
+      // Top 3 cards
+      userCount: parseInt(userCountResult.rows[0].count),
+      todayCollection: parseFloat(todayCollectionResult.rows[0].total),
+      walletBalance: parseFloat(walletBalanceResult.rows[0].total),
+
+      // Bid report
+      totalBidAmount: parseFloat(bidStatsResult.rows[0].total_bid),
+      totalWinningAmount: parseFloat(bidStatsResult.rows[0].total_winning),
+      totalBids: parseInt(bidStatsResult.rows[0].total_bids),
+
+      // Profit/Loss report
+      todayDeposits: parseFloat(depositStatsResult.rows[0].total),
+      todayWithdrawals: parseFloat(withdrawalStatsResult.rows[0].total),
+
+      // Deposits & Bonuses
+      totalDeposits: parseFloat(totalDepositsResult.rows[0].total),
+      totalBonuses: 0, // Placeholder - implement bonus tracking if needed
+
+      // User statistics
+      activeUsers: parseInt(activeUsersResult.rows[0].count),
+      inactiveUsers: parseInt(inactiveUsersResult.rows[0].count),
+      todayRegistrationCount: parseInt(todayRegistrationsResult.rows[0].count),
+
+      // Game statistics
+      totalGames: parseInt(gameStatsResult.rows[0].total),
+      todaySessions: parseInt(todaySessionsResult.rows[0].total),
+      todayPlayersCount: parseInt(todayPlayersResult.rows[0].total),
+
+      // Withdrawal statistics
+      pendingWithdrawals: parseInt(
+        withdrawalRequestsResult.rows[0].pending || 0,
+      ),
+      approvedWithdrawals: parseInt(
+        withdrawalRequestsResult.rows[0].approved || 0,
+      ),
+      rejectedWithdrawals: parseInt(
+        withdrawalRequestsResult.rows[0].rejected || 0,
+      ),
+    };
+
     res.render("admin/dashboard", {
-      title: "Admin Dashboard",
-      user: req.user,
+      title: "Dashboard",
       user: req.user,
       stats: stats,
-      games: games,
-      topWinners: topWinnersResult.rows,
-      topBidders: topBiddersResult.rows,
-      period: period,
     });
   } catch (error) {
     console.error("Error getting admin dashboard:", error);

@@ -3,18 +3,154 @@
 <head>
     <%- include('partials/head') %>
     <style>
-        .nav-tabs .nav-link {
-            color: #6c757d; /* text-muted */
-            border-bottom: 3px solid transparent;
+        /* Mobile-first Dashboard Design */
+        .dashboard-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            margin: -1rem -1rem 1.5rem -1rem;
+            border-radius: 0 0 20px 20px;
         }
-        .nav-tabs .nav-link.active {
-            color: #0d6efd; /* text-primary */
-            border-bottom: 3px solid #0d6efd;
+
+        .stat-card-mobile {
+            background: white;
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: transform 0.2s;
+        }
+
+        .stat-card-mobile:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+
+        .stat-card-mobile .stat-label {
+            font-size: 0.875rem;
+            color: #8B92A8;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card-mobile .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2D3748;
+            margin-bottom: 0;
+        }
+
+        .stat-card-mobile .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-card-mobile.positive .stat-value {
+            color: #F56565;
+        }
+
+        .stat-card-mobile.negative .stat-value {
+            color: #F56565;
+        }
+
+        .report-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .report-card .report-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .report-card .report-subtitle {
+            font-size: 0.75rem;
+            color: #A0AEC0;
+            margin-bottom: 1rem;
+        }
+
+        .report-table {
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .report-table th {
+            font-size: 0.75rem;
+            color: #8B92A8;
+            font-weight: 600;
+            text-transform: uppercase;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid #E2E8F0;
+        }
+
+        .report-table td {
+            font-size: 0.875rem;
+            color: #2D3748;
+            font-weight: 500;
+            padding: 0.75rem 0;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.375rem 1rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-badge.profit {
+            background: #10B981;
+            color: white;
+        }
+
+        .status-badge.loss {
+            background: #EF4444;
+            color: white;
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, #E2E8F0, transparent);
+            margin: 1rem 0;
+        }
+
+        /* Desktop responsive */
+        @media (min-width: 768px) {
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1rem;
+            }
+
+            .stat-card-mobile {
+                margin-bottom: 0;
+            }
+
+            .reports-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
         }
     </style>
 </head>
 <body>
-
     <div class="wrapper d-flex">
         <!-- Sidebar -->
         <%- include('partials/sidebar') %>
@@ -49,313 +185,218 @@
             </nav>
 
             <div class="container-fluid p-4">
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <h2 class="fw-bold">Dashboard Overview</h2>
-                        <p class="text-secondary">Welcome back, Admin!</p>
-                    </div>
+                <!-- Dashboard Header -->
+                <div class="dashboard-header">
+                    <h4 class="mb-1 fw-bold">Taj Matka</h4>
+                    <p class="mb-0 opacity-75" style="font-size: 0.875rem;">Dashboard Overview</p>
                 </div>
 
-                <!-- Stats Row -->
-                <div class="row">
-                    <div class="col-xl-3 col-md-6 mb-4">
-                        <div class="card stat-card h-100 border-0 shadow-sm rounded-4">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center mb-2">
-                                    <div class="stat-icon bg-primary bg-opacity-10 text-primary rounded-circle p-3 me-3">
-                                        <i class="fas fa-users fa-lg"></i>
-                                    </div>
-                                    <div class="stat-label text-secondary fw-semibold">Total Users</div>
-                                </div>
-                                <div class="stat-value h3 fw-bold mb-0 text-dark"><%= stats.userCount %></div>
+                <!-- Top 3 Stats Cards -->
+                <div class="stats-grid mb-4">
+                    <!-- Total Users -->
+                    <div class="stat-card-mobile">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="stat-label">Total Users</div>
+                                <div class="stat-value"><%= stats.userCount || 0 %></div>
+                            </div>
+                            <div class="stat-icon" style="background: #FFF5F5; color: #F56565;">
+                                <i class="fas fa-users"></i>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-xl-3 col-md-6 mb-4">
-                        <div class="card stat-card h-100 border-0 shadow-sm rounded-4">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center mb-2">
-                                    <div class="stat-icon bg-success bg-opacity-10 text-success rounded-circle p-3 me-3">
-                                        <i class="fas fa-gamepad fa-lg"></i>
-                                    </div>
-                                    <div class="stat-label text-secondary fw-semibold">Total Players Today</div>
-                                </div>
-                                <div class="stat-value h3 fw-bold mb-0 text-dark"><%= stats.todayPlayersCount %></div>
+                    <!-- Today Collection -->
+                    <div class="stat-card-mobile">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="stat-label">Today Collection</div>
+                                <div class="stat-value" style="color: #F56565;"><%= stats.todayCollection || 0 %></div>
+                            </div>
+                            <div class="stat-icon" style="background: #FFF5F5; color: #F56565;">
+                                <i class="fas fa-credit-card"></i>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-xl-3 col-md-6 mb-4">
-                        <div class="card stat-card h-100 border-0 shadow-sm rounded-4">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center mb-2">
-                                    <div class="stat-icon bg-info bg-opacity-10 text-info rounded-circle p-3 me-3">
-                                        <i class="fas fa-user-plus fa-lg"></i>
-                                    </div>
-                                    <div class="stat-label text-secondary fw-semibold">Today Registration</div>
-                                </div>
-                                <div class="stat-value h3 fw-bold mb-0 text-dark"><%= stats.todayRegistrationCount %></div>
+                    <!-- Wallet Balance -->
+                    <div class="stat-card-mobile negative">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="stat-label">Wallet Balance</div>
+                                <div class="stat-value"><%= stats.walletBalance || 0 %></div>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="col-xl-3 col-md-6 mb-4">
-                        <div class="card stat-card h-100 border-0 shadow-sm rounded-4">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center mb-2">
-                                    <div class="stat-icon bg-warning bg-opacity-10 text-warning rounded-circle p-3 me-3">
-                                        <i class="fas fa-sign-in-alt fa-lg"></i>
-                                    </div>
-                                    <div class="stat-label text-secondary fw-semibold">Today Login Users</div>
-                                </div>
-                                <div class="stat-value h3 fw-bold mb-0 text-dark"><%= stats.todayLoginCount %></div>
+                            <div class="stat-icon" style="background: #FFF5F5; color: #F56565;">
+                                <i class="fas fa-wallet"></i>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- New Sections Row -->
-                <div class="row g-4 mb-4">
-                    <!-- Market Bid Details Section -->
-                    <div class="col-lg-6">
-                        <div class="card shadow border-0 rounded-4 h-100">
-                            <div class="card-body p-4">
-                                <h5 class="fw-bold mb-4 text-dark">Market Bid Details for <span id="displayDate" class="text-primary"><%= new Date().toLocaleDateString('en-GB').replace(/\//g, '-') %></span></h5>
-                                
-                                <form id="marketStatsForm" class="mb-4">
-                                    <div class="mb-3">
-                                        <input type="date" id="statsDate" class="form-control form-control-lg rounded-3 border-light bg-light" required value="<%= new Date().toISOString().split('T')[0] %>">
-                                    </div>
-                                    <div class="mb-3">
-                                        <select id="statsGameId" class="form-select form-select-lg rounded-3 border-light bg-light" required>
-                                            <option value="" selected disabled>Select Game Name</option>
-                                            <% if (typeof games !== 'undefined' && games && games.length > 0) { %>
-                                                <% games.forEach(function(game) { %>
-                                                    <option value="<%= game.id %>"><%= game.name %></option>
-                                                <% }); %>
-                                            <% } else { %>
-                                                <option value="" disabled>No active games found</option>
-                                            <% } %>
-                                        </select>
-                                    </div>
-                                    <div class="d-flex justify-content-end">
-                                        <button type="submit" class="btn btn-success px-4 py-2 rounded-3 fw-bold">Submit</button>
-                                    </div>
-                                </form>
-
-                                <div class="stats-results">
-                                    <!-- Total Bid -->
-                                    <div class="d-flex justify-content-between align-items-center p-3 mb-2 rounded-3" style="border: 1px dashed #ccc;">
-                                        <span class="fw-bold text-dark">Total Bid Amount</span>
-                                        <span class="fw-bold text-dark me-auto ms-5" id="totalBidValue">Rs 0</span>
-                                        <button class="btn btn-primary btn-sm px-3 rounded-pill" onclick="viewDetails('bids')">View</button>
-                                    </div>
-                                    
-                                    <!-- Total Win -->
-                                    <div class="d-flex justify-content-between align-items-center p-3 mb-2 rounded-3" style="border: 1px dashed #ccc;">
-                                        <span class="fw-bold text-dark">Total Win Amount</span>
-                                        <span class="fw-bold text-dark me-auto ms-5" id="totalWinValue">Rs 0</span>
-                                        <button class="btn btn-primary btn-sm px-3 rounded-pill" onclick="viewDetails('wins')">View</button>
-                                    </div>
-
-                                    <!-- Profit -->
-                                    <div class="d-flex justify-content-between align-items-center p-3 mt-3 rounded-3 bg-success text-white">
-                                        <span class="fw-bold">Total Profit Amount</span>
-                                        <span class="fw-bold" id="totalProfitValue">Rs 0</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                <!-- Reports Section -->
+                <div class="reports-grid">
+                    <!-- Bid Report -->
+                    <div class="report-card">
+                        <div class="report-title">Bid Report</div>
+                        <div class="report-subtitle">On Date <%= new Date().toISOString().split('T')[0] %></div>
+                        
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>BID</th>
+                                    <th>WINNING</th>
+                                    <th>TOTAL</th>
+                                    <th>STATUS</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><%= stats.totalBidAmount || 0 %></td>
+                                    <td><%= stats.totalWinningAmount || 0 %></td>
+                                    <td><%= stats.totalBids || 0 %></td>
+                                    <td>
+                                        <% const bidProfit = (stats.totalBidAmount || 0) - (stats.totalWinningAmount || 0); %>
+                                        <span class="status-badge <%= bidProfit >= 0 ? 'profit' : 'loss' %>">
+                                            <%= bidProfit >= 0 ? 'Profit' : 'Loss' %>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="divider"></div>
                     </div>
 
-                    <!-- Useful Features / Quick Actions Section -->
-                    <div class="col-lg-6">
-                        <div class="row g-4 h-100">
-                             <!-- Useful Features / Top Performers Section -->
-                            <div class="col-12">
-                                <div class="card shadow border-0 rounded-4 h-100">
-                                    <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
-                                        <h6 class="m-0 fw-bold text-primary">
-                                            <%= typeof period !== 'undefined' && period === 'week' ? "This Week's" : "Today's" %> Top Performers
-                                        </h6>
-                                        <div class="dropdown">
-                                            <button class="btn btn-sm btn-light rounded-pill px-3 dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                                <%= typeof period !== 'undefined' && period === 'week' ? 'This Week' : 'Today' %>
-                                            </button>
-                                            <ul class="dropdown-menu border-0 shadow">
-                                                <li><a class="dropdown-item <%= typeof period === 'undefined' || period === 'today' ? 'active' : '' %>" href="?period=today">Today</a></li>
-                                                <li><a class="dropdown-item <%= typeof period !== 'undefined' && period === 'week' ? 'active' : '' %>" href="?period=week">This Week</a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                    <div class="card-body p-0">
-                                        <ul class="nav nav-tabs nav-fill border-0 mb-3" id="statsTabs" role="tablist">
-                                            <li class="nav-item" role="presentation">
-                                                <button class="nav-link active rounded-0 border-0 fw-bold bg-transparent" id="winners-tab" data-bs-toggle="tab" data-bs-target="#winners" type="button" role="tab">Top Winners</button>
-                                            </li>
-                                            <li class="nav-item" role="presentation">
-                                                <button class="nav-link rounded-0 border-0 fw-bold bg-transparent" id="bidders-tab" data-bs-toggle="tab" data-bs-target="#bidders" type="button" role="tab">Top Bidders</button>
-                                            </li>
-                                        </ul>
-                                        
-                                        <div class="tab-content px-3 pb-3" id="statsTabsContent">
-                                            <!-- Top Winners -->
-                                            <div class="tab-pane fade show active" id="winners" role="tabpanel">
-                                                <% if (typeof topWinners !== 'undefined' && topWinners && topWinners.length > 0) { %>
-                                                    <div class="list-group list-group-flush">
-                                                        <% topWinners.forEach((winner, index) => { %>
-                                                            <div class="list-group-item border-0 d-flex align-items-center px-2 py-2 mb-1 rounded-3 hover-bg-light">
-                                                                <div class="me-3 position-relative">
-                                                                    <img src="https://ui-avatars.com/api/?name=<%= winner.name %>&background=random" class="rounded-circle" width="40" height="40">
-                                                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark border border-white" style="font-size: 0.6rem;">
-                                                                        #<%= index + 1 %>
-                                                                    </span>
-                                                                </div>
-                                                                <div class="flex-grow-1">
-                                                                    <h6 class="mb-0 fw-bold text-dark"><%= winner.name %></h6>
-                                                                    <small class="text-muted"><%= winner.phone %></small>
-                                                                </div>
-                                                                <div class="text-end">
-                                                                    <span class="d-block fw-bold text-success">+ ₹<%= parseFloat(winner.total_win).toLocaleString() %></span>
-                                                                    <small class="text-success bg-success bg-opacity-10 px-2 py-0.5 rounded-pill" style="font-size: 0.7rem;">Won</small>
-                                                                </div>
-                                                            </div>
-                                                        <% }); %>
-                                                    </div>
-                                                <% } else { %>
-                                                    <div class="text-center py-4">
-                                                        <i class="fas fa-trophy text-muted fa-2x mb-2 opacity-50"></i>
-                                                        <p class="text-muted mb-0 small">No winners yet today</p>
-                                                    </div>
-                                                <% } %>
-                                            </div>
+                    <!-- Profit Loss Report -->
+                    <div class="report-card">
+                        <div class="report-title">Profit Loss Report</div>
+                        <div class="report-subtitle">On Date <%= new Date().toISOString().split('T')[0] %></div>
+                        
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>DEPOSIT</th>
+                                    <th>WITHDRAW</th>
+                                    <th>TOTAL</th>
+                                    <th>RESULT</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><%= stats.todayDeposits || 0 %></td>
+                                    <td><%= stats.todayWithdrawals || 0 %></td>
+                                    <td><%= (stats.todayDeposits || 0) + (stats.todayWithdrawals || 0) %></td>
+                                    <td>
+                                        <% const plProfit = (stats.todayDeposits || 0) - (stats.todayWithdrawals || 0); %>
+                                        <span class="status-badge <%= plProfit >= 0 ? 'profit' : 'loss' %>">
+                                            <%= plProfit >= 0 ? 'Profit' : 'Loss' %>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="divider"></div>
+                    </div>
 
-                                            <!-- Top Bidders -->
-                                            <div class="tab-pane fade" id="bidders" role="tabpanel">
-                                                <% if (typeof topBidders !== 'undefined' && topBidders && topBidders.length > 0) { %>
-                                                    <div class="list-group list-group-flush">
-                                                        <% topBidders.forEach((bidder, index) => { %>
-                                                            <div class="list-group-item border-0 d-flex align-items-center px-2 py-2 mb-1 rounded-3 hover-bg-light">
-                                                                <div class="me-3 position-relative">
-                                                                    <img src="https://ui-avatars.com/api/?name=<%= bidder.name %>&background=random" class="rounded-circle" width="40" height="40">
-                                                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info text-white border border-white" style="font-size: 0.6rem;">
-                                                                        #<%= index + 1 %>
-                                                                    </span>
-                                                                </div>
-                                                                <div class="flex-grow-1">
-                                                                    <h6 class="mb-0 fw-bold text-dark"><%= bidder.name %></h6>
-                                                                    <small class="text-muted"><%= bidder.phone %></small>
-                                                                </div>
-                                                                <div class="text-end">
-                                                                    <span class="d-block fw-bold text-primary">₹<%= parseFloat(bidder.total_bid).toLocaleString() %></span>
-                                                                    <small class="text-primary bg-primary bg-opacity-10 px-2 py-0.5 rounded-pill" style="font-size: 0.7rem;">Bet</small>
-                                                                </div>
-                                                            </div>
-                                                        <% }); %>
-                                                    </div>
-                                                <% } else { %>
-                                                    <div class="text-center py-4">
-                                                        <i class="fas fa-coins text-muted fa-2x mb-2 opacity-50"></i>
-                                                        <p class="text-muted mb-0 small">No bets placed yet today</p>
-                                                    </div>
-                                                <% } %>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Existing Quick Actions (Moved here or kept below?) -->
-                            <!-- I will keep the original Quick Actions below the new row if explicit replacement is hard, but here I am creating a split layout. -->
-                            <!-- Let's put Quick Actions here instead of the placeholder to save space if needed, but USER ask for "another section". -->
-                            
-                             <div class="col-12">
-                                <div class="card shadow border-0 rounded-4 h-100">
-                                    <div class="card-header bg-white py-3 border-0">
-                                        <h6 class="m-0 fw-bold text-primary">Quick Actions</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row g-3">
-                                            <div class="col-md-6">
-                                                <a href="/admin/result-entry" class="btn btn-primary w-100 p-3 rounded-3 d-flex flex-column align-items-center">
-                                                    <i class="fas fa-trophy mb-2 fa-2x"></i>
-                                                    Declare Results
-                                                </a>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <a href="/admin/users" class="btn btn-success w-100 p-3 rounded-3 d-flex flex-column align-items-center">
-                                                    <i class="fas fa-user-plus mb-2 fa-2x"></i>
-                                                    Manage Users
-                                                </a>
-                                            </div>
-                                            <div class="col-12">
-                                                <a href="/admin/games" class="btn btn-info text-white w-100 p-3 rounded-3 d-flex flex-column align-items-center">
-                                                    <i class="fas fa-plus-circle mb-2 fa-2x"></i>
-                                                    Manage Games
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <!-- Deposits & Welcome Bonuses -->
+                    <div class="report-card">
+                        <div class="report-title">Deposits & Welcome Bonuses</div>
+                        <div class="report-subtitle">From Date <%= new Date().toISOString().split('T')[0] %></div>
+                        
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>DEPOSITS</th>
+                                    <th>BONUSES</th>
+                                    <th>TOTAL</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><%= stats.totalDeposits || 0 %></td>
+                                    <td><%= stats.totalBonuses || 0 %></td>
+                                    <td><%= (stats.totalDeposits || 0) + (stats.totalBonuses || 0) %></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="divider"></div>
+                    </div>
+
+                    <!-- User Statistics -->
+                    <div class="report-card">
+                        <div class="report-title">User Statistics</div>
+                        <div class="report-subtitle">Overview</div>
+                        
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>ACTIVE</th>
+                                    <th>INACTIVE</th>
+                                    <th>TODAY</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><%= stats.activeUsers || 0 %></td>
+                                    <td><%= stats.inactiveUsers || 0 %></td>
+                                    <td><%= stats.todayRegistrationCount || 0 %></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="divider"></div>
+                    </div>
+
+                    <!-- Game Statistics -->
+                    <div class="report-card">
+                        <div class="report-title">Game Statistics</div>
+                        <div class="report-subtitle">Today's Activity</div>
+                        
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>GAMES</th>
+                                    <th>SESSIONS</th>
+                                    <th>PLAYERS</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><%= stats.totalGames || 0 %></td>
+                                    <td><%= stats.todaySessions || 0 %></td>
+                                    <td><%= stats.todayPlayersCount || 0 %></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="divider"></div>
+                    </div>
+
+                    <!-- Withdrawal Statistics -->
+                    <div class="report-card">
+                        <div class="report-title">Withdrawal Requests</div>
+                        <div class="report-subtitle">Status Overview</div>
+                        
+                        <table class="report-table">
+                            <thead>
+                                <tr>
+                                    <th>PENDING</th>
+                                    <th>APPROVED</th>
+                                    <th>REJECTED</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><%= stats.pendingWithdrawals || 0 %></td>
+                                    <td><%= stats.approvedWithdrawals || 0 %></td>
+                                    <td><%= stats.rejectedWithdrawals || 0 %></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="divider"></div>
                     </div>
                 </div>
-
-                <!-- Previous Quick Actions & Notifications (Removing/Replacing original block) -->
-                <!-- Use hidden div for original structure that we replaced entirely -->
             </div>
         </div>
     </div>
 
     <%- include('partials/scripts') %>
-
-    <script>
-        // Market Stats Logic
-        document.getElementById('marketStatsForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const date = document.getElementById('statsDate').value;
-            const gameId = document.getElementById('statsGameId').value;
-            
-            // Update display date
-            const formattedDate = new Date(date).toLocaleDateString('en-GB').replace(/\//g, '-');
-            document.getElementById('displayDate').textContent = formattedDate;
-
-            try {
-                const response = await fetch(`/admin/api/market-stats?gameId=${gameId}&date=${date}`);
-                const result = await response.json();
-                
-                if (result.success) {
-                    const data = result.data;
-                    document.getElementById('totalBidValue').textContent = 'Rs ' + data.totalBid;
-                    document.getElementById('totalWinValue').textContent = 'Rs ' + data.totalWin;
-                    document.getElementById('totalProfitValue').textContent = 'Rs ' + data.profit;
-                } else {
-                    alert('Failed to fetch stats');
-                }
-            } catch (error) {
-                console.error('Error fetching stats:', error);
-                alert('An error occurred');
-            }
-        });
-
-        // View Details Button Handler (Placeholder)
-        function viewDetails(type) {
-            // Need to know current game and date
-            const date = document.getElementById('statsDate').value;
-            const gameId = document.getElementById('statsGameId').value;
-            
-            if (!gameId) {
-                alert('Please select a game first');
-                return;
-            }
-            
-            // Redirect to bid monitor with filters?
-            // Since bid monitor might accept params, let's assume query params
-            window.location.href = `/admin/bid-monitor?gameId=${gameId}&date=${date}`;
-        }
-    </script>
 </body>
 </html>
