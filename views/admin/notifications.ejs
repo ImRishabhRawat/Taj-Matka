@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('partials/head') %>
+</head>
+<body>
+    <div class="wrapper d-flex">
+        <!-- Sidebar -->
+        <%- include('partials/sidebar') %>
+
+        <!-- Page Content -->
+        <div id="content">
+            <!-- Top Navbar -->
+            <nav class="navbar navbar-expand-lg navbar-light">
+                <div class="container-fluid">
+                    <button type="button" id="sidebarCollapse" class="btn btn-toggle-sidebar">
+                        <i class="fas fa-align-left"></i>
+                    </button>
+                    
+                    <div class="ms-auto d-flex align-items-center">
+                        <div class="dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <span class="me-2 d-none d-md-inline"><%= user.name || 'Admin' %></span>
+                                <img src="https://ui-avatars.com/api/?name=Admin&background=4e73df&color=fff" alt="Admin" class="rounded-circle" width="35">
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3">
+                                <li><a class="dropdown-item" href="/profile"><i class="fas fa-user fa-sm fa-fw me-2 text-gray-400"></i> Profile</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <button type="button" onclick="handleLogout()" class="dropdown-item text-danger">
+                                        <i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i> Logout
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="container-fluid p-4">
+                <!-- Header -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="fw-bold"><i class="fas fa-bell text-primary me-2"></i>Notifications</h2>
+                        <p class="text-secondary">Send push notifications to users</p>
+                    </div>
+                </div>
+
+                <!-- Send Notification Form -->
+                <div class="row mb-4">
+                    <div class="col-lg-8">
+                        <div class="card shadow border-0 rounded-4">
+                            <div class="card-header bg-white py-3 border-0">
+                                <h5 class="m-0 fw-bold text-primary">Send New Notification</h5>
+                            </div>
+                            <div class="card-body p-4">
+                                <form id="notificationForm">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Send To</label>
+                                        <select class="form-select" id="sendTo" required>
+                                            <option value="all">All Users</option>
+                                            <option value="specific">Specific User</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3 d-none" id="userSelectDiv">
+                                        <label class="form-label fw-bold">Select User</label>
+                                        <input type="text" class="form-control" id="userPhone" placeholder="Enter user phone number">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Title</label>
+                                        <input type="text" class="form-control" id="notificationTitle" placeholder="Enter notification title" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Message</label>
+                                        <textarea class="form-control" id="notificationMessage" rows="4" placeholder="Enter notification message" required></textarea>
+                                    </div>
+
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <button type="reset" class="btn btn-secondary px-4">Clear</button>
+                                        <button type="submit" class="btn btn-primary px-4">
+                                            <i class="fas fa-paper-plane me-2"></i>Send Notification
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notification History -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card shadow border-0 rounded-4">
+                            <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                                <h5 class="m-0 fw-bold text-primary">Notification History</h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="bg-light">
+                                            <tr>
+                                                <th class="px-4 py-3">Date & Time</th>
+                                                <th class="px-4 py-3">Title</th>
+                                                <th class="px-4 py-3">Message</th>
+                                                <th class="px-4 py-3">Sent To</th>
+                                                <th class="px-4 py-3">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% if (notifications && notifications.length > 0) { %>
+                                                <% notifications.forEach(notification => { %>
+                                                    <tr>
+                                                        <td class="px-4 py-3">
+                                                            <%= new Date(notification.created_at).toLocaleString('en-IN') %>
+                                                        </td>
+                                                        <td class="px-4 py-3 fw-bold"><%= notification.title %></td>
+                                                        <td class="px-4 py-3"><%= notification.message %></td>
+                                                        <td class="px-4 py-3">
+                                                            <% if (notification.user_phone) { %>
+                                                                <span class="badge bg-info"><%= notification.user_phone %></span>
+                                                            <% } else { %>
+                                                                <span class="badge bg-primary">All Users</span>
+                                                            <% } %>
+                                                        </td>
+                                                        <td class="px-4 py-3">
+                                                            <span class="badge bg-success">Sent</span>
+                                                        </td>
+                                                    </tr>
+                                                <% }); %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="5" class="text-center py-5 text-muted">
+                                                        <i class="fas fa-bell-slash fa-3x mb-3 opacity-25"></i>
+                                                        <p>No notifications sent yet</p>
+                                                    </td>
+                                                </tr>
+                                            <% } %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('partials/scripts') %>
+
+    <script>
+        // Toggle user select based on send to option
+        document.getElementById('sendTo').addEventListener('change', function() {
+            const userSelectDiv = document.getElementById('userSelectDiv');
+            if (this.value === 'specific') {
+                userSelectDiv.classList.remove('d-none');
+                document.getElementById('userPhone').required = true;
+            } else {
+                userSelectDiv.classList.add('d-none');
+                document.getElementById('userPhone').required = false;
+            }
+        });
+
+        // Handle form submission
+        document.getElementById('notificationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const sendTo = document.getElementById('sendTo').value;
+            const userPhone = document.getElementById('userPhone').value;
+            const title = document.getElementById('notificationTitle').value;
+            const message = document.getElementById('notificationMessage').value;
+
+            try {
+                const response = await fetch('/admin/api/notifications/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sendTo,
+                        userPhone: sendTo === 'specific' ? userPhone : null,
+                        title,
+                        message
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Notification sent successfully',
+                        timer: 2000
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message || 'Failed to send notification'
+                });
+            }
+        });
+    </script>
+</body>
+</html>

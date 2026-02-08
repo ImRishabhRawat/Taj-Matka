@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('partials/head') %>
+</head>
+<body>
+    <div class="wrapper d-flex">
+        <!-- Sidebar -->
+        <%- include('partials/sidebar') %>
+
+        <!-- Page Content -->
+        <div id="content">
+            <!-- Top Navbar -->
+            <nav class="navbar navbar-expand-lg navbar-light">
+                <div class="container-fluid">
+                    <button type="button" id="sidebarCollapse" class="btn btn-toggle-sidebar">
+                        <i class="fas fa-align-left"></i>
+                    </button>
+                    
+                    <div class="ms-auto d-flex align-items-center">
+                        <div class="dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <span class="me-2 d-none d-md-inline"><%= user.name || 'Admin' %></span>
+                                <img src="https://ui-avatars.com/api/?name=Admin&background=4e73df&color=fff" alt="Admin" class="rounded-circle" width="35">
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3">
+                                <li><a class="dropdown-item" href="/profile"><i class="fas fa-user fa-sm fa-fw me-2 text-gray-400"></i> Profile</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <button type="button" onclick="handleLogout()" class="dropdown-item text-danger">
+                                        <i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i> Logout
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="container-fluid p-4">
+                <!-- Header -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="fw-bold"><i class="fas fa-bell text-primary me-2"></i>Popup Management</h2>
+                        <p class="text-secondary">Manage popup messages displayed on user site</p>
+                    </div>
+                </div>
+
+                <!-- Create Popup Form -->
+                <div class="row mb-4">
+                    <div class="col-lg-8">
+                        <div class="card shadow border-0 rounded-4">
+                            <div class="card-header bg-white py-3 border-0">
+                                <h5 class="m-0 fw-bold text-primary">Create New Popup</h5>
+                            </div>
+                            <div class="card-body p-4">
+                                <form id="popupForm">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Title</label>
+                                        <input type="text" class="form-control" id="popupTitle" placeholder="Enter popup title" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Message</label>
+                                        <textarea class="form-control" id="popupMessage" rows="4" placeholder="Enter popup message" required></textarea>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">Start Date</label>
+                                            <input type="date" class="form-control" id="startDate" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">End Date</label>
+                                            <input type="date" class="form-control" id="endDate" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Target Audience</label>
+                                        <select class="form-select" id="targetAudience" required>
+                                            <option value="all">All Users</option>
+                                            <option value="new">New Users Only</option>
+                                            <option value="active">Active Users Only</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="isActive" checked>
+                                            <label class="form-check-label fw-bold" for="isActive">Active</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <button type="reset" class="btn btn-secondary px-4">Clear</button>
+                                        <button type="submit" class="btn btn-primary px-4">
+                                            <i class="fas fa-plus-circle me-2"></i>Create Popup
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Popups -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card shadow border-0 rounded-4">
+                            <div class="card-header bg-white py-3 border-0">
+                                <h5 class="m-0 fw-bold text-primary">All Popups</h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="bg-light">
+                                            <tr>
+                                                <th class="px-4 py-3">Title</th>
+                                                <th class="px-4 py-3">Message</th>
+                                                <th class="px-4 py-3">Duration</th>
+                                                <th class="px-4 py-3">Target</th>
+                                                <th class="px-4 py-3">Status</th>
+                                                <th class="px-4 py-3">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% if (popups && popups.length > 0) { %>
+                                                <% popups.forEach(popup => { %>
+                                                    <tr>
+                                                        <td class="px-4 py-3 fw-bold"><%= popup.title %></td>
+                                                        <td class="px-4 py-3"><%= popup.message.substring(0, 50) %>...</td>
+                                                        <td class="px-4 py-3">
+                                                            <small>
+                                                                <%= new Date(popup.start_date).toLocaleDateString('en-IN') %> - 
+                                                                <%= new Date(popup.end_date).toLocaleDateString('en-IN') %>
+                                                            </small>
+                                                        </td>
+                                                        <td class="px-4 py-3">
+                                                            <span class="badge bg-info"><%= popup.target_audience %></span>
+                                                        </td>
+                                                        <td class="px-4 py-3">
+                                                            <% if (popup.is_active) { %>
+                                                                <span class="badge bg-success">Active</span>
+                                                            <% } else { %>
+                                                                <span class="badge bg-secondary">Inactive</span>
+                                                            <% } %>
+                                                        </td>
+                                                        <td class="px-4 py-3">
+                                                            <button class="btn btn-sm btn-warning" onclick="togglePopup(<%= popup.id %>, <%= !popup.is_active %>)">
+                                                                <i class="fas fa-<%= popup.is_active ? 'pause' : 'play' %>"></i>
+                                                            </button>
+                                                            <button class="btn btn-sm btn-danger" onclick="deletePopup(<%= popup.id %>)">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                <% }); %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="6" class="text-center py-5 text-muted">
+                                                        <i class="fas fa-window-restore fa-3x mb-3 opacity-25"></i>
+                                                        <p>No popups created yet</p>
+                                                    </td>
+                                                </tr>
+                                            <% } %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('partials/scripts') %>
+
+    <script>
+        // Handle form submission
+        document.getElementById('popupForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = {
+                title: document.getElementById('popupTitle').value,
+                message: document.getElementById('popupMessage').value,
+                startDate: document.getElementById('startDate').value,
+                endDate: document.getElementById('endDate').value,
+                targetAudience: document.getElementById('targetAudience').value,
+                isActive: document.getElementById('isActive').checked
+            };
+
+            try {
+                const response = await fetch('/admin/api/popups/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Popup created successfully',
+                        timer: 2000
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message || 'Failed to create popup'
+                });
+            }
+        });
+
+        async function togglePopup(id, isActive) {
+            try {
+                const response = await fetch(`/admin/api/popups/${id}/toggle`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ isActive })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    location.reload();
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message || 'Failed to update popup'
+                });
+            }
+        }
+
+        async function deletePopup(id) {
+            const confirm = await Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            });
+
+            if (confirm.isConfirmed) {
+                try {
+                    const response = await fetch(`/admin/api/popups/${id}`, {
+                        method: 'DELETE'
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        Swal.fire('Deleted!', 'Popup has been deleted.', 'success')
+                            .then(() => location.reload());
+                    } else {
+                        throw new Error(result.message);
+                    }
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: error.message || 'Failed to delete popup'
+                    });
+                }
+            }
+        }
+    </script>
+</body>
+</html>

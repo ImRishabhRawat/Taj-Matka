@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('partials/head') %>
+</head>
+<body>
+    <div class="wrapper d-flex">
+        <!-- Sidebar -->
+        <%- include('partials/sidebar') %>
+
+        <!-- Page Content -->
+        <div id="content">
+            <!-- Top Navbar -->
+            <nav class="navbar navbar-expand-lg navbar-light">
+                <div class="container-fluid">
+                    <button type="button" id="sidebarCollapse" class="btn btn-toggle-sidebar">
+                        <i class="fas fa-align-left"></i>
+                    </button>
+                    
+                    <div class="ms-auto d-flex align-items-center">
+                        <div class="dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <span class="me-2 d-none d-md-inline"><%= user.name || 'Admin' %></span>
+                                <img src="https://ui-avatars.com/api/?name=Admin&background=4e73df&color=fff" alt="Admin" class="rounded-circle" width="35">
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3">
+                                <li><a class="dropdown-item" href="/profile"><i class="fas fa-user fa-sm fa-fw me-2 text-gray-400"></i> Profile</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <button type="button" onclick="handleLogout()" class="dropdown-item text-danger">
+                                        <i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i> Logout
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="container-fluid p-4">
+                <!-- Header -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="fw-bold"><i class="fas fa-university text-primary me-2"></i>Bank Withdrawal Requests</h2>
+                        <p class="text-secondary">Manage bank transfer withdrawal requests</p>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm rounded-4">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <div class="stat-icon bg-warning bg-opacity-10 text-warning rounded-circle p-3 me-3">
+                                        <i class="fas fa-clock fa-lg"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-muted mb-1">Pending Requests</p>
+                                        <h4 class="fw-bold mb-0"><%= stats.pending %></h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm rounded-4">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <div class="stat-icon bg-success bg-opacity-10 text-success rounded-circle p-3 me-3">
+                                        <i class="fas fa-check fa-lg"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-muted mb-1">Processed Today</p>
+                                        <h4 class="fw-bold mb-0"><%= stats.processedToday %></h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm rounded-4">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <div class="stat-icon bg-info bg-opacity-10 text-info rounded-circle p-3 me-3">
+                                        <i class="fas fa-rupee-sign fa-lg"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-muted mb-1">Pending Amount</p>
+                                        <h4 class="fw-bold mb-0">₹<%= stats.pendingAmount.toLocaleString() %></h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bank Withdrawal Requests Table -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card shadow border-0 rounded-4">
+                            <div class="card-header bg-white py-3 border-0">
+                                <h5 class="m-0 fw-bold text-primary">Bank Transfer Requests</h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="bg-light">
+                                            <tr>
+                                                <th class="px-4 py-3">Date & Time</th>
+                                                <th class="px-4 py-3">User</th>
+                                                <th class="px-4 py-3">Amount</th>
+                                                <th class="px-4 py-3">Bank Details</th>
+                                                <th class="px-4 py-3">Status</th>
+                                                <th class="px-4 py-3">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% if (requests && requests.length > 0) { %>
+                                                <% requests.forEach(request => { %>
+                                                    <tr>
+                                                        <td class="px-4 py-3">
+                                                            <%= new Date(request.created_at).toLocaleString('en-IN') %>
+                                                        </td>
+                                                        <td class="px-4 py-3">
+                                                            <div class="fw-bold"><%= request.user_name %></div>
+                                                            <small class="text-muted"><%= request.user_phone %></small>
+                                                        </td>
+                                                        <td class="px-4 py-3 fw-bold text-danger">₹<%= request.amount.toLocaleString() %></td>
+                                                        <td class="px-4 py-3">
+                                                            <% if (request.bank_details) { %>
+                                                                <div class="small">
+                                                                    <div><strong>A/C:</strong> <%= request.bank_details.account_number %></div>
+                                                                    <div><strong>IFSC:</strong> <%= request.bank_details.ifsc_code %></div>
+                                                                    <div><strong>Bank:</strong> <%= request.bank_details.bank_name %></div>
+                                                                    <div><strong>Holder:</strong> <%= request.bank_details.account_holder %></div>
+                                                                </div>
+                                                            <% } else { %>
+                                                                <span class="text-muted">No details</span>
+                                                            <% } %>
+                                                        </td>
+                                                        <td class="px-4 py-3">
+                                                            <% if (request.status === 'pending') { %>
+                                                                <span class="badge bg-warning">Pending</span>
+                                                            <% } else if (request.status === 'approved') { %>
+                                                                <span class="badge bg-success">Approved</span>
+                                                            <% } else { %>
+                                                                <span class="badge bg-danger">Rejected</span>
+                                                            <% } %>
+                                                        </td>
+                                                        <td class="px-4 py-3">
+                                                            <% if (request.status === 'pending') { %>
+                                                                <button class="btn btn-sm btn-success mb-1" onclick="approveRequest(<%= request.id %>)">
+                                                                    <i class="fas fa-check"></i> Approve
+                                                                </button>
+                                                                <button class="btn btn-sm btn-danger" onclick="rejectRequest(<%= request.id %>)">
+                                                                    <i class="fas fa-times"></i> Reject
+                                                                </button>
+                                                            <% } else { %>
+                                                                <span class="text-muted">-</span>
+                                                            <% } %>
+                                                        </td>
+                                                    </tr>
+                                                <% }); %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="6" class="text-center py-5 text-muted">
+                                                        <i class="fas fa-inbox fa-3x mb-3 opacity-25"></i>
+                                                        <p>No bank withdrawal requests found</p>
+                                                    </td>
+                                                </tr>
+                                            <% } %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('partials/scripts') %>
+
+    <script>
+        async function approveRequest(id) {
+            const confirm = await Swal.fire({
+                title: 'Approve Bank Withdrawal?',
+                text: "Make sure you have transferred the amount to user's bank account",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, approve it!'
+            });
+
+            if (confirm.isConfirmed) {
+                try {
+                    const response = await fetch(`/admin/api/withdrawals/${id}/approve`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        Swal.fire('Approved!', 'Bank withdrawal request has been approved.', 'success')
+                            .then(() => location.reload());
+                    } else {
+                        throw new Error(result.message);
+                    }
+                } catch (error) {
+                    Swal.fire('Error', error.message || 'Failed to approve request', 'error');
+                }
+            }
+        }
+
+        async function rejectRequest(id) {
+            const confirm = await Swal.fire({
+                title: 'Reject Bank Withdrawal?',
+                text: "This will reject the withdrawal request and refund the amount",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, reject it!'
+            });
+
+            if (confirm.isConfirmed) {
+                try {
+                    const response = await fetch(`/admin/api/withdrawals/${id}/reject`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        Swal.fire('Rejected!', 'Bank withdrawal request has been rejected.', 'success')
+                            .then(() => location.reload());
+                    } else {
+                        throw new Error(result.message);
+                    }
+                } catch (error) {
+                    Swal.fire('Error', error.message || 'Failed to reject request', 'error');
+                }
+            }
+        }
+    </script>
+</body>
+</html>
