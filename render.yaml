@@ -1,0 +1,43 @@
+services:
+  # Web Service
+  - type: web
+    name: taj-matka
+    runtime: node
+    plan: free # Change to 'starter' for production ($7/month)
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: JWT_SECRET
+        generateValue: true # Render will auto-generate a secure secret
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: ADMIN_PASSWORD
+        sync: false # You'll set this manually in dashboard
+      - key: OTP_EXPIRY_MINUTES
+        value: 5
+      - key: SMS_SENDER_ID
+        value: TAJMAT
+      - key: MIN_BET_AMOUNT
+        value: 10
+      - key: MAX_BET_AMOUNT
+        value: 10000
+      - key: MIN_WITHDRAWAL_AMOUNT
+        value: 100
+      - key: DATABASE_URL
+        fromDatabase:
+          name: taj-matka-db
+          property: connectionString
+
+databases:
+  # PostgreSQL Database
+  - name: taj-matka-db
+    plan: free # Change to 'starter' for production ($7/month)
+    databaseName: taj_matka
+    user: taj_matka_user
+    region: singapore # Change to your preferred region
+    ipAllowList: [] # Empty means accessible from anywhere

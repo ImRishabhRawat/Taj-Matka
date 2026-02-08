@@ -7,7 +7,9 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "db:setup": "node scripts/setupDatabase.js"
+    "db:setup": "node scripts/setupDatabase.js",
+    "db:migrate": "node scripts/runAllMigrations.js",
+    "build": "node scripts/runAllMigrations.js"
   },
   "keywords": ["matka", "lottery", "betting"],
   "author": "",

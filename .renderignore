@@ -1,0 +1,35 @@
+# Development files
+.env
+.env.local
+.env.development
+
+# Node modules (will be installed during build)
+node_modules/
+
+# Git
+.git/
+.gitignore
+
+# Documentation (optional, remove if you want these deployed)
+README.md
+ADMIN_PANEL_SETUP.md
+
+# Development tools
+nodemon.json
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
