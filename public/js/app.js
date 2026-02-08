@@ -1,137 +1,137 @@
-  /**
+/**
  * Taj Matka - Client-side JavaScript
  */
 
 // API Helper
 const API = {
-  baseURL: '/api',
-  
+  baseURL: "/api",
+
   async request(endpoint, options = {}) {
-    const token = localStorage.getItem('token');
-    
+    const token = localStorage.getItem("token");
+
     const config = {
       ...options,
-      credentials: 'include', // Include cookies in requests
+      credentials: "include", // Include cookies in requests
       headers: {
-        'Content-Type': 'application/json',
-        ...(token && { 'Authorization': `Bearer ${token}` }),
-        ...options.headers
-      }
+        "Content-Type": "application/json",
+        ...(token && { Authorization: `Bearer ${token}` }),
+        ...options.headers,
+      },
     };
-    
+
     try {
       const response = await fetch(`${this.baseURL}${endpoint}`, config);
       const data = await response.json();
-      
+
       if (!response.ok) {
-        throw new Error(data.message || 'Request failed');
+        throw new Error(data.message || "Request failed");
       }
-      
+
       return data;
     } catch (error) {
-      console.error('API Error:', error);
+      console.error("API Error:", error);
       throw error;
     }
   },
-  
+
   get(endpoint) {
-    return this.request(endpoint, { method: 'GET' });
+    return this.request(endpoint, { method: "GET" });
   },
-  
+
   post(endpoint, body) {
     return this.request(endpoint, {
-      method: 'POST',
-      body: JSON.stringify(body)
+      method: "POST",
+      body: JSON.stringify(body),
     });
   },
-  
+
   put(endpoint, body) {
     return this.request(endpoint, {
-      method: 'PUT',
-      body: JSON.stringify(body)
+      method: "PUT",
+      body: JSON.stringify(body),
     });
-  }
+  },
 };
 
 // Load user balance
 async function loadUserBalance() {
   try {
-    console.log('Loading user balance...');
-    const data = await API.get('/auth/me');
-    
-    console.log('User data received:', data);
-    
+    console.log("Loading user balance...");
+    const data = await API.get("/auth/me");
+
+    console.log("User data received:", data);
+
     if (data.success) {
       const balance = parseFloat(data.data.balance) || 0;
-      const winningBalance = parseFloat(data.data.winning_balance) || 0;
-      const totalBalance = balance + winningBalance;
-      const balanceText = `₹${totalBalance.toFixed(0)}`;
-      
-      console.log('Balance:', balance, 'Winning:', winningBalance, 'Total:', totalBalance);
-      
-      // Update balance in header (home page uses balanceAmount)
-      const balanceElement = document.getElementById('balanceAmount') || document.getElementById('userBalance');
+      const balanceText = `₹${balance.toFixed(0)}`;
+
+      console.log("Betting Balance:", balance);
+
+      // Update balance in header (show only betting balance)
+      const balanceElement =
+        document.getElementById("balanceAmount") ||
+        document.getElementById("userBalance");
       if (balanceElement) {
         balanceElement.textContent = balanceText;
-        console.log('Balance updated to:', balanceText);
+        console.log("Balance updated to:", balanceText);
       } else {
-        console.warn('Balance element not found');
+        console.warn("Balance element not found");
       }
     }
   } catch (error) {
-    console.error('Failed to load balance:', error);
+    console.error("Failed to load balance:", error);
   }
 }
 
 // Check if user is logged in
 function isLoggedIn() {
-  return !!localStorage.getItem('token');
+  return !!localStorage.getItem("token");
 }
 
 // Logout
 async function logout() {
   try {
     // Call logout API to clear server-side cookie
-    await API.post('/auth/logout', {});
+    await API.post("/auth/logout", {});
   } catch (error) {
-    console.error('Error calling logout API:', error);
+    console.error("Error calling logout API:", error);
     // Continue with logout even if API call fails
   }
-  
+
   // Clear client-side token
-  localStorage.removeItem('token');
-  
+  localStorage.removeItem("token");
+
   // Redirect to login
-  window.location.href = '/login';
+  window.location.href = "/login";
 }
 
 // Initialize
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener("DOMContentLoaded", () => {
   // Load balance if logged in
-  if (isLoggedIn() && document.getElementById('userBalance')) {
+  if (isLoggedIn() && document.getElementById("userBalance")) {
     loadUserBalance();
   }
-  
+
   // Menu button handler
-  const menuBtn = document.getElementById('menuBtn');
+  const menuBtn = document.getElementById("menuBtn");
   if (menuBtn) {
-    menuBtn.addEventListener('click', () => {
+    menuBtn.addEventListener("click", () => {
       toggleSidebar();
     });
   }
 
   // Sidebar overlay handler
-  const sidebarOverlay = document.getElementById('sidebarOverlay');
+  const sidebarOverlay = document.getElementById("sidebarOverlay");
   if (sidebarOverlay) {
-    sidebarOverlay.addEventListener('click', () => {
+    sidebarOverlay.addEventListener("click", () => {
       closeSidebar();
     });
   }
 
   // Sidebar close button handler
-  const sidebarCloseBtn = document.getElementById('sidebarClose');
+  const sidebarCloseBtn = document.getElementById("sidebarClose");
   if (sidebarCloseBtn) {
-    sidebarCloseBtn.addEventListener('click', () => {
+    sidebarCloseBtn.addEventListener("click", () => {
       closeSidebar();
     });
   }
@@ -145,15 +145,17 @@ window.loadUserBalance = loadUserBalance;
 
 // Share functions
 function shareOnWhatsApp() {
-  const text = encodeURIComponent('Join Taj Matka - India\'s No.1 Matka App! Fast and Secure. Download now!');
+  const text = encodeURIComponent(
+    "Join Taj Matka - India's No.1 Matka App! Fast and Secure. Download now!",
+  );
   const url = encodeURIComponent(window.location.origin);
-  window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
+  window.open(`https://wa.me/?text=${text}%20${url}`, "_blank");
 }
 
 function shareOnTelegram() {
-  const text = encodeURIComponent('Join Taj Matka - India\'s No.1 Matka App!');
+  const text = encodeURIComponent("Join Taj Matka - India's No.1 Matka App!");
   const url = encodeURIComponent(window.location.origin);
-  window.open(`https://t.me/share/url?url=${url}&text=${text}`, '_blank');
+  window.open(`https://t.me/share/url?url=${url}&text=${text}`, "_blank");
 }
 
 window.shareOnWhatsApp = shareOnWhatsApp;
@@ -161,15 +163,17 @@ window.shareOnTelegram = shareOnTelegram;
 
 // Share app function
 function shareApp() {
-  const text = 'Join Taj Matka - India\'s No.1 Matka App! Fast and Secure.';
+  const text = "Join Taj Matka - India's No.1 Matka App! Fast and Secure.";
   const url = window.location.origin;
-  
+
   if (navigator.share) {
-    navigator.share({
-      title: 'Taj Matka',
-      text: text,
-      url: url
-    }).catch(err => console.log('Error sharing:', err));
+    navigator
+      .share({
+        title: "Taj Matka",
+        text: text,
+        url: url,
+      })
+      .catch((err) => console.log("Error sharing:", err));
   } else {
     // Fallback to WhatsApp
     shareOnWhatsApp();
@@ -180,36 +184,35 @@ window.shareApp = shareApp;
 
 // Sidebar functions
 function toggleSidebar() {
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('sidebarOverlay');
-  
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("sidebarOverlay");
+
   if (sidebar && overlay) {
-    sidebar.classList.toggle('active');
-    overlay.classList.toggle('active');
+    sidebar.classList.toggle("active");
+    overlay.classList.toggle("active");
   }
 }
 
 function openSidebar() {
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('sidebarOverlay');
-  
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("sidebarOverlay");
+
   if (sidebar && overlay) {
-    sidebar.classList.add('active');
-    overlay.classList.add('active');
+    sidebar.classList.add("active");
+    overlay.classList.add("active");
   }
 }
 
 function closeSidebar() {
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('sidebarOverlay');
-  
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.getElementById("sidebarOverlay");
+
   if (sidebar && overlay) {
-    sidebar.classList.remove('active');
-    overlay.classList.remove('active');
+    sidebar.classList.remove("active");
+    overlay.classList.remove("active");
   }
 }
 
 window.toggleSidebar = toggleSidebar;
 window.openSidebar = openSidebar;
 window.closeSidebar = closeSidebar;
-
