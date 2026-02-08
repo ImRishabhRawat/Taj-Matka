@@ -65,6 +65,12 @@
                                         <textarea class="form-control" id="popupMessage" rows="4" placeholder="Enter popup message" required></textarea>
                                     </div>
 
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Image URL <span class="text-muted">(Optional)</span></label>
+                                        <input type="url" class="form-control" id="popupImageUrl" placeholder="https://example.com/image.jpg">
+                                        <small class="text-muted">Enter a direct image URL (JPG, PNG, GIF). Leave empty for text-only popup.</small>
+                                    </div>
+
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label fw-bold">Start Date</label>
@@ -185,6 +191,7 @@
             const formData = {
                 title: document.getElementById('popupTitle').value,
                 message: document.getElementById('popupMessage').value,
+                imageUrl: document.getElementById('popupImageUrl').value || null,
                 startDate: document.getElementById('startDate').value,
                 endDate: document.getElementById('endDate').value,
                 targetAudience: document.getElementById('targetAudience').value,

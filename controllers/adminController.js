@@ -1119,8 +1119,15 @@ async function createNotification(req, res) {
  */
 async function createPopup(req, res) {
   try {
-    const { title, message, startDate, endDate, targetAudience, isActive } =
-      req.body;
+    const {
+      title,
+      message,
+      imageUrl,
+      startDate,
+      endDate,
+      targetAudience,
+      isActive,
+    } = req.body;
 
     if (!title || !message || !startDate || !endDate) {
       return res.status(400).json({
@@ -1130,12 +1137,13 @@ async function createPopup(req, res) {
     }
 
     const result = await pool.query(
-      `INSERT INTO popups (title, message, start_date, end_date, target_audience, is_active)
-       VALUES ($1, $2, $3, $4, $5, $6)
+      `INSERT INTO popups (title, message, image_url, start_date, end_date, target_audience, is_active)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING *`,
       [
         title,
         message,
+        imageUrl || null,
         startDate,
         endDate,
         targetAudience || "all",
@@ -1316,6 +1324,35 @@ async function rejectWithdrawal(req, res) {
   }
 }
 
+/**
+ * API: Get Active Popups for Users
+ * Returns popups that are active and within the date range
+ */
+async function getActivePopups(req, res) {
+  try {
+    const today = new Date().toISOString().split("T")[0];
+
+    const result = await pool.query(
+      `SELECT id, title, message, image_url, target_audience 
+       FROM popups 
+       WHERE is_active = true 
+         AND start_date <= $1 
+         AND end_date >= $1
+       ORDER BY created_at DESC
+       LIMIT 1`,
+      [today],
+    );
+
+    res.json({
+      success: true,
+      popup: result.rows.length > 0 ? result.rows[0] : null,
+    });
+  } catch (error) {
+    console.error("Error getting active popups:", error);
+    res.json({ success: true, popup: null }); // Return null on error to not break user experience
+  }
+}
+
 module.exports = {
   getDashboard,
   getGames,
@@ -1349,4 +1386,5 @@ module.exports = {
   deletePopup,
   approveWithdrawal,
   rejectWithdrawal,
+  getActivePopups,
 };

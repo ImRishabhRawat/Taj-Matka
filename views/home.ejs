@@ -298,7 +298,194 @@ const title = 'Home';
             </ul>
         </div>
 
+
+        <!-- Popup Modal -->
+        <div id="popupModal" class="popup-modal" style="display: none;">
+            <div class="popup-overlay" onclick="closePopup()"></div>
+            <div class="popup-card">
+                <button class="popup-close-btn" onclick="closePopup()" aria-label="Close">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+                <div id="popupImageContainer" class="popup-image-container" style="display: none;">
+                    <img id="popupImage" class="popup-image" alt="Popup image">
+                </div>
+                <div class="popup-body">
+                    <h3 id="popupTitle" class="popup-title"></h3>
+                    <p id="popupMessage" class="popup-message"></p>
+                </div>
+            </div>
+        </div>
+
     </div>
+
+    <style>
+        /* Minimal Popup Modal Styles */
+        .popup-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .popup-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .popup-card {
+            position: relative;
+            background: #ffffff;
+            border-radius: 24px;
+            max-width: 420px;
+            width: 100%;
+            max-height: 90vh;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+            animation: popupFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 10001;
+        }
+
+        @keyframes popupFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.92) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .popup-close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .popup-close-btn:hover {
+            background: #ffffff;
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .popup-close-btn:active {
+            transform: scale(0.95);
+        }
+
+        .popup-close-btn svg {
+            color: #1a237e;
+        }
+
+        .popup-image-container {
+            width: 100%;
+            max-height: 280px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8edf3 100%);
+        }
+
+        .popup-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .popup-body {
+            padding: 2rem;
+        }
+
+        .popup-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1a237e;
+            margin: 0 0 0.75rem 0;
+            line-height: 1.3;
+            letter-spacing: -0.02em;
+        }
+
+        .popup-message {
+            font-size: 0.9375rem;
+            color: #4a5568;
+            line-height: 1.6;
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        /* Mobile optimization */
+        @media (max-width: 480px) {
+            .popup-card {
+                border-radius: 20px;
+                max-height: 85vh;
+            }
+
+            .popup-body {
+                padding: 1.5rem;
+            }
+
+            .popup-title {
+                font-size: 1.25rem;
+            }
+
+            .popup-message {
+                font-size: 0.875rem;
+            }
+
+            .popup-image-container {
+                max-height: 220px;
+            }
+        }
+
+        /* Smooth scrolling for long content */
+        .popup-card {
+            overflow-y: auto;
+        }
+
+        .popup-card::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .popup-card::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .popup-card::-webkit-scrollbar-thumb {
+            background: rgba(26, 35, 126, 0.2);
+            border-radius: 3px;
+        }
+
+        .popup-card::-webkit-scrollbar-thumb:hover {
+            background: rgba(26, 35, 126, 0.3);
+        }
+    </style>
+
 
     <!-- Scripts -->
     <script src="/js/app.js"></script>
@@ -395,6 +582,57 @@ const title = 'Home';
         if (isLoggedIn()) {
             loadUserBalance();
         }
+
+        // Popup functionality
+        async function loadPopup() {
+            try {
+                const response = await fetch('/api/popups/active');
+                const data = await response.json();
+                
+                if (data.success && data.popup) {
+                    const popup = data.popup;
+                    const popupId = popup.id;
+                    
+                    // Check if user has already seen this popup in this session
+                    const seenPopups = JSON.parse(sessionStorage.getItem('seenPopups') || '[]');
+                    
+                    if (!seenPopups.includes(popupId)) {
+                        // Set title and message
+                        document.getElementById('popupTitle').textContent = popup.title;
+                        document.getElementById('popupMessage').textContent = popup.message;
+                        
+                        // Handle image
+                        const imageContainer = document.getElementById('popupImageContainer');
+                        const imageElement = document.getElementById('popupImage');
+                        
+                        if (popup.image_url) {
+                            imageElement.src = popup.image_url;
+                            imageContainer.style.display = 'block';
+                        } else {
+                            imageContainer.style.display = 'none';
+                        }
+                        
+                        // Show popup
+                        document.getElementById('popupModal').style.display = 'flex';
+                        
+                        // Mark as seen
+                        seenPopups.push(popupId);
+                        sessionStorage.setItem('seenPopups', JSON.stringify(seenPopups));
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading popup:', error);
+            }
+        }
+
+        function closePopup() {
+            document.getElementById('popupModal').style.display = 'none';
+        }
+
+        // Load popup when page loads
+        window.addEventListener('load', () => {
+            setTimeout(loadPopup, 500); // Small delay for better UX
+        });
     </script>
 </body>
 </html>

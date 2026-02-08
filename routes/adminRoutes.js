@@ -3,6 +3,9 @@ const router = express.Router();
 const adminController = require("../controllers/adminController");
 const { requireAdmin } = require("../middleware/viewAuth");
 
+// Public API route (no auth required) - must be before requireAdmin middleware
+router.get("/api/popups/active", adminController.getActivePopups);
+
 // Apply requireAdmin middleware to all routes in this router
 router.use((req, res, next) => {
   console.log("Admin Route Hit:", req.method, req.path);
