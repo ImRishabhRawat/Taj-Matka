@@ -123,6 +123,22 @@ async function runAllMigrations() {
       console.log("ℹ️  Games already exist, skipping creation.");
     }
 
+    // 7. Update schema for scheduled results
+    console.log("\n📋 Step 7: Updating schema for scheduled results...");
+    try {
+      await client.query(`
+        ALTER TABLE game_sessions 
+        ADD COLUMN IF NOT EXISTS scheduled_winning_number VARCHAR(2),
+        ADD COLUMN IF NOT EXISTS is_scheduled BOOLEAN DEFAULT false
+      `);
+      console.log("✅ Schema updated for scheduled results!");
+    } catch (err) {
+      console.error(
+        "⚠️  Error updating schema columns (might already exist):",
+        err.message,
+      );
+    }
+
     console.log("\n🎉 All migrations completed successfully!");
     console.log("✅ Database is ready for production!");
   } catch (error) {
