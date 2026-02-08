@@ -36,6 +36,7 @@ router.post("/api/results/schedule", adminController.scheduleResult);
 // New routes
 router.get("/notifications", adminController.getNotifications);
 router.get("/popup", adminController.getPopup);
+router.get("/banners", adminController.getBanners);
 router.get("/deposit-requests", adminController.getDepositRequests);
 router.get("/withdraw-requests", adminController.getWithdrawRequests);
 router.get("/withdraw-bank-requests", adminController.getWithdrawBankRequests);
@@ -48,6 +49,9 @@ router.post("/api/notifications/create", adminController.createNotification);
 router.post("/api/popups/create", adminController.createPopup);
 router.put("/api/popups/:id/toggle", adminController.togglePopup);
 router.delete("/api/popups/:id", adminController.deletePopup);
+router.post("/api/banners/create", adminController.createBanner);
+router.put("/api/banners/:id/toggle", adminController.toggleBanner);
+router.delete("/api/banners/:id", adminController.deleteBanner);
 router.post("/api/withdrawals/:id/approve", adminController.approveWithdrawal);
 router.post("/api/withdrawals/:id/reject", adminController.rejectWithdrawal);
 

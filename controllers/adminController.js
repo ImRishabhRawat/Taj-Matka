@@ -643,6 +643,34 @@ async function getPopup(req, res) {
 }
 
 /**
+ * Banners Management Page
+ */
+async function getBanners(req, res) {
+  try {
+    let banners = [];
+
+    try {
+      const result = await pool.query(
+        "SELECT * FROM banners ORDER BY display_order ASC, created_at DESC",
+      );
+      banners = result.rows;
+    } catch (dbError) {
+      console.log("Banners table may not exist yet:", dbError.message);
+      banners = [];
+    }
+
+    res.render("admin/banners", {
+      title: "Banners",
+      user: req.user,
+      banners: banners,
+    });
+  } catch (error) {
+    console.error("Error getting banners:", error);
+    res.status(500).send("Internal Server Error");
+  }
+}
+
+/**
  * Deposit Requests Page
  */
 async function getDepositRequests(req, res) {
@@ -1205,6 +1233,86 @@ async function deletePopup(req, res) {
 }
 
 /**
+ * API: Create Banner
+ */
+async function createBanner(req, res) {
+  try {
+    const { imageUrl, title, linkUrl, isActive } = req.body;
+
+    if (!imageUrl) {
+      return res.status(400).json({
+        success: false,
+        message: "Image URL is required",
+      });
+    }
+
+    // Get the next display order
+    const orderResult = await pool.query(
+      "SELECT COALESCE(MAX(display_order), 0) + 1 as next_order FROM banners",
+    );
+    const nextOrder = orderResult.rows[0].next_order;
+
+    const result = await pool.query(
+      `INSERT INTO banners (image_url, title, link_url, display_order, is_active)
+       VALUES ($1, $2, $3, $4, $5)
+       RETURNING *`,
+      [imageUrl, title || null, linkUrl || null, nextOrder, isActive !== false],
+    );
+
+    res.json({
+      success: true,
+      message: "Banner created successfully",
+      banner: result.rows[0],
+    });
+  } catch (error) {
+    console.error("Error creating banner:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+}
+
+/**
+ * API: Toggle Banner Status
+ */
+async function toggleBanner(req, res) {
+  try {
+    const { id } = req.params;
+    const { isActive } = req.body;
+
+    await pool.query("UPDATE banners SET is_active = $1 WHERE id = $2", [
+      isActive,
+      id,
+    ]);
+
+    res.json({
+      success: true,
+      message: "Banner status updated successfully",
+    });
+  } catch (error) {
+    console.error("Error toggling banner:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+}
+
+/**
+ * API: Delete Banner
+ */
+async function deleteBanner(req, res) {
+  try {
+    const { id } = req.params;
+
+    await pool.query("DELETE FROM banners WHERE id = $1", [id]);
+
+    res.json({
+      success: true,
+      message: "Banner deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting banner:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+}
+
+/**
  * API: Approve Withdrawal Request
  */
 async function approveWithdrawal(req, res) {
@@ -1353,6 +1461,29 @@ async function getActivePopups(req, res) {
   }
 }
 
+/**
+ * API: Get Active Banners for Users
+ * Returns all active banners ordered by display_order
+ */
+async function getActiveBanners(req, res) {
+  try {
+    const result = await pool.query(
+      `SELECT id, image_url, title, link_url, display_order 
+       FROM banners 
+       WHERE is_active = true 
+       ORDER BY display_order ASC`,
+    );
+
+    res.json({
+      success: true,
+      banners: result.rows,
+    });
+  } catch (error) {
+    console.error("Error getting active banners:", error);
+    res.json({ success: true, banners: [] }); // Return empty array on error
+  }
+}
+
 module.exports = {
   getDashboard,
   getGames,
@@ -1373,6 +1504,7 @@ module.exports = {
   // New functions
   getNotifications,
   getPopup,
+  getBanners,
   getDepositRequests,
   getWithdrawRequests,
   getWithdrawBankRequests,
@@ -1384,7 +1516,11 @@ module.exports = {
   createPopup,
   togglePopup,
   deletePopup,
+  createBanner,
+  toggleBanner,
+  deleteBanner,
   approveWithdrawal,
   rejectWithdrawal,
   getActivePopups,
+  getActiveBanners,
 };

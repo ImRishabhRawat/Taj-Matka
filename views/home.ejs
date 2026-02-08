@@ -52,9 +52,12 @@ const title = 'Home';
         <main class="app-main">
             <div class="page-content">
                 
-                <!-- Info Banner -->
-                <div class="info-banner">
-                    <img src="/images/banner-info.png" alt="Information Banner" style="width: 100%; display: block; border-radius: 12px;">
+                <!-- Banner Carousel -->
+                <div class="banner-carousel" id="bannerCarousel">
+                    <div class="carousel-track" id="carouselTrack">
+                        <!-- Banners will be loaded dynamically -->
+                    </div>
+                    <div class="carousel-dots" id="carouselDots"></div>
                 </div>
 
                 <!-- Action Buttons Grid -->
@@ -632,7 +635,187 @@ const title = 'Home';
         // Load popup when page loads
         window.addEventListener('load', () => {
             setTimeout(loadPopup, 500); // Small delay for better UX
+            loadBannerCarousel(); // Load carousel
         });
+
+        // Banner Carousel Functionality
+        let currentSlide = 0;
+        let banners = [];
+        let carouselInterval;
+
+        async function loadBannerCarousel() {
+            try {
+                const response = await fetch('/api/banners/active');
+                const data = await response.json();
+                
+                if (data.success && data.banners && data.banners.length > 0) {
+                    banners = data.banners;
+                    renderCarousel();
+                    startAutoPlay();
+                } else {
+                    // Hide carousel if no banners
+                    document.getElementById('bannerCarousel').style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error loading banners:', error);
+                document.getElementById('bannerCarousel').style.display = 'none';
+            }
+        }
+
+        function renderCarousel() {
+            const track = document.getElementById('carouselTrack');
+            const dots = document.getElementById('carouselDots');
+            
+            // Render banner slides
+            track.innerHTML = banners.map((banner, index) => `
+                <div class="carousel-slide ${index === 0 ? 'active' : ''}" ${banner.link_url ? `onclick="window.location.href='${banner.link_url}'"` : ''}>
+                    <img src="${banner.image_url}" alt="${banner.title || 'Banner'}" loading="lazy">
+                </div>
+            `).join('');
+            
+            // Render dots
+            if (banners.length > 1) {
+                dots.innerHTML = banners.map((_, index) => `
+                    <span class="carousel-dot ${index === 0 ? 'active' : ''}" onclick="goToSlide(${index})"></span>
+                `).join('');
+            }
+        }
+
+        function goToSlide(index) {
+            const slides = document.querySelectorAll('.carousel-slide');
+            const dots = document.querySelectorAll('.carousel-dot');
+            
+            slides[currentSlide].classList.remove('active');
+            if (dots[currentSlide]) dots[currentSlide].classList.remove('active');
+            
+            currentSlide = index;
+            
+            slides[currentSlide].classList.add('active');
+            if (dots[currentSlide]) dots[currentSlide].classList.add('active');
+        }
+
+        function nextSlide() {
+            const nextIndex = (currentSlide + 1) % banners.length;
+            goToSlide(nextIndex);
+        }
+
+        function startAutoPlay() {
+            if (banners.length > 1) {
+                carouselInterval = setInterval(nextSlide, 4000); // Change slide every 4 seconds
+            }
+        }
+
+        // Touch swipe support
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const carousel = document.getElementById('bannerCarousel');
+            
+            carousel.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+            });
+            
+            carousel.addEventListener('touchend', (e) => {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            });
+        });
+
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) {
+                // Swipe left - next slide
+                nextSlide();
+                resetAutoPlay();
+            }
+            if (touchEndX > touchStartX + 50) {
+                // Swipe right - previous slide
+                const prevIndex = (currentSlide - 1 + banners.length) % banners.length;
+                goToSlide(prevIndex);
+                resetAutoPlay();
+            }
+        }
+
+        function resetAutoPlay() {
+            clearInterval(carouselInterval);
+            startAutoPlay();
+        }
     </script>
+
+    <style>
+        /* Banner Carousel Styles */
+        .banner-carousel {
+            position: relative;
+            width: 100%;
+            margin-bottom: 1.5rem;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #f5f5f5;
+        }
+
+        .carousel-track {
+            position: relative;
+            width: 100%;
+            height: 180px;
+        }
+
+        .carousel-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.6s ease-in-out;
+            cursor: pointer;
+        }
+
+        .carousel-slide.active {
+            opacity: 1;
+            z-index: 1;
+        }
+
+        .carousel-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .carousel-dots {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 2;
+        }
+
+        .carousel-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .carousel-dot.active {
+            background: white;
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        .carousel-dot:hover {
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        @media (max-width: 480px) {
+            .carousel-track {
+                height: 150px;
+            }
+        }
+    </style>
 </body>
 </html>

@@ -18,7 +18,7 @@ const adminRoutes = require("./routes/adminRoutes");
 
 const app = express();
 
-// Trigger restart 4
+// Trigger restart 5
 
 // Middleware
 app.use(morgan("dev")); // Logging
@@ -37,6 +37,7 @@ app.set("views", path.join(__dirname, "views"));
 // Public popup API (no auth required) - defined early
 const adminController = require("./controllers/adminController");
 app.get("/api/popups/active", adminController.getActivePopups);
+app.get("/api/banners/active", adminController.getActiveBanners);
 
 // API Routes
 app.use("/api/auth", authRoutes);

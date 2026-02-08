@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('partials/head') %>
+</head>
+<body>
+    <div class="wrapper d-flex">
+        <!-- Sidebar -->
+        <%- include('partials/sidebar') %>
+
+        <!-- Page Content -->
+        <div id="content">
+            <!-- Top Navbar -->
+            <nav class="navbar navbar-expand-lg navbar-light">
+                <div class="container-fluid">
+                    <button type="button" id="sidebarCollapse" class="btn btn-toggle-sidebar">
+                        <i class="fas fa-align-left"></i>
+                    </button>
+                    
+                    <div class="ms-auto d-flex align-items-center">
+                        <div class="dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                <span class="me-2 d-none d-md-inline"><%= user.name || 'Admin' %></span>
+                                <img src="https://ui-avatars.com/api/?name=Admin&background=4e73df&color=fff" alt="Admin" class="rounded-circle" width="35">
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3">
+                                <li><a class="dropdown-item" href="/profile"><i class="fas fa-user fa-sm fa-fw me-2 text-gray-400"></i> Profile</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <button type="button" onclick="handleLogout()" class="dropdown-item text-danger">
+                                        <i class="fas fa-sign-out-alt fa-sm fa-fw me-2 text-gray-400"></i> Logout
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="container-fluid p-4">
+                <!-- Header -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="fw-bold"><i class="fas fa-images text-primary me-2"></i>Banner Management</h2>
+                        <p class="text-secondary">Manage carousel banners displayed on home page</p>
+                    </div>
+                </div>
+
+                <!-- Add Banner Form -->
+                <div class="row mb-4">
+                    <div class="col-lg-8">
+                        <div class="card shadow border-0 rounded-4">
+                            <div class="card-header bg-white py-3 border-0">
+                                <h5 class="m-0 fw-bold text-primary">Add New Banner</h5>
+                            </div>
+                            <div class="card-body p-4">
+                                <form id="bannerForm">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Image URL <span class="text-danger">*</span></label>
+                                        <input type="url" class="form-control" id="bannerImageUrl" placeholder="https://example.com/banner.jpg" required>
+                                        <small class="text-muted">Recommended size: 800x300px (JPG, PNG, GIF)</small>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Title <span class="text-muted">(Optional)</span></label>
+                                        <input type="text" class="form-control" id="bannerTitle" placeholder="Banner title for reference">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Link URL <span class="text-muted">(Optional)</span></label>
+                                        <input type="url" class="form-control" id="bannerLinkUrl" placeholder="https://example.com/offer">
+                                        <small class="text-muted">Where users go when they click the banner</small>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="bannerIsActive" checked>
+                                            <label class="form-check-label fw-bold" for="bannerIsActive">Active</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <button type="reset" class="btn btn-secondary px-4">Clear</button>
+                                        <button type="submit" class="btn btn-primary px-4">
+                                            <i class="fas fa-plus-circle me-2"></i>Add Banner
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Banners List -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card shadow border-0 rounded-4">
+                            <div class="card-header bg-white py-3 border-0">
+                                <h5 class="m-0 fw-bold text-primary">All Banners</h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="bg-light">
+                                            <tr>
+                                                <th class="px-4 py-3">Preview</th>
+                                                <th class="px-4 py-3">Title</th>
+                                                <th class="px-4 py-3">Link</th>
+                                                <th class="px-4 py-3">Order</th>
+                                                <th class="px-4 py-3">Status</th>
+                                                <th class="px-4 py-3">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="bannersTableBody">
+                                            <% if (banners && banners.length > 0) { %>
+                                                <% banners.forEach(banner => { %>
+                                                    <tr>
+                                                        <td class="px-4 py-3">
+                                                            <img src="<%= banner.image_url %>" alt="Banner" style="width: 100px; height: 40px; object-fit: cover; border-radius: 8px;">
+                                                        </td>
+                                                        <td class="px-4 py-3 fw-bold"><%= banner.title || 'Untitled' %></td>
+                                                        <td class="px-4 py-3">
+                                                            <% if (banner.link_url) { %>
+                                                                <a href="<%= banner.link_url %>" target="_blank" class="text-primary"><i class="fas fa-external-link-alt"></i></a>
+                                                            <% } else { %>
+                                                                <span class="text-muted">-</span>
+                                                            <% } %>
+                                                        </td>
+                                                        <td class="px-4 py-3">
+                                                            <span class="badge bg-secondary"><%= banner.display_order %></span>
+                                                        </td>
+                                                        <td class="px-4 py-3">
+                                                            <% if (banner.is_active) { %>
+                                                                <span class="badge bg-success">Active</span>
+                                                            <% } else { %>
+                                                                <span class="badge bg-secondary">Inactive</span>
+                                                            <% } %>
+                                                        </td>
+                                                        <td class="px-4 py-3">
+                                                            <button class="btn btn-sm btn-warning" onclick="toggleBanner(<%= banner.id %>, <%= !banner.is_active %>)">
+                                                                <i class="fas fa-<%= banner.is_active ? 'pause' : 'play' %>"></i>
+                                                            </button>
+                                                            <button class="btn btn-sm btn-danger" onclick="deleteBanner(<%= banner.id %>)">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                <% }); %>
+                                            <% } else { %>
+                                                <tr>
+                                                    <td colspan="6" class="text-center py-5 text-muted">
+                                                        <i class="fas fa-images fa-3x mb-3 opacity-25"></i>
+                                                        <p>No banners created yet</p>
+                                                    </td>
+                                                </tr>
+                                            <% } %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('partials/scripts') %>
+
+    <script>
+        // Handle form submission
+        document.getElementById('bannerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = {
+                imageUrl: document.getElementById('bannerImageUrl').value,
+                title: document.getElementById('bannerTitle').value || null,
+                linkUrl: document.getElementById('bannerLinkUrl').value || null,
+                isActive: document.getElementById('bannerIsActive').checked
+            };
+
+            try {
+                const response = await fetch('/admin/api/banners/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Banner added successfully',
+                        timer: 2000
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message || 'Failed to add banner'
+                });
+            }
+        });
+
+        async function toggleBanner(id, isActive) {
+            try {
+                const response = await fetch(`/admin/api/banners/${id}/toggle`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ isActive })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    location.reload();
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message || 'Failed to update banner'
+                });
+            }
+        }
+
+        async function deleteBanner(id) {
+            const confirm = await Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            });
+
+            if (confirm.isConfirmed) {
+                try {
+                    const response = await fetch(`/admin/api/banners/${id}`, {
+                        method: 'DELETE'
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        Swal.fire('Deleted!', 'Banner has been deleted.', 'success')
+                            .then(() => location.reload());
+                    } else {
+                        throw new Error(result.message);
+                    }
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: error.message || 'Failed to delete banner'
+                    });
+                }
+            }
+        }
+    </script>
+</body>
+</html>
