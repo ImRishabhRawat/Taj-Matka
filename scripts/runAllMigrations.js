@@ -40,49 +40,83 @@ async function runAllMigrations() {
 
     // 1. Run main schema
     console.log("\n📋 Step 1: Running main schema...");
-    const schemaPath = path.join(__dirname, "..", "database", "schema.sql");
-    const schemaSql = fs.readFileSync(schemaPath, "utf8");
-    await client.query(schemaSql);
-    console.log("✅ Main schema executed successfully!");
+    const usersExist = await client.query(
+      "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'users')",
+    );
+
+    if (!usersExist.rows[0].exists) {
+      const schemaPath = path.join(__dirname, "..", "database", "schema.sql");
+      const schemaSql = fs.readFileSync(schemaPath, "utf8");
+      await client.query(schemaSql);
+      console.log("✅ Main schema executed successfully!");
+    } else {
+      console.log(
+        "ℹ️  Main schema already exists (users table found), skipping.",
+      );
+    }
 
     // 2. Run admin panel tables migration
     console.log("\n📋 Step 2: Running admin panel tables migration...");
-    const adminPanelPath = path.join(
-      __dirname,
-      "..",
-      "database",
-      "migrations",
-      "add_admin_panel_tables.sql",
-    );
-    const adminPanelSql = fs.readFileSync(adminPanelPath, "utf8");
-    await client.query(adminPanelSql);
-    console.log("✅ Admin panel tables created successfully!");
+    try {
+      const adminPanelPath = path.join(
+        __dirname,
+        "..",
+        "database",
+        "migrations",
+        "add_admin_panel_tables.sql",
+      );
+      if (fs.existsSync(adminPanelPath)) {
+        const adminPanelSql = fs.readFileSync(adminPanelPath, "utf8");
+        await client.query(adminPanelSql);
+        console.log("✅ Admin panel tables created successfully!");
+      }
+    } catch (err) {
+      console.log(
+        `⚠️  Step 2 skipped/failed (might already exist): ${err.message}`,
+      );
+    }
 
     // 3. Run banners table migration
     console.log("\n📋 Step 3: Running banners table migration...");
-    const bannersPath = path.join(
-      __dirname,
-      "..",
-      "database",
-      "migrations",
-      "create_banners_table.sql",
-    );
-    const bannersSql = fs.readFileSync(bannersPath, "utf8");
-    await client.query(bannersSql);
-    console.log("✅ Banners table created successfully!");
+    try {
+      const bannersPath = path.join(
+        __dirname,
+        "..",
+        "database",
+        "migrations",
+        "create_banners_table.sql",
+      );
+      if (fs.existsSync(bannersPath)) {
+        const bannersSql = fs.readFileSync(bannersPath, "utf8");
+        await client.query(bannersSql);
+        console.log("✅ Banners table created successfully!");
+      }
+    } catch (err) {
+      console.log(
+        `⚠️  Step 3 skipped/failed (might already exist): ${err.message}`,
+      );
+    }
 
     // 4. Run popup image migration
     console.log("\n📋 Step 4: Running popup image migration...");
-    const popupPath = path.join(
-      __dirname,
-      "..",
-      "database",
-      "migrations",
-      "add_popup_image.sql",
-    );
-    const popupSql = fs.readFileSync(popupPath, "utf8");
-    await client.query(popupSql);
-    console.log("✅ Popup image column added successfully!");
+    try {
+      const popupPath = path.join(
+        __dirname,
+        "..",
+        "database",
+        "migrations",
+        "add_popup_image.sql",
+      );
+      if (fs.existsSync(popupPath)) {
+        const popupSql = fs.readFileSync(popupPath, "utf8");
+        await client.query(popupSql);
+        console.log("✅ Popup image column added successfully!");
+      }
+    } catch (err) {
+      console.log(
+        `⚠️  Step 4 skipped/failed (might already exist): ${err.message}`,
+      );
+    }
 
     // 5. Create default admin user if not exists
     console.log("\n👤 Step 5: Creating default admin user...");
