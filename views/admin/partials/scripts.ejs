@@ -8,9 +8,13 @@
         const sidebar = document.getElementById('sidebar');
         const content = document.getElementById('content');
         const btnCollapse = document.getElementById('sidebarCollapse');
+        const btnToggle = document.getElementById('sidebarToggle');
 
-        if (btnCollapse) {
-            btnCollapse.addEventListener('click', function() {
+        // Support both old and new toggle buttons
+        const toggleButton = btnCollapse || btnToggle;
+
+        if (toggleButton) {
+            toggleButton.addEventListener('click', function() {
                 sidebar.classList.toggle('active');
                 content.classList.toggle('active');
             });

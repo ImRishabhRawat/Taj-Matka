@@ -1,64 +1,133 @@
 <nav id="sidebar">
-    <div class="sidebar-header">
-        <h3>TAJ MATKA</h3>
-    </div>
+  <div class="sidebar-header">
+    <button class="btn btn-link text-white" id="sidebarToggle">
+      <i class="fas fa-bars"></i>
+    </button>
+  </div>
 
-    <ul class="list-unstyled components">
-        <li class="<%= title === 'Admin Dashboard' ? 'active' : '' %>">
-            <a href="/admin/dashboard">
-                <i class="fas fa-th-large"></i> Dashboard
-            </a>
-        </li>
-        <li class="<%= ['Manage Games', 'Game Rates', 'Bid History'].includes(title) ? 'active' : '' %>">
-            <a href="#gameSubmenu" data-bs-toggle="collapse" aria-expanded="<%= ['Manage Games', 'Game Rates', 'Bid History'].includes(title) %>" class="dropdown-toggle d-flex justify-content-between align-items-center">
-                <span><i class="fas fa-gamepad"></i> Game Management</span>
-            </a>
-            <ul class="collapse list-unstyled ps-3 <%= ['Manage Games', 'Game Rates', 'Bid History'].includes(title) ? 'show' : '' %>" id="gameSubmenu">
-                <li class="<%= title === 'Manage Games' ? 'active' : '' %>">
-                    <a href="/admin/games" style="padding-left: 10px; font-size: 0.95rem;">Manage Games</a>
-                </li>
-                <li class="<%= title === 'Game Rates' ? 'active' : '' %>">
-                    <a href="/admin/game-rates" style="padding-left: 10px; font-size: 0.95rem;">Game Rates</a>
-                </li>
-                <li class="<%= title === 'Bid History' ? 'active' : '' %>">
-                    <a href="/admin/bid-history" style="padding-left: 10px; font-size: 0.95rem;">Bid History</a>
-                </li>
-            </ul>
-        </li>
-        <li class="<%= title === 'Declare Result' ? 'active' : '' %>">
-            <a href="/admin/result-entry">
-                <i class="fas fa-trophy"></i> Declare Result
-            </a>
-        </li>
-        <li class="<%= title === 'Bid Monitor' ? 'active' : '' %>">
-            <a href="/admin/bid-monitor">
-                <i class="fas fa-chart-line"></i> Bid Monitor
-            </a>
-        </li>
-        <li class="<%= ['Manage Users', 'User Details'].includes(title) ? 'active' : '' %>">
-            <a href="#userSubmenu" data-bs-toggle="collapse" aria-expanded="<%= ['Manage Users', 'User Details'].includes(title) %>" class="dropdown-toggle d-flex justify-content-between align-items-center">
-                <span><i class="fas fa-users"></i> User Management</span>
-            </a>
-            <ul class="collapse list-unstyled ps-3 <%= ['Manage Users', 'User Details'].includes(title) ? 'show' : '' %>" id="userSubmenu">
-                <li class="<%= title === 'Manage Users' ? 'active' : '' %>">
-                    <a href="/admin/users" style="padding-left: 10px; font-size: 0.95rem;">All Users</a>
-                </li>
-            </ul>
-        </li>
-        <li class="<%= title === 'Withdrawal Requests' ? 'active' : '' %>">
-            <a href="/admin/withdrawals">
-                <i class="fas fa-money-bill-wave"></i> Withdrawals
-            </a>
-        </li>
-        <li class="mt-5">
-            <a href="/home" class="text-white bg-dark">
-                <i class="fas fa-external-link-alt"></i> Go to User Site
-            </a>
-        </li>
-        <li class="mt-2 text-center">
-            <button type="button" onclick="handleLogout()" class="btn btn-link text-danger text-decoration-none">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </button>
-        </li>
-    </ul>
+  <ul class="list-unstyled components">
+    <!-- Dashboard -->
+    <li class="<%= title === 'Admin Dashboard' ? 'active' : '' %>">
+      <a href="/admin/dashboard">
+        <i class="fas fa-th"></i>
+        <span>Dashboard</span>
+      </a>
+    </li>
+
+    <!-- User Bid History -->
+    <li class="<%= title === 'User Bid History' ? 'active' : '' %>">
+      <a href="/admin/bid-history">
+        <i class="fas fa-history"></i>
+        <span>User Bid History</span>
+      </a>
+    </li>
+
+    <!-- Notification -->
+    <li class="<%= title === 'Notification' ? 'active' : '' %>">
+      <a href="/admin/notifications">
+        <i class="fas fa-bell"></i>
+        <span>Notification</span>
+      </a>
+    </li>
+
+    <!-- Popup -->
+    <li class="<%= title === 'Popup' ? 'active' : '' %>">
+      <a href="/admin/popup">
+        <i class="fas fa-bell"></i>
+        <span>Popup</span>
+      </a>
+    </li>
+
+    <!-- User Management -->
+    <li
+      class="<%= title === 'User Management' || title === 'Manage Users' ? 'active' : '' %>"
+    >
+      <a href="/admin/users">
+        <i class="fas fa-cog"></i>
+        <span>User Management</span>
+      </a>
+    </li>
+
+    <!-- Jantri Report -->
+    <li class="<%= title === 'Jantri Report' ? 'active' : '' %>">
+      <a href="/admin/jantri-report">
+        <i class="fas fa-file-alt"></i>
+        <span>Jantri Report</span>
+      </a>
+    </li>
+
+    <!-- Deposit Request -->
+    <li class="<%= title === 'Deposit Request' ? 'active' : '' %>">
+      <a href="/admin/deposit-requests">
+        <i class="fas fa-arrow-down"></i>
+        <span>Deposit Request</span>
+      </a>
+    </li>
+
+    <!-- Withdrawals -->
+    <li class="<%= title === 'Withdrawals' ? 'active' : '' %>">
+      <a href="/admin/withdrawals">
+        <i class="fas fa-arrow-up"></i>
+        <span>Withdrawals</span>
+      </a>
+    </li>
+
+    <!-- Withdraw Request -->
+    <li class="<%= title === 'Withdraw Request' ? 'active' : '' %>">
+      <a href="/admin/withdraw-requests">
+        <i class="fas fa-arrow-up"></i>
+        <span>Withdraw Request</span>
+      </a>
+    </li>
+
+    <!-- Withdraw Bank Request -->
+    <li class="<%= title === 'Withdraw Bank Request' ? 'active' : '' %>">
+      <a href="/admin/withdraw-bank-requests">
+        <i class="fas fa-arrow-up"></i>
+        <span>Withdraw Bank Request</span>
+      </a>
+    </li>
+
+    <!-- Game Name -->
+    <li
+      class="<%= title === 'Game Name' || title === 'Manage Games' ? 'active' : '' %>"
+    >
+      <a href="/admin/games">
+        <i class="fas fa-gamepad"></i>
+        <span>Game Name</span>
+      </a>
+    </li>
+
+    <!-- Game Rates -->
+    <li class="<%= title === 'Game Rates' ? 'active' : '' %>">
+      <a href="/admin/game-rates">
+        <i class="fas fa-star"></i>
+        <span>Game Rates</span>
+      </a>
+    </li>
+
+    <!-- Declare Result -->
+    <li class="<%= title === 'Declare Result' ? 'active' : '' %>">
+      <a href="/admin/result-entry">
+        <i class="fas fa-trophy"></i>
+        <span>Declare Result</span>
+      </a>
+    </li>
+
+    <!-- Result History -->
+    <li class="<%= title === 'Result History' ? 'active' : '' %>">
+      <a href="/admin/result-history">
+        <i class="fas fa-clock"></i>
+        <span>Result History</span>
+      </a>
+    </li>
+
+    <!-- Winner History -->
+    <li class="<%= title === 'Winner History' ? 'active' : '' %>">
+      <a href="/admin/winner-history">
+        <i class="fas fa-star"></i>
+        <span>Winner History</span>
+      </a>
+    </li>
+  </ul>
 </nav>
