@@ -7,14 +7,36 @@ const path = require("path");
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false,
+  // Connection pool settings for Render
+  max: 10, // Maximum number of clients in the pool
+  idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
+  connectionTimeoutMillis: 10000, // Return an error after 10 seconds if connection could not be established
+  // Keepalive settings to prevent connection termination
+  keepAlive: true,
+  keepAliveInitialDelayMillis: 10000,
 });
 
 async function runAllMigrations() {
   let client;
   try {
     console.log("🔧 Connecting to database...");
-    client = await pool.connect();
-    console.log("✅ Connected to database successfully!");
+
+    // Retry connection logic for Render
+    let retries = 3;
+    while (retries > 0) {
+      try {
+        client = await pool.connect();
+        console.log("✅ Connected to database successfully!");
+        break;
+      } catch (connErr) {
+        retries--;
+        if (retries === 0) throw connErr;
+        console.log(
+          `⚠️  Connection failed, retrying... (${retries} attempts left)`,
+        );
+        await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait 2 seconds before retry
+      }
+    }
 
     // 1. Run main schema
     console.log("\n📋 Step 1: Running main schema...");
