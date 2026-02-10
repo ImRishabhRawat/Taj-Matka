@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('partials/head') %>
+    <style>
+        .profile-card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            background: #fff;
+            padding: 2.5rem;
+            text-align: center;
+        }
+        .profile-img-wrapper {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+        }
+        .profile-img {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid #fff;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .admin-badge {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: #4e73df;
+            color: #fff;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid #fff;
+            font-size: 0.8rem;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .form-label {
+            font-weight: 600;
+            color: #4e73df;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .form-control {
+            border-radius: 12px;
+            padding: 12px 18px;
+            border: 1px solid #e3e6f0;
+            background-color: #f8f9fc;
+        }
+        .form-control:focus {
+            background-color: #fff;
+            border-color: #4e73df;
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.1);
+        }
+        .btn-update {
+            padding: 12px 25px;
+            border-radius: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            border: none;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+        }
+        .btn-change-password {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white !important;
+        }
+        .btn-update:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="wrapper d-flex">
+        <!-- Sidebar -->
+        <%- include('partials/sidebar') %>
+
+        <!-- Page Content -->
+        <div id="content">
+            <!-- Top Navbar -->
+            <%- include('partials/header') %>
+
+            <div class="container-fluid px-4 pt-4">
+                <div class="row">
+                    <div class="col-12 mb-4">
+                        <div class="profile-card">
+                            <div class="profile-img-wrapper">
+                                <img src="https://ui-avatars.com/api/?name=<%= admin.name %>&size=140&background=4e73df&color=fff" alt="Admin" class="profile-img">
+                                <div class="admin-badge">
+                                    <i class="fas fa-shield-alt"></i>
+                                </div>
+                            </div>
+                            <h2 class="fw-bold mb-1 text-dark"><%= admin.name %></h2>
+                            <p class="text-muted mb-0"><i class="fas fa-user-shield me-2"></i> Administrator</p>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header bg-white py-3 border-0">
+                                <h6 class="m-0 fw-bold text-primary"><i class="fas fa-user-edit me-2"></i>Personal Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <form id="updateProfileForm">
+                                    <div class="mb-3">
+                                        <label class="form-label">Full Name</label>
+                                        <input type="text" class="form-control" name="name" value="<%= admin.name %>" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Phone Number</label>
+                                        <input type="text" class="form-control" name="phone" value="<%= admin.phone %>" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Role</label>
+                                        <input type="text" class="form-control" value="<%= admin.role.toUpperCase() %>" readonly disabled>
+                                    </div>
+                                    <div class="text-end mt-4">
+                                        <button type="submit" class="btn btn-primary btn-update">
+                                            <i class="fas fa-save me-2"></i> Update Profile
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header bg-white py-3 border-0">
+                                <h6 class="m-0 fw-bold text-primary"><i class="fas fa-lock me-2"></i>Change Password</h6>
+                            </div>
+                            <div class="card-body">
+                                <form id="changePasswordForm">
+                                    <div class="mb-3">
+                                        <label class="form-label">Current Password</label>
+                                        <div class="input-group">
+                                            <input type="password" class="form-control" name="currentPassword" required>
+                                            <button class="btn btn-outline-secondary border-start-0" type="button" onclick="togglePassword(this)" style="border-radius: 0 12px 12px 0; border: 1px solid #e3e6f0;">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">New Password</label>
+                                        <div class="input-group">
+                                            <input type="password" class="form-control" name="newPassword" required>
+                                            <button class="btn btn-outline-secondary border-start-0" type="button" onclick="togglePassword(this)" style="border-radius: 0 12px 12px 0; border: 1px solid #e3e6f0;">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Confirm Password</label>
+                                        <div class="input-group">
+                                            <input type="password" class="form-control" name="confirmPassword" required>
+                                            <button class="btn btn-outline-secondary border-start-0" type="button" onclick="togglePassword(this)" style="border-radius: 0 12px 12px 0; border: 1px solid #e3e6f0;">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="text-end mt-4">
+                                        <button type="submit" class="btn btn-change-password btn-update">
+                                            <i class="fas fa-key me-2"></i> Change Password
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('partials/scripts') %>
+
+    <script>
+        function togglePassword(btn) {
+            const input = btn.parentElement.querySelector('input');
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Update Profile Form
+            document.getElementById('updateProfileForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                const data = Object.fromEntries(formData.entries());
+
+                try {
+                    const result = await apiCall('/admin/api/profile/update', 'POST', data);
+                    if (result.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Updated!',
+                            text: result.message,
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => location.reload());
+                    }
+                } catch (error) {
+                    // apiCall handles error showing
+                }
+            });
+
+            // Change Password Form
+            document.getElementById('changePasswordForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                const data = Object.fromEntries(formData.entries());
+
+                if (data.newPassword !== data.confirmPassword) {
+                    return Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'New passwords do not match!'
+                    });
+                }
+
+                try {
+                    const result = await apiCall('/admin/api/profile/change-password', 'POST', data);
+                    if (result.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: result.message,
+                            timer: 2000,
+                            showConfirmButton: false
+                        }).then(() => {
+                            this.reset();
+                        });
+                    }
+                } catch (error) {
+                    // apiCall handles error showing
+                }
+            });
+        });
+    </script>
+</body>
+</html>

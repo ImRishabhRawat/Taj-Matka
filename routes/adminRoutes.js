@@ -43,6 +43,9 @@ router.get("/withdraw-bank-requests", adminController.getWithdrawBankRequests);
 router.get("/jantri-report", adminController.getJantriReport);
 router.get("/result-history", adminController.getResultHistory);
 router.get("/winner-history", adminController.getWinnerHistory);
+router.get("/profile", adminController.getProfile);
+router.post("/api/profile/update", adminController.updateProfile);
+router.post("/api/profile/change-password", adminController.changePassword);
 
 // API routes for new features
 router.post("/api/notifications/create", adminController.createNotification);

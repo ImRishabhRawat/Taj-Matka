@@ -1484,6 +1484,95 @@ async function getActiveBanners(req, res) {
   }
 }
 
+/**
+ * Admin Profile Page
+ */
+async function getProfile(req, res) {
+  try {
+    const user = await User.findById(req.user.id);
+    res.render("admin/profile", {
+      title: "Admin Profile",
+      user: req.user,
+      admin: user,
+    });
+  } catch (error) {
+    console.error("Error getting admin profile:", error);
+    res.status(500).send("Internal Server Error");
+  }
+}
+
+/**
+ * Update Admin Profile Details
+ */
+async function updateProfile(req, res) {
+  try {
+    const { name, phone } = req.body;
+    const adminId = req.user.id;
+
+    // Check if phone is already taken by another user
+    if (phone !== req.user.phone) {
+      const existingUser = await pool.query(
+        "SELECT id FROM users WHERE phone = $1 AND id != $2",
+        [phone, adminId],
+      );
+      if (existingUser.rows.length > 0) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Phone number already in use" });
+      }
+    }
+
+    await pool.query("UPDATE users SET name = $1, phone = $2 WHERE id = $3", [
+      name,
+      phone,
+      adminId,
+    ]);
+
+    res.json({ success: true, message: "Profile updated successfully" });
+  } catch (error) {
+    console.error("Error updating admin profile:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+}
+
+/**
+ * Change Admin Password
+ */
+async function changePassword(req, res) {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const adminId = req.user.id;
+
+    const result = await pool.query(
+      "SELECT password_hash FROM users WHERE id = $1",
+      [adminId],
+    );
+    const admin = result.rows[0];
+
+    const bcrypt = require("bcryptjs");
+    const isMatch = await bcrypt.compare(currentPassword, admin.password_hash);
+
+    if (!isMatch) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Current password incorrect" });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const newPasswordHash = await bcrypt.hash(newPassword, salt);
+
+    await pool.query("UPDATE users SET password_hash = $1 WHERE id = $2", [
+      newPasswordHash,
+      adminId,
+    ]);
+
+    res.json({ success: true, message: "Password updated successfully" });
+  } catch (error) {
+    console.error("Error changing admin password:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+}
+
 module.exports = {
   getDashboard,
   getGames,
@@ -1523,4 +1612,7 @@ module.exports = {
   rejectWithdrawal,
   getActivePopups,
   getActiveBanners,
+  getProfile,
+  updateProfile,
+  changePassword,
 };
