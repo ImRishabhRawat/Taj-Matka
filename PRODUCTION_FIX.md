@@ -54,3 +54,37 @@ After the fix is applied:
 1. Reload your website (or call `/api/games`).
 2. The error `Failed to get games` should disappear.
 3. Your games (including the ISO game) should appear correctly.
+
+---
+
+# ✅ FEATURE: Admin Dashboard Auto-Redirect
+
+## Problem
+
+When an admin user logs in, they were being redirected to the regular user home page (`/home`) instead of the admin dashboard (`/admin/dashboard`). This required an extra manual navigation step.
+
+## Solution
+
+Updated the login page (`views/auth/login.ejs`) to implement role-based redirection:
+
+1. **Login Form Handler**: After successful login, the app now checks the user's role from the API response
+2. **Auto-Redirect Logic**:
+   - If `role === 'admin'` → Redirect to `/admin/dashboard`
+   - Otherwise → Redirect to `/home` (regular users)
+3. **Already Logged In Check**: The `checkAuth()` function also implements the same logic for users who are already authenticated
+
+## Changes Made
+
+**File**: `views/auth/login.ejs`
+
+- Modified the login success handler (lines 268-278)
+- Updated the `checkAuth()` function (lines 209-228)
+
+## Testing
+
+To test this feature:
+
+1. Log in with an admin account
+2. You should be automatically redirected to `/admin/dashboard`
+3. Log in with a regular user account
+4. You should be redirected to `/home`

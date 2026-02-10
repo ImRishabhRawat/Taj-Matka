@@ -1,195 +1,208 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>Login - Taj Matka</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/style.css" />
     <style>
-        /* Pure Login Page Styles */
-        .login-container {
-            max-width: 500px;
-            margin: 0 auto;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            background: var(--bg-primary);
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
-        }
-        
-        .login-header {
-            background: var(--header-gradient);
-            padding: 1.3rem 1.5rem;
-            text-align: center;
-            color: white;
-            border-bottom: 3px solid var(--primary-gold);
-        }
-        
-        .login-logo-img {
-            max-width: 180px;
-            height: auto;
-            margin-bottom: 0.5rem;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
-        }
-        
-        .login-tagline {
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-        
-        .login-form-container {
-            flex: 1;
-            padding: 2rem 1.5rem;
-            max-width: 400px;
-            width: 100%;
-            margin: 0 auto;
-        }
-        
-        .login-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            color: var(--text-primary);
-        }
-        
-        .login-subtitle {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            margin-bottom: 2rem;
-        }
-        
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        .form-label {
-            display: block;
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-bottom: 0.5rem;
-        }
-        
-        .form-input {
-            width: 100%;
-            padding: 1rem;
-            background: var(--bg-card);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            color: var(--text-primary);
-            font-size: 1rem;
-            transition: border-color 0.2s;
-        }
-        
-        .form-input:focus {
-            outline: none;
-            border-color: var(--primary-orange);
-        }
-        
-        .btn-login {
-            width: 100%;
-            padding: 1rem;
-            background: var(--gold-gradient);
-            color: var(--primary-navy);
-            border: none;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            font-weight: 800;
-            cursor: pointer;
-            transition: transform 0.2s;
-            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
-        }
-        
-        .btn-login:active {
-            transform: scale(0.98);
-        }
-        
-        .btn-login:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .form-footer {
-            text-align: center;
-            margin-top: 2rem;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-        
-        .form-footer a {
-            color: var(--primary-orange);
-            text-decoration: none;
-            font-weight: 600;
-        }
-        
-        .error-message {
-            background: rgba(255, 68, 68, 0.1);
-            border: 1px solid #ff4444;
-            color: #ff4444;
-            padding: 0.75rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
-            display: none;
-        }
-        
-        .error-message.show {
-            display: block;
-        }
+      /* Pure Login Page Styles */
+      .login-container {
+        max-width: 500px;
+        margin: 0 auto;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        background: var(--bg-primary);
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+      }
+
+      .login-header {
+        background: var(--header-gradient);
+        padding: 1.3rem 1.5rem;
+        text-align: center;
+        color: white;
+        border-bottom: 3px solid var(--primary-gold);
+      }
+
+      .login-logo-img {
+        max-width: 180px;
+        height: auto;
+        margin-bottom: 0.5rem;
+        filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+      }
+
+      .login-tagline {
+        font-size: 0.9rem;
+        opacity: 0.9;
+      }
+
+      .login-form-container {
+        flex: 1;
+        padding: 2rem 1.5rem;
+        max-width: 400px;
+        width: 100%;
+        margin: 0 auto;
+      }
+
+      .login-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+      }
+
+      .login-subtitle {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-label {
+        display: block;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin-bottom: 0.5rem;
+      }
+
+      .form-input {
+        width: 100%;
+        padding: 1rem;
+        background: var(--bg-card);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-size: 1rem;
+        transition: border-color 0.2s;
+      }
+
+      .form-input:focus {
+        outline: none;
+        border-color: var(--primary-orange);
+      }
+
+      .btn-login {
+        width: 100%;
+        padding: 1rem;
+        background: var(--gold-gradient);
+        color: var(--primary-navy);
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: 800;
+        cursor: pointer;
+        transition: transform 0.2s;
+        box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+      }
+
+      .btn-login:active {
+        transform: scale(0.98);
+      }
+
+      .btn-login:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .form-footer {
+        text-align: center;
+        margin-top: 2rem;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+      }
+
+      .form-footer a {
+        color: var(--primary-orange);
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      .error-message {
+        background: rgba(255, 68, 68, 0.1);
+        border: 1px solid #ff4444;
+        color: #ff4444;
+        padding: 0.75rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        display: none;
+      }
+
+      .error-message.show {
+        display: block;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="login-container">
-        
-        <!-- Header Section -->
-        <div class="login-header">
-            <img src="/images/logo.png" alt="Taj Matka Logo" class="login-logo-img">
-            <div class="login-tagline">Play Smart, Win Big</div>
-        </div>
+      <!-- Header Section -->
+      <div class="login-header">
+        <img
+          src="/images/logo.png"
+          alt="Taj Matka Logo"
+          class="login-logo-img"
+        />
+        <div class="login-tagline">Play Smart, Win Big</div>
+      </div>
 
-        <!-- Form Section -->
-        <div class="login-form-container">
-            <h1 class="login-title">Welcome</h1>
-            <p class="login-subtitle ">Enter your phone and password to continue</p>
-            
-            <div class="error-message" id="errorMessage"></div>
-            
-            <form id="loginForm">
-                <div class="form-group">
-                    <label class="form-label">Mobile Number</label>
-                    <input 
-                        type="tel" 
-                        class="form-input" 
-                        id="phone" 
-                        placeholder="Enter 10-digit mobile number"
-                        maxlength="10"
-                        pattern="[0-9]{10}"
-                        required
-                    >
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Password</label>
-                    <input 
-                        type="password" 
-                        class="form-input" 
-                        id="password" 
-                        placeholder="Enter your password (min 6 characters)"
-                        minlength="6"
-                        required
-                    >
-                </div>
-                
-                <button type="submit" class="btn-login" id="loginBtn">
-                    CONTINUE
-                </button>
-            </form>
-            
-            <div class="form-footer" style="margin-top: 1.5rem; text-align: center; color: var(--text-secondary); font-size: 0.85rem;">
-                New user? Just enter your phone and create a password to get started!
-            </div>
-        </div>
+      <!-- Form Section -->
+      <div class="login-form-container">
+        <h1 class="login-title">Welcome</h1>
+        <p class="login-subtitle">Enter your phone and password to continue</p>
 
+        <div class="error-message" id="errorMessage"></div>
+
+        <form id="loginForm">
+          <div class="form-group">
+            <label class="form-label">Mobile Number</label>
+            <input
+              type="tel"
+              class="form-input"
+              id="phone"
+              placeholder="Enter 10-digit mobile number"
+              maxlength="10"
+              pattern="[0-9]{10}"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input
+              type="password"
+              class="form-input"
+              id="password"
+              placeholder="Enter your password (min 6 characters)"
+              minlength="6"
+              required
+            />
+          </div>
+
+          <button type="submit" class="btn-login" id="loginBtn">
+            CONTINUE
+          </button>
+        </form>
+
+        <div
+          class="form-footer"
+          style="
+            margin-top: 1.5rem;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+          "
+        >
+          New user? Just enter your phone and create a password to get started!
+        </div>
+      </div>
     </div>
 
     <script>
@@ -201,72 +214,85 @@
                 });
                 
                 if (response.ok) {
-                    // Already logged in, redirect to home
-                    window.location.href = '/home';
+                    const data = await response.json();
+                    // Already logged in, redirect based on role
+                    if (data.data.role === 'admin') {
+                        window.location.href = '/admin/dashboard';
+                    } else {
+                        window.location.href = '/home';
+                    }
                 }
             } catch (error) {
                 // Not logged in, stay on login page
             }
         }
 
-        // Login form handler
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const phone = document.getElementById('phone').value;
-            const password = document.getElementById('password').value;
-            const errorMessage = document.getElementById('errorMessage');
-            const loginBtn = document.getElementById('loginBtn');
-            
-            // Validate
-            if (!/^[0-9]{10}$/.test(phone)) {
-                errorMessage.textContent = 'Please enter a valid 10-digit mobile number';
-                errorMessage.classList.add('show');
-                return;
+      // Login form handler
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const phone = document.getElementById("phone").value;
+          const password = document.getElementById("password").value;
+          const errorMessage = document.getElementById("errorMessage");
+          const loginBtn = document.getElementById("loginBtn");
+
+          // Validate
+          if (!/^[0-9]{10}$/.test(phone)) {
+            errorMessage.textContent =
+              "Please enter a valid 10-digit mobile number";
+            errorMessage.classList.add("show");
+            return;
+          }
+
+          // Hide error
+          errorMessage.classList.remove("show");
+
+          // Disable button
+          loginBtn.disabled = true;
+          loginBtn.textContent = "LOGGING IN...";
+
+          try {
+            const response = await fetch("/api/auth/login", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              credentials: "include",
+              body: JSON.stringify({ phone, password }),
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+              // Store token in localStorage as backup
+              localStorage.setItem("token", data.data.token);
+
+              // Check user role and redirect accordingly
+              const userRole = data.data.user.role;
+              if (userRole === "admin") {
+                window.location.href = "/admin/dashboard";
+              } else {
+                window.location.href = "/home";
+              }
+            } else {
+              errorMessage.textContent = data.message;
+              errorMessage.classList.add("show");
+              loginBtn.disabled = false;
+              loginBtn.textContent = "LOGIN";
             }
-            
-            // Hide error
-            errorMessage.classList.remove('show');
-            
-            // Disable button
-            loginBtn.disabled = true;
-            loginBtn.textContent = 'LOGGING IN...';
-            
-            try {
-                const response = await fetch('/api/auth/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    credentials: 'include',
-                    body: JSON.stringify({ phone, password })
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    // Store token in localStorage as backup
-                    localStorage.setItem('token', data.data.token);
-                    
-                    // Redirect to home
-                    window.location.href = '/home';
-                } else {
-                    errorMessage.textContent = data.message;
-                    errorMessage.classList.add('show');
-                    loginBtn.disabled = false;
-                    loginBtn.textContent = 'LOGIN';
-                }
-            } catch (error) {
-                console.error('Login error:', error);
-                errorMessage.textContent = 'Login failed. Please try again.';
-                errorMessage.classList.add('show');
-                loginBtn.disabled = false;
-                loginBtn.textContent = 'LOGIN';
-            }
+          } catch (error) {
+            console.error("Login error:", error);
+            errorMessage.textContent = "Login failed. Please try again.";
+            errorMessage.classList.add("show");
+            loginBtn.disabled = false;
+            loginBtn.textContent = "LOGIN";
+          }
         });
 
-        // Check auth on page load
-        checkAuth();
+      // Check auth on page load
+      checkAuth();
     </script>
-</body>
+  </body>
 </html>
