@@ -1573,6 +1573,26 @@ async function changePassword(req, res) {
   }
 }
 
+/**
+ * Edit Result (Correction)
+ */
+async function editResult(req, res) {
+  try {
+    const { sessionId, winningNumber } = req.body;
+    const gameService = require("../services/gameService");
+
+    const result = await gameService.updateResult(sessionId, winningNumber);
+
+    res.json({
+      success: true,
+      message: `Result corrected from ${result.oldWinningNumber} to ${result.newWinningNumber}`,
+    });
+  } catch (error) {
+    console.error("Error editing result:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+}
+
 module.exports = {
   getDashboard,
   getGames,
@@ -1615,4 +1635,5 @@ module.exports = {
   getProfile,
   updateProfile,
   changePassword,
+  editResult,
 };

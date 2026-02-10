@@ -90,11 +90,32 @@
                                     <hr class="my-3 opacity-25">
 
                                     <% if (game.session_status === 'completed') { %>
-                                        <div class="text-center py-2">
+                                        <div class="text-center py-2" id="display-<%= game.session_id %>">
                                             <div class="small text-muted mb-1">Declared Winning Number</div>
                                             <div class="display-6 fw-bold text-primary"><%= game.winning_number %></div>
                                             <div class="small text-muted mt-2">
                                                 <i class="fas fa-check-circle text-success me-1"></i> Payouts Processed
+                                            </div>
+                                            <button class="btn btn-sm btn-outline-secondary mt-3" onclick="enableEdit('<%= game.session_id %>')">
+                                                <i class="fas fa-edit me-1"></i> Change Result
+                                            </button>
+                                        </div>
+
+                                        <div class="d-none" id="edit-<%= game.session_id %>">
+                                            <div class="mb-3">
+                                                <label class="form-label small fw-bold text-danger">New Winning Number</label>
+                                                <input type="text" id="edit-input-<%= game.session_id %>" class="form-control winning-num-input" maxlength="2" placeholder="--" value="<%= game.winning_number %>">
+                                            </div>
+                                            <div class="d-grid gap-2">
+                                                <button id="btn-save-<%= game.session_id %>" class="btn btn-danger declare-btn" onclick="saveEdit('<%= game.session_id %>', '<%= game.name %>')">
+                                                    <i class="fas fa-save me-1"></i> Save Correction
+                                                </button>
+                                                <button class="btn btn-secondary declare-btn btn-sm" onclick="cancelEdit('<%= game.session_id %>')">
+                                                    Cancel
+                                                </button>
+                                            </div>
+                                            <div class="small text-danger mt-2 fst-italic text-center" style="font-size: 0.75rem;">
+                                                Warning: Reverses previous payouts!
                                             </div>
                                         </div>
                                     <% } else if (game.is_scheduled) { %>
@@ -234,6 +255,69 @@
                  if(btnSchedule) btnSchedule.disabled = false;
                  if(inputField) inputField.disabled = false;
                  if(btnSchedule) btnSchedule.innerHTML = '<i class="fas fa-clock me-1"></i> Schedule Result';
+            }
+        }
+
+        function enableEdit(sessionId) {
+            document.getElementById(`display-${sessionId}`).classList.add('d-none');
+            document.getElementById(`edit-${sessionId}`).classList.remove('d-none');
+        }
+
+        function cancelEdit(sessionId) {
+            document.getElementById(`display-${sessionId}`).classList.remove('d-none');
+            document.getElementById(`edit-${sessionId}`).classList.add('d-none');
+        }
+
+        async function saveEdit(sessionId, gameName) {
+            const winningNumber = document.getElementById(`edit-input-${sessionId}`).value;
+            const btnSave = document.getElementById(`btn-save-${sessionId}`);
+            const inputField = document.getElementById(`edit-input-${sessionId}`);
+            
+            if (!winningNumber || winningNumber.length !== 2) {
+                alert('Please enter a valid 2-digit number');
+                return;
+            }
+
+            if (!confirm(`CRITICAL WARNING: Are you sure you want to change the result for ${gameName} to ${winningNumber}?\n\nThis will:\n1. DEDUCT winning amounts from users who won previously.\n2. ADD winning amounts to new winners.\n3. Update all bet statuses.\n\nThis action cannot be cleanly undone if repeated multiple times.`)) {
+                return;
+            }
+
+             // Disable UI
+             if(btnSave) {
+                 btnSave.disabled = true;
+                 btnSave.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Processing...';
+             }
+             if(inputField) inputField.disabled = true;
+
+            try {
+                const response = await fetch('/admin/api/results/edit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sessionId, winningNumber })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert(result.message || 'Result corrected successfully!');
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + result.message);
+                    // Re-enable UI
+                    if(btnSave) {
+                        btnSave.disabled = false;
+                        btnSave.innerHTML = '<i class="fas fa-save me-1"></i> Save Correction';
+                    }
+                    if(inputField) inputField.disabled = false;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while correcting result');
+                 // Re-enable UI
+                 if(btnSave) {
+                    btnSave.disabled = false;
+                    btnSave.innerHTML = '<i class="fas fa-save me-1"></i> Save Correction';
+                }
+                if(inputField) inputField.disabled = false;
             }
         }
 

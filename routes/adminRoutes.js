@@ -31,6 +31,7 @@ router.get("/withdrawals", adminController.getWithdrawals);
 router.get("/api/bids/:gameId", adminController.getBidStatsAPI);
 router.get("/api/market-stats", adminController.getMarketStatsByDateAPI);
 router.post("/api/results/declare", adminController.declareResult);
+router.post("/api/results/edit", adminController.editResult);
 router.post("/api/results/schedule", adminController.scheduleResult);
 
 // New routes
