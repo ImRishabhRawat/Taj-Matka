@@ -52,16 +52,20 @@
                                 </thead>
                                 <tbody>
                                     <% 
-                                    function calculateStatus(closeTime) {
+                                    function calculateStatus(openTime, closeTime) {
                                         const now = new Date();
                                         const currentTimeStr = now.getHours().toString().padStart(2, '0') + ':' + 
                                                              now.getMinutes().toString().padStart(2, '0') + ':' + 
                                                              now.getSeconds().toString().padStart(2, '0');
-                                        return currentTimeStr < closeTime;
+                                        if (openTime < closeTime) {
+                                            return currentTimeStr >= openTime && currentTimeStr < closeTime;
+                                        } else {
+                                            return currentTimeStr >= openTime || currentTimeStr < closeTime;
+                                        }
                                     }
                                     
                                     games.forEach(game => { 
-                                        const isOpen = calculateStatus(game.close_time);
+                                        const isOpen = calculateStatus(game.open_time, game.close_time);
                                     %>
                                         <tr>
                                             <td class="fw-600" data-label="Name"><%= game.name %></td>
