@@ -258,16 +258,36 @@
     @media (max-width: 992px) {
         #sidebar {
             margin-left: calc(-1 * var(--sidebar-width));
+            z-index: 1050;
         }
         #sidebar.active {
             margin-left: 0;
         }
         #content {
-            width: 100%;
-            margin-left: 0;
+            width: 100% !important;
+            margin-left: 0 !important;
         }
         #content.active {
-            margin-left: var(--sidebar-width);
+            margin-left: 0 !important;
+        }
+        
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1040;
+            top: 0;
+            left: 0;
+            backdrop-filter: blur(2px);
+            transition: all 0.3s;
+        }
+        .sidebar-overlay.active {
+            display: block;
+        }
+        body.sidebar-open {
+            overflow: hidden;
         }
     }
 

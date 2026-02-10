@@ -9,14 +9,38 @@
         const content = document.getElementById('content');
         const btnCollapse = document.getElementById('sidebarCollapse');
         const btnToggle = document.getElementById('sidebarToggle');
+        const btnCloseSidebar = document.getElementById('sidebarClose');
 
         // Support both old and new toggle buttons
         const toggleButton = btnCollapse || btnToggle;
+        const overlay = document.getElementById('sidebar-overlay');
 
         if (toggleButton) {
             toggleButton.addEventListener('click', function() {
                 sidebar.classList.toggle('active');
                 content.classList.toggle('active');
+                if (window.innerWidth <= 992) {
+                    overlay.classList.toggle('active');
+                    document.body.classList.toggle('sidebar-open');
+                }
+            });
+        }
+
+        if (btnCloseSidebar) {
+            btnCloseSidebar.addEventListener('click', function() {
+                sidebar.classList.remove('active');
+                content.classList.remove('active');
+                overlay.classList.remove('active');
+                document.body.classList.remove('sidebar-open');
+            });
+        }
+
+        if (overlay) {
+            overlay.addEventListener('click', function() {
+                sidebar.classList.remove('active');
+                content.classList.remove('active');
+                overlay.classList.remove('active');
+                document.body.classList.remove('sidebar-open');
             });
         }
 
@@ -24,6 +48,8 @@
         if (window.innerWidth <= 992 && sidebar && content) {
             sidebar.classList.remove('active');
             content.classList.remove('active');
+            if (overlay) overlay.classList.remove('active');
+            document.body.classList.remove('sidebar-open');
         }
     });
 

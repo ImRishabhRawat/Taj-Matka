@@ -1,4 +1,13 @@
 <nav id="sidebar">
+  <div class="sidebar-header d-flex align-items-center justify-content-between">
+    <div class="d-flex align-items-center">
+      <i class="fas fa-user-shield text-primary me-2 fs-4"></i>
+      <h5 class="mb-0 fw-bold">Admin Panel</h5>
+    </div>
+    <button type="button" id="sidebarClose" class="btn btn-link text-dark d-lg-none p-0">
+      <i class="fas fa-times fs-4"></i>
+    </button>
+  </div>
   <ul class="list-unstyled components">
     <!-- Dashboard -->
     <li class="<%= title === 'Admin Dashboard' ? 'active' : '' %>">
@@ -133,3 +142,5 @@
     </li>
   </ul>
 </nav>
+<div id="sidebar-overlay" class="sidebar-overlay"></div>
+
