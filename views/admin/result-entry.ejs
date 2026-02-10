@@ -31,6 +31,24 @@
             letter-spacing: 5px;
             border-radius: 10px;
         }
+        .text-purple-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .text-purple {
+            color: #667eea;
+        }
+        .btn-purple-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white !important;
+            border: none;
+            transition: all 0.3s;
+        }
+        .btn-purple-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
     </style>
 </head>
 <body>
@@ -42,26 +60,7 @@
         <!-- Page Content -->
         <div id="content">
             <!-- Top Navbar -->
-            <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
-                <div class="container-fluid">
-                    <button type="button" id="sidebarCollapse" class="btn btn-toggle-sidebar">
-                        <i class="fas fa-align-left"></i>
-                    </button>
-                    <h4 class="ms-3 mb-0 fw-bold">Declare Results</h4>
-                    
-                    <div class="ms-auto d-flex align-items-center">
-                        <div class="dropdown">
-                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                                <span class="me-2 d-none d-md-inline"><%= user.name || 'Admin' %></span>
-                                <img src="https://ui-avatars.com/api/?name=Admin&background=4e73df&color=fff" alt="Admin" class="rounded-circle" width="35">
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3">
-                                <li><button type="button" onclick="handleLogout()" class="dropdown-item text-danger"><i class="fas fa-sign-out-alt fa-sm fa-fw me-2"></i> Logout</button></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </nav>
+            <%- include('partials/header') %>
 
             <div class="container-fluid px-4">
                 <div class="row mb-4">
@@ -101,9 +100,9 @@
                                     <% } else if (game.is_scheduled) { %>
                                         <div class="text-center py-2">
                                             <div class="small text-muted mb-1">Scheduled Winning Number</div>
-                                            <div class="display-6 fw-bold text-warning"><%= game.scheduled_winning_number %></div>
+                                            <div class="display-6 fw-bold text-purple-gradient"><%= game.scheduled_winning_number %></div>
                                             <div class="small text-muted mt-2">
-                                                <i class="fas fa-clock text-warning me-1"></i> Will declare at <%= game.close_time %>
+                                                <i class="fas fa-clock text-purple me-1"></i> Will declare at <%= game.close_time %>
                                             </div>
                                         </div>
                                     <% } else { %>
@@ -115,7 +114,7 @@
                                             <button id="btn-declare-<%= game.session_id %>" class="btn btn-primary declare-btn" onclick="declareResult('<%= game.session_id %>', '<%= game.name %>')">
                                                 <i class="fas fa-check-circle me-1"></i> Declare Result
                                             </button>
-                                            <button id="btn-schedule-<%= game.session_id %>" class="btn btn-outline-warning declare-btn btn-sm" onclick="scheduleResult('<%= game.session_id %>', '<%= game.name %>')">
+                                            <button id="btn-schedule-<%= game.session_id %>" class="btn btn-purple-gradient declare-btn btn-sm" onclick="scheduleResult('<%= game.session_id %>', '<%= game.name %>')">
                                                 <i class="fas fa-clock me-1"></i> Schedule Result
                                             </button>
                                         </div>
