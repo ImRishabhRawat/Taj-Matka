@@ -45,7 +45,7 @@
                 <div class="card admin-table border-0 shadow-sm">
                     <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table table-hover mb-0">
+                            <table class="table table-hover mb-0 table-responsive-stack">
                                 <thead>
                                     <tr>
                                         <th>Name</th>
@@ -58,7 +58,7 @@
                                 <tbody>
                                     <% users.forEach(u => { %>
                                         <tr onclick="window.location='/admin/users/<%= u.id %>'" style="cursor: pointer;">
-                                            <td>
+                                            <td data-label="Name">
                                                 <div class="d-flex align-items-center">
                                                     <img src="https://ui-avatars.com/api/?name=<%= u.name || u.phone %>&background=random" class="rounded-circle me-3" width="40">
                                                     <div>
@@ -66,12 +66,12 @@
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td>
+                                            <td data-label="Mobile">
                                                 <div class="text-secondary"><%= u.phone %></div>
                                             </td>
-                                            <td class="fw-bold">₹<%= parseFloat(u.balance).toLocaleString() %></td>
-                                            <td class="fw-bold text-success">₹<%= parseFloat(u.winning_balance).toLocaleString() %></td>
-                                            <td>
+                                            <td class="fw-bold" data-label="Wallet Balance">₹<%= parseFloat(u.balance).toLocaleString() %></td>
+                                            <td class="fw-bold text-success" data-label="Winning Balance">₹<%= parseFloat(u.winning_balance).toLocaleString() %></td>
+                                            <td data-label="Status">
                                                 <% if (u.is_active) { %>
                                                     <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill">Active</span>
                                                 <% } else { %>

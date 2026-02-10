@@ -126,7 +126,7 @@
                             <!-- Bidding History -->
                             <div class="tab-pane fade show active" id="bidding-history">
                                 <div class="table-responsive">
-                                    <table class="table table-hover">
+                                    <table class="table table-hover table-responsive-stack">
                                         <thead>
                                             <tr>
                                                 <th>Date</th>
@@ -141,12 +141,12 @@
                                             <% if (history.bids.length > 0) { %>
                                                 <% history.bids.forEach(bid => { %>
                                                     <tr>
-                                                        <td><%= new Date(bid.created_at).toLocaleString() %></td>
-                                                        <td><%= bid.game_name %></td>
-                                                        <td><%= bid.bet_type %></td>
-                                                        <td><span class="badge bg-light text-dark border px-2"><%= bid.bet_number %></span></td>
-                                                        <td class="fw-bold">₹<%= bid.bet_amount %></td>
-                                                        <td>
+                                                        <td data-label="Date"><%= new Date(bid.created_at).toLocaleString() %></td>
+                                                        <td data-label="Game"><%= bid.game_name %></td>
+                                                        <td data-label="Type"><%= bid.bet_type %></td>
+                                                        <td data-label="Bet"><span class="badge bg-light text-dark border px-2"><%= bid.bet_number %></span></td>
+                                                        <td class="fw-bold" data-label="Amount">₹<%= bid.bet_amount %></td>
+                                                        <td data-label="Status">
                                                             <% if(bid.status === 'win') { %>
                                                                 <span class="badge bg-success-subtle text-success">Win</span>
                                                             <% } else if(bid.status === 'loss') { %>
@@ -168,7 +168,7 @@
                             <!-- Winning History -->
                             <div class="tab-pane fade" id="winning-history">
                                 <div class="table-responsive">
-                                    <table class="table table-hover">
+                                    <table class="table table-hover table-responsive-stack">
                                         <thead>
                                             <tr>
                                                 <th>Date</th>
@@ -182,11 +182,11 @@
                                             <% if (history.wins.length > 0) { %>
                                                 <% history.wins.forEach(win => { %>
                                                     <tr>
-                                                        <td><%= new Date(win.created_at).toLocaleString() %></td>
-                                                        <td><%= win.game_name %></td>
-                                                        <td><%= win.bet_type %></td>
-                                                        <td><span class="badge bg-success text-white px-2"><%= win.bet_number %></span></td>
-                                                        <td class="fw-bold text-success">₹<%= win.payout_amount %></td>
+                                                        <td data-label="Date"><%= new Date(win.created_at).toLocaleString() %></td>
+                                                        <td data-label="Game"><%= win.game_name %></td>
+                                                        <td data-label="Bet Type"><%= win.bet_type %></td>
+                                                        <td data-label="Number"><span class="badge bg-success text-white px-2"><%= win.bet_number %></span></td>
+                                                        <td class="fw-bold text-success" data-label="Winning Amount">₹<%= win.payout_amount %></td>
                                                     </tr>
                                                 <% }) %>
                                             <% } else { %>
@@ -200,7 +200,7 @@
                             <!-- Withdrawal History -->
                             <div class="tab-pane fade" id="withdrawal-history">
                                 <div class="table-responsive">
-                                    <table class="table table-hover">
+                                    <table class="table table-hover table-responsive-stack">
                                         <thead>
                                             <tr>
                                                 <th>Date</th>
@@ -213,9 +213,9 @@
                                             <% if (history.withdrawals.length > 0) { %>
                                                 <% history.withdrawals.forEach(w => { %>
                                                     <tr>
-                                                        <td><%= new Date(w.created_at).toLocaleString() %></td>
-                                                        <td class="fw-bold">₹<%= w.amount %></td>
-                                                        <td>
+                                                        <td data-label="Date"><%= new Date(w.created_at).toLocaleString() %></td>
+                                                        <td class="fw-bold" data-label="Amount">₹<%= w.amount %></td>
+                                                        <td data-label="Status">
                                                             <% if(w.status === 'approved') { %>
                                                                 <span class="badge bg-success-subtle text-success">Approved</span>
                                                             <% } else if(w.status === 'rejected') { %>
@@ -224,7 +224,7 @@
                                                                 <span class="badge bg-warning-subtle text-warning text-dark">Pending</span>
                                                             <% } %>
                                                         </td>
-                                                        <td><%= w.processed_at ? new Date(w.processed_at).toLocaleString() : '-' %></td>
+                                                        <td data-label="Processed At"><%= w.processed_at ? new Date(w.processed_at).toLocaleString() : '-' %></td>
                                                     </tr>
                                                 <% }) %>
                                             <% } else { %>
@@ -238,7 +238,7 @@
                             <!-- Wallet History -->
                             <div class="tab-pane fade" id="wallet-history">
                                 <div class="table-responsive">
-                                    <table class="table table-hover">
+                                    <table class="table table-hover table-responsive-stack">
                                         <thead>
                                             <tr>
                                                 <th>Date</th>
@@ -252,15 +252,15 @@
                                             <% if (history.transactions.length > 0) { %>
                                                 <% history.transactions.forEach(t => { %>
                                                     <tr>
-                                                        <td><%= new Date(t.created_at).toLocaleString() %></td>
-                                                        <td>
+                                                        <td data-label="Date"><%= new Date(t.created_at).toLocaleString() %></td>
+                                                        <td data-label="Type">
                                                             <span class="badge bg-secondary-subtle text-secondary text-uppercase"><%= t.transaction_type %></span>
                                                         </td>
-                                                        <td class="fw-bold <%= ['deposit','win','refund'].includes(t.transaction_type) ? 'text-success' : 'text-danger' %>">
+                                                        <td class="fw-bold <%= ['deposit','win','refund'].includes(t.transaction_type) ? 'text-success' : 'text-danger' %>" data-label="Amount">
                                                             <%= ['deposit','win','refund'].includes(t.transaction_type) ? '+' : '-' %>₹<%= t.amount %>
                                                         </td>
-                                                        <td>₹<%= t.balance_after %></td>
-                                                        <td class="small text-secondary"><%= t.description %></td>
+                                                        <td data-label="Balance After">₹<%= t.balance_after %></td>
+                                                        <td class="small text-secondary" data-label="Description"><%= t.description %></td>
                                                     </tr>
                                                 <% }) %>
                                             <% } else { %>

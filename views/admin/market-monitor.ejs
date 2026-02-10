@@ -110,7 +110,7 @@
                             </div>
                             <div class="card-body p-0">
                                 <div class="table-responsive stats-table-container">
-                                    <table class="table table-hover align-middle mb-0" id="bids-table">
+                                    <table class="table table-hover align-middle mb-0 table-responsive-stack" id="bids-table">
                                         <thead class="bg-light sticky-top">
                                             <tr>
                                                 <th class="ps-4">Number <i class="fas fa-sort sort-icon" onclick="sortTable(0)"></i></th>
@@ -301,11 +301,11 @@
             statsData.forEach(item => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td class="ps-4">
+                    <td class="ps-4" data-label="Number">
                         <div class="number-badge">${item.number}</div>
                     </td>
-                    <td>${item.count}</td>
-                    <td class="text-end pe-4">
+                    <td data-label="Total Bets">${item.count}</td>
+                    <td class="text-end pe-4" data-label="Total Amount">
                         <span class="amount-text">₹${item.amount.toLocaleString()}</span>
                     </td>
                 `;

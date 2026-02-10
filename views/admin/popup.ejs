@@ -119,7 +119,7 @@
                             </div>
                             <div class="card-body p-0">
                                 <div class="table-responsive">
-                                    <table class="table table-hover mb-0">
+                                    <table class="table table-hover mb-0 table-responsive-stack">
                                         <thead class="bg-light">
                                             <tr>
                                                 <th class="px-4 py-3">Preview</th>
@@ -135,32 +135,32 @@
                                             <% if (popups && popups.length > 0) { %>
                                                 <% popups.forEach(popup => { %>
                                                     <tr>
-                                                        <td class="px-4 py-3">
+                                                        <td class="px-4 py-3" data-label="Preview">
                                                             <% if (popup.image_url) { %>
                                                                 <img src="<%= popup.image_url %>" alt="Popup" style="width: 100px; height: 40px; object-fit: cover; border-radius: 8px;">
                                                             <% } else { %>
                                                                 <span class="text-muted"><i class="fas fa-image"></i></span>
                                                             <% } %>
                                                         </td>
-                                                        <td class="px-4 py-3 fw-bold"><%= popup.title %></td>
-                                                        <td class="px-4 py-3"><%= popup.message.substring(0, 50) %>...</td>
-                                                        <td class="px-4 py-3">
+                                                        <td class="px-4 py-3 fw-bold" data-label="Title"><%= popup.title %></td>
+                                                        <td class="px-4 py-3" data-label="Message"><%= popup.message.substring(0, 50) %>...</td>
+                                                        <td class="px-4 py-3" data-label="Duration">
                                                             <small>
                                                                 <%= new Date(popup.start_date).toLocaleDateString('en-IN') %> - 
                                                                 <%= new Date(popup.end_date).toLocaleDateString('en-IN') %>
                                                             </small>
                                                         </td>
-                                                        <td class="px-4 py-3">
+                                                        <td class="px-4 py-3" data-label="Target">
                                                             <span class="badge bg-info"><%= popup.target_audience %></span>
                                                         </td>
-                                                        <td class="px-4 py-3">
+                                                        <td class="px-4 py-3" data-label="Status">
                                                             <% if (popup.is_active) { %>
                                                                 <span class="badge bg-success">Active</span>
                                                             <% } else { %>
                                                                 <span class="badge bg-secondary">Inactive</span>
                                                             <% } %>
                                                         </td>
-                                                        <td class="px-4 py-3">
+                                                        <td class="px-4 py-3" data-label="Actions">
                                                             <button class="btn btn-sm btn-warning" onclick="togglePopup(<%= popup.id %>, <%= !popup.is_active %>)">
                                                                 <i class="fas fa-<%= popup.is_active ? 'pause' : 'play' %>"></i>
                                                             </button>
@@ -172,7 +172,7 @@
                                                 <% }); %>
                                             <% } else { %>
                                                 <tr>
-                                                    <td colspan="7" class="text-center py-5 text-muted">
+                                                    <td colspan="7" class="text-center py-5 text-muted" data-label="No Popups">
                                                         <i class="fas fa-window-restore fa-3x mb-3 opacity-25"></i>
                                                         <p>No popups created yet</p>
                                                     </td>

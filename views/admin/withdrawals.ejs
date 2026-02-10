@@ -35,7 +35,7 @@
                 <div class="card admin-table border-0 shadow-sm">
                     <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table table-hover mb-0">
+                            <table class="table table-hover mb-0 table-responsive-stack">
                                 <thead>
                                     <tr>
                                         <th>Date</th>
@@ -49,22 +49,22 @@
                                 <tbody>
                                     <% withdrawals.forEach(w => { %>
                                         <tr>
-                                            <td>
+                                            <td data-label="Date">
                                                 <div class="fw-600"><%= new Date(w.created_at).toLocaleDateString() %></div>
                                                 <div class="text-secondary small"><%= new Date(w.created_at).toLocaleTimeString() %></div>
                                             </td>
-                                            <td>
+                                            <td data-label="User">
                                                 <div class="fw-bold"><%= w.user_name || 'User' %></div>
                                                 <div class="text-secondary small"><%= w.user_phone %></div>
                                             </td>
-                                            <td class="fw-bold text-danger">₹<%= parseFloat(w.amount).toLocaleString() %></td>
-                                            <td>
+                                            <td class="fw-bold text-danger" data-label="Amount">₹<%= parseFloat(w.amount).toLocaleString() %></td>
+                                            <td data-label="Bank Details">
                                                 <button class="btn btn-sm btn-light border rounded-pill px-3 view-bank" 
                                                         data-bank='<%= w.bank_details %>'>
                                                     <i class="fas fa-university me-1"></i> View Details
                                                 </button>
                                             </td>
-                                            <td>
+                                            <td data-label="Status">
                                                 <% if (w.status === 'pending') { %>
                                                     <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-3 py-2 rounded-pill">Pending</span>
                                                 <% } else if (w.status === 'approved') { %>
@@ -73,7 +73,7 @@
                                                     <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 rounded-pill">Rejected</span>
                                                 <% } %>
                                             </td>
-                                            <td class="text-end">
+                                            <td class="text-end" data-label="Actions">
                                                 <% if (w.status === 'pending') { %>
                                                     <button class="btn btn-sm btn-success rounded-pill px-3 me-2 process-withdrawal" 
                                                             data-id="<%= w.id %>" data-status="approved">
@@ -91,7 +91,7 @@
                                     <% }); %>
                                     <% if (withdrawals.length === 0) { %>
                                         <tr>
-                                            <td colspan="6" class="text-center py-5 text-secondary">
+                                            <td colspan="6" class="text-center py-5 text-secondary" data-label="No Requests">
                                                 <i class="fas fa-money-check-alt fa-3x mb-3 d-block opacity-25"></i>
                                                 No withdrawal requests found
                                             </td>

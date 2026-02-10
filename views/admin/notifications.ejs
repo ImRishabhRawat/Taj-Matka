@@ -99,7 +99,7 @@
                             </div>
                             <div class="card-body p-0">
                                 <div class="table-responsive">
-                                    <table class="table table-hover mb-0">
+                                    <table class="table table-hover mb-0 table-responsive-stack">
                                         <thead class="bg-light">
                                             <tr>
                                                 <th class="px-4 py-3">Date & Time</th>
@@ -113,26 +113,26 @@
                                             <% if (notifications && notifications.length > 0) { %>
                                                 <% notifications.forEach(notification => { %>
                                                     <tr>
-                                                        <td class="px-4 py-3">
+                                                        <td class="px-4 py-3" data-label="Date & Time">
                                                             <%= new Date(notification.created_at).toLocaleString('en-IN') %>
                                                         </td>
-                                                        <td class="px-4 py-3 fw-bold"><%= notification.title %></td>
-                                                        <td class="px-4 py-3"><%= notification.message %></td>
-                                                        <td class="px-4 py-3">
+                                                        <td class="px-4 py-3 fw-bold" data-label="Title"><%= notification.title %></td>
+                                                        <td class="px-4 py-3" data-label="Message"><%= notification.message %></td>
+                                                        <td class="px-4 py-3" data-label="Sent To">
                                                             <% if (notification.user_phone) { %>
                                                                 <span class="badge bg-info"><%= notification.user_phone %></span>
                                                             <% } else { %>
                                                                 <span class="badge bg-primary">All Users</span>
                                                             <% } %>
                                                         </td>
-                                                        <td class="px-4 py-3">
+                                                        <td class="px-4 py-3" data-label="Status">
                                                             <span class="badge bg-success">Sent</span>
                                                         </td>
                                                     </tr>
                                                 <% }); %>
                                             <% } else { %>
                                                 <tr>
-                                                    <td colspan="5" class="text-center py-5 text-muted">
+                                                    <td colspan="5" class="text-center py-5 text-muted" data-label="No Notifications">
                                                         <i class="fas fa-bell-slash fa-3x mb-3 opacity-25"></i>
                                                         <p>No notifications sent yet</p>
                                                     </td>

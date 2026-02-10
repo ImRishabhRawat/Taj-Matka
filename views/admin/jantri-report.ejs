@@ -120,7 +120,7 @@
                                 </div>
                                 <div class="card-body p-4">
                                     <div class="table-responsive">
-                                        <table class="table jantri-table table-bordered">
+                                        <table class="table jantri-table table-bordered table-responsive-stack">
                                             <thead class="bg-primary text-white">
                                                 <tr>
                                                     <th>Date</th>
@@ -132,22 +132,22 @@
                                             <tbody>
                                                 <% jantriData.forEach(row => { %>
                                                     <tr>
-                                                        <td class="date-cell"><%= new Date(row.date).toLocaleDateString('en-IN') %></td>
-                                                        <td>
+                                                        <td class="date-cell" data-label="Date"><%= new Date(row.date).toLocaleDateString('en-IN') %></td>
+                                                        <td data-label="Open Result">
                                                             <% if (row.open_result) { %>
                                                                 <span class="result-number"><%= row.open_result %></span>
                                                             <% } else { %>
                                                                 <span class="text-muted">-</span>
                                                             <% } %>
                                                         </td>
-                                                        <td>
+                                                        <td data-label="Close Result">
                                                             <% if (row.close_result) { %>
                                                                 <span class="result-number"><%= row.close_result %></span>
                                                             <% } else { %>
                                                                 <span class="text-muted">-</span>
                                                             <% } %>
                                                         </td>
-                                                        <td>
+                                                        <td data-label="Jodi">
                                                             <% if (row.open_result && row.close_result) { %>
                                                                 <span class="result-number text-success">
                                                                     <%= row.open_result %><%= row.close_result %>

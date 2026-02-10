@@ -164,7 +164,7 @@
                             </div>
                             <div class="card-body p-0">
                                 <div class="table-responsive">
-                                    <table class="table table-hover mb-0">
+                                    <table class="table table-hover mb-0 table-responsive-stack">
                                         <thead class="bg-light">
                                             <tr>
                                                 <th class="px-4 py-3">Date & Time</th>
@@ -181,10 +181,10 @@
                                             <% if (winners && winners.length > 0) { %>
                                                 <% winners.forEach(winner => { %>
                                                     <tr>
-                                                        <td class="px-4 py-3">
+                                                        <td class="px-4 py-3" data-label="Date & Time">
                                                             <%= new Date(winner.created_at).toLocaleString('en-IN') %>
                                                         </td>
-                                                        <td class="px-4 py-3">
+                                                        <td class="px-4 py-3" data-label="User">
                                                             <div class="d-flex align-items-center">
                                                                 <img src="https://ui-avatars.com/api/?name=<%= winner.user_name %>&background=random" 
                                                                      class="rounded-circle me-2" width="32" height="32">
@@ -194,16 +194,16 @@
                                                                 </div>
                                                             </div>
                                                         </td>
-                                                        <td class="px-4 py-3"><%= winner.game_name %></td>
-                                                        <td class="px-4 py-3">
+                                                        <td class="px-4 py-3" data-label="Game"><%= winner.game_name %></td>
+                                                        <td class="px-4 py-3" data-label="Bet Type">
                                                             <span class="badge bg-info"><%= winner.bet_type %></span>
                                                         </td>
-                                                        <td class="px-4 py-3">
+                                                        <td class="px-4 py-3" data-label="Bet Number">
                                                             <span class="badge bg-primary fs-6"><%= winner.bet_number %></span>
                                                         </td>
-                                                        <td class="px-4 py-3 text-primary fw-bold">₹<%= winner.bet_amount.toLocaleString() %></td>
-                                                        <td class="px-4 py-3 text-success fw-bold">₹<%= winner.payout_amount.toLocaleString() %></td>
-                                                        <td class="px-4 py-3">
+                                                        <td class="px-4 py-3 text-primary fw-bold" data-label="Bet Amount">₹<%= winner.bet_amount.toLocaleString() %></td>
+                                                        <td class="px-4 py-3 text-success fw-bold" data-label="Win Amount">₹<%= winner.payout_amount.toLocaleString() %></td>
+                                                        <td class="px-4 py-3" data-label="Multiplier">
                                                             <span class="badge bg-warning text-dark">
                                                                 <%= (winner.payout_amount / winner.bet_amount).toFixed(1) %>x
                                                             </span>

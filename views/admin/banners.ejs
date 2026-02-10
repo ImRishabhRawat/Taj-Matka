@@ -100,7 +100,7 @@
                             </div>
                             <div class="card-body p-0">
                                 <div class="table-responsive">
-                                    <table class="table table-hover mb-0">
+                                    <table class="table table-hover mb-0 table-responsive-stack">
                                         <thead class="bg-light">
                                             <tr>
                                                 <th class="px-4 py-3">Preview</th>
@@ -115,28 +115,28 @@
                                             <% if (banners && banners.length > 0) { %>
                                                 <% banners.forEach(banner => { %>
                                                     <tr>
-                                                        <td class="px-4 py-3">
+                                                        <td class="px-4 py-3" data-label="Preview">
                                                             <img src="<%= banner.image_url %>" alt="Banner" style="width: 100px; height: 40px; object-fit: cover; border-radius: 8px;">
                                                         </td>
-                                                        <td class="px-4 py-3 fw-bold"><%= banner.title || 'Untitled' %></td>
-                                                        <td class="px-4 py-3">
+                                                        <td class="px-4 py-3 fw-bold" data-label="Title"><%= banner.title || 'Untitled' %></td>
+                                                        <td class="px-4 py-3" data-label="Link">
                                                             <% if (banner.link_url) { %>
                                                                 <a href="<%= banner.link_url %>" target="_blank" class="text-primary"><i class="fas fa-external-link-alt"></i></a>
                                                             <% } else { %>
                                                                 <span class="text-muted">-</span>
                                                             <% } %>
                                                         </td>
-                                                        <td class="px-4 py-3">
+                                                        <td class="px-4 py-3" data-label="Order">
                                                             <span class="badge bg-secondary"><%= banner.display_order %></span>
                                                         </td>
-                                                        <td class="px-4 py-3">
+                                                        <td class="px-4 py-3" data-label="Status">
                                                             <% if (banner.is_active) { %>
                                                                 <span class="badge bg-success">Active</span>
                                                             <% } else { %>
                                                                 <span class="badge bg-secondary">Inactive</span>
                                                             <% } %>
                                                         </td>
-                                                        <td class="px-4 py-3">
+                                                        <td class="px-4 py-3" data-label="Actions">
                                                             <button class="btn btn-sm btn-warning" onclick="toggleBanner(<%= banner.id %>, <%= !banner.is_active %>)">
                                                                 <i class="fas fa-<%= banner.is_active ? 'pause' : 'play' %>"></i>
                                                             </button>

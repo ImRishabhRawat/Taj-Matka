@@ -144,7 +144,7 @@
                             </div>
                             <div class="card-body p-0">
                                 <div class="table-responsive">
-                                    <table class="table table-hover mb-0">
+                                    <table class="table table-hover mb-0 table-responsive-stack">
                                         <thead class="bg-light">
                                             <tr>
                                                 <th class="px-4 py-3">Date & Time</th>
@@ -159,25 +159,25 @@
                                             <% if (deposits && deposits.length > 0) { %>
                                                 <% deposits.forEach(deposit => { %>
                                                     <tr>
-                                                        <td class="px-4 py-3">
+                                                        <td class="px-4 py-3" data-label="Date & Time">
                                                             <%= new Date(deposit.created_at).toLocaleString('en-IN') %>
                                                         </td>
-                                                        <td class="px-4 py-3">
+                                                        <td class="px-4 py-3" data-label="User">
                                                             <div class="fw-bold"><%= deposit.user_name %></div>
                                                             <small class="text-muted"><%= deposit.user_phone %></small>
                                                         </td>
-                                                        <td class="px-4 py-3 fw-bold text-success">₹<%= deposit.amount.toLocaleString() %></td>
-                                                        <td class="px-4 py-3">
+                                                        <td class="px-4 py-3 fw-bold text-success" data-label="Amount">₹<%= deposit.amount.toLocaleString() %></td>
+                                                        <td class="px-4 py-3" data-label="Method">
                                                             <% if (deposit.payment_method === 'upi') { %>
                                                                 <span class="badge bg-success">UPI</span>
                                                             <% } else { %>
                                                                 <span class="badge bg-primary">Bank Transfer</span>
                                                             <% } %>
                                                         </td>
-                                                        <td class="px-4 py-3">
+                                                        <td class="px-4 py-3" data-label="Transaction ID">
                                                             <code><%= deposit.transaction_id || 'N/A' %></code>
                                                         </td>
-                                                        <td class="px-4 py-3">
+                                                        <td class="px-4 py-3" data-label="Status">
                                                             <span class="badge bg-success">Completed</span>
                                                         </td>
                                                     </tr>

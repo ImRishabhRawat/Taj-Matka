@@ -104,7 +104,7 @@
                             </div>
                             <div class="card-body p-0">
                                 <div class="table-responsive">
-                                    <table class="table table-hover mb-0">
+                                    <table class="table table-hover mb-0 table-responsive-stack">
                                         <thead class="bg-light">
                                             <tr>
                                                 <th class="px-4 py-3">Date & Time</th>
@@ -119,15 +119,15 @@
                                             <% if (requests && requests.length > 0) { %>
                                                 <% requests.forEach(request => { %>
                                                     <tr>
-                                                        <td class="px-4 py-3">
+                                                        <td class="px-4 py-3" data-label="Date & Time">
                                                             <%= new Date(request.created_at).toLocaleString('en-IN') %>
                                                         </td>
-                                                        <td class="px-4 py-3">
+                                                        <td class="px-4 py-3" data-label="User">
                                                             <div class="fw-bold"><%= request.user_name %></div>
                                                             <small class="text-muted"><%= request.user_phone %></small>
                                                         </td>
-                                                        <td class="px-4 py-3 fw-bold text-danger">₹<%= request.amount.toLocaleString() %></td>
-                                                        <td class="px-4 py-3">
+                                                        <td class="px-4 py-3 fw-bold text-danger" data-label="Amount">₹<%= request.amount.toLocaleString() %></td>
+                                                        <td class="px-4 py-3" data-label="Bank Details">
                                                             <% if (request.bank_details) { %>
                                                                 <div class="small">
                                                                     <div><strong>A/C:</strong> <%= request.bank_details.account_number %></div>
@@ -139,7 +139,7 @@
                                                                 <span class="text-muted">No details</span>
                                                             <% } %>
                                                         </td>
-                                                        <td class="px-4 py-3">
+                                                        <td class="px-4 py-3" data-label="Status">
                                                             <% if (request.status === 'pending') { %>
                                                                 <span class="badge bg-warning">Pending</span>
                                                             <% } else if (request.status === 'approved') { %>
@@ -148,7 +148,7 @@
                                                                 <span class="badge bg-danger">Rejected</span>
                                                             <% } %>
                                                         </td>
-                                                        <td class="px-4 py-3">
+                                                        <td class="px-4 py-3" data-label="Actions">
                                                             <% if (request.status === 'pending') { %>
                                                                 <button class="btn btn-sm btn-success mb-1" onclick="approveRequest(<%= request.id %>)">
                                                                     <i class="fas fa-check"></i> Approve

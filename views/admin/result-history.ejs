@@ -104,7 +104,7 @@
                             </div>
                             <div class="card-body p-0">
                                 <div class="table-responsive">
-                                    <table class="table table-hover mb-0">
+                                    <table class="table table-hover mb-0 table-responsive-stack">
                                         <thead class="bg-light">
                                             <tr>
                                                 <th class="px-4 py-3">Date</th>
@@ -121,22 +121,22 @@
                                             <% if (results && results.length > 0) { %>
                                                 <% results.forEach(result => { %>
                                                     <tr>
-                                                        <td class="px-4 py-3">
+                                                        <td class="px-4 py-3" data-label="Date">
                                                             <%= new Date(result.session_date).toLocaleDateString('en-IN') %>
                                                         </td>
-                                                        <td class="px-4 py-3 fw-bold"><%= result.game_name %></td>
-                                                        <td class="px-4 py-3">
+                                                        <td class="px-4 py-3 fw-bold" data-label="Game Name"><%= result.game_name %></td>
+                                                        <td class="px-4 py-3" data-label="Session">
                                                             <span class="badge <%= result.session_type === 'open' ? 'bg-info' : 'bg-warning' %>">
                                                                 <%= result.session_type %>
                                                             </span>
                                                         </td>
-                                                        <td class="px-4 py-3">
+                                                        <td class="px-4 py-3" data-label="Winning Number">
                                                             <span class="badge bg-primary fs-6"><%= result.winning_number %></span>
                                                         </td>
-                                                        <td class="px-4 py-3"><%= result.total_bets || 0 %></td>
-                                                        <td class="px-4 py-3 text-primary fw-bold">₹<%= (result.total_bet_amount || 0).toLocaleString() %></td>
-                                                        <td class="px-4 py-3 text-danger fw-bold">₹<%= (result.total_payout || 0).toLocaleString() %></td>
-                                                        <td class="px-4 py-3">
+                                                        <td class="px-4 py-3" data-label="Total Bets"><%= result.total_bets || 0 %></td>
+                                                        <td class="px-4 py-3 text-primary fw-bold" data-label="Total Bet Amount">₹<%= (result.total_bet_amount || 0).toLocaleString() %></td>
+                                                        <td class="px-4 py-3 text-danger fw-bold" data-label="Total Payout">₹<%= (result.total_payout || 0).toLocaleString() %></td>
+                                                        <td class="px-4 py-3" data-label="Profit/Loss">
                                                             <% const profit = (result.total_bet_amount || 0) - (result.total_payout || 0); %>
                                                             <span class="fw-bold <%= profit >= 0 ? 'text-success' : 'text-danger' %>">
                                                                 <%= profit >= 0 ? '+' : '' %>₹<%= profit.toLocaleString() %>

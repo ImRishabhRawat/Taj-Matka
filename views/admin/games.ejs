@@ -38,7 +38,7 @@
                 <div class="card admin-table border-0">
                     <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table table-hover mb-0">
+                            <table class="table table-hover mb-0 table-responsive-stack">
                                 <thead>
                                     <tr>
                                         <th>Name</th>
@@ -64,12 +64,12 @@
                                         const isOpen = calculateStatus(game.close_time);
                                     %>
                                         <tr>
-                                            <td class="fw-600"><%= game.name %></td>
-                                            <td><%= game.open_time %></td>
-                                            <td><%= game.close_time %></td>
-                                            <td><%= game.mid_time || '-' %></td>
-                                            <td>₹<%= game.max_bet_after_mid_time || '-' %></td>
-                                            <td>
+                                            <td class="fw-600" data-label="Name"><%= game.name %></td>
+                                            <td data-label="Open Time"><%= game.open_time %></td>
+                                            <td data-label="Close Time"><%= game.close_time %></td>
+                                            <td data-label="Mid Time"><%= game.mid_time || '-' %></td>
+                                            <td data-label="Max Bet After Mid">₹<%= game.max_bet_after_mid_time || '-' %></td>
+                                            <td data-label="Status">
                                                 <% if (game.is_active) { %>
                                                     <% if (isOpen) { %>
                                                         <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill">Open</span>
@@ -80,7 +80,7 @@
                                                     <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-3 py-2 rounded-pill">Inactive</span>
                                                 <% } %>
                                             </td>
-                                            <td class="text-end">
+                                            <td class="text-end" data-label="">
                                                 <button class="btn btn-sm btn-outline-primary rounded-pill px-3 me-2 edit-game" 
                                                         data-game="<%= JSON.stringify(game) %>">
                                                     <i class="fas fa-edit me-1"></i> Edit

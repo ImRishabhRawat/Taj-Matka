@@ -85,7 +85,7 @@
                 <div class="card admin-table border-0">
                     <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table table-hover mb-0">
+                            <table class="table table-hover mb-0 table-responsive-stack">
                                 <thead>
                                     <tr>
                                         <th>Date/Time</th>
@@ -114,26 +114,26 @@
                                             if (bet.status === 'loss') statusBadge = 'bg-danger-subtle text-danger';
                                         %>
                                             <tr>
-                                                <td class="small"><%= betDate %></td>
-                                                <td>
+                                                <td class="small" data-label="Date/Time"><%= betDate %></td>
+                                                <td data-label="User">
                                                     <div class="fw-bold"><%= bet.user_name || 'Unknown' %></div>
                                                     <div class="small text-muted"><%= bet.user_phone %></div>
                                                 </td>
-                                                <td>
+                                                <td data-label="Game">
                                                     <div class="fw-600"><%= bet.game_name %></div>
                                                     <div class="small text-muted"><%= new Date(bet.session_date).toLocaleDateString() %></div>
                                                 </td>
-                                                <td>
+                                                <td data-label="Type">
                                                     <span class="badge bg-light text-dark border"><%= bet.bet_type.replace('_', ' ').toUpperCase() %></span>
                                                 </td>
-                                                <td class="fw-bold fs-5 font-monospace"><%= bet.bet_number %></td>
-                                                <td class="fw-bold">₹<%= bet.bet_amount %></td>
-                                                <td>
+                                                <td class="fw-bold fs-5 font-monospace" data-label="Number"><%= bet.bet_number %></td>
+                                                <td class="fw-bold" data-label="Amount">₹<%= bet.bet_amount %></td>
+                                                <td data-label="Status">
                                                     <span class="badge <%= statusBadge %> border rounded-pill px-3">
                                                         <%= bet.status.toUpperCase() %>
                                                     </span>
                                                 </td>
-                                                <td>
+                                                <td data-label="Result">
                                                     <% if (bet.winning_number) { %>
                                                         <span class="badge bg-dark text-white"><%= bet.winning_number %></span>
                                                     <% } else { %>
