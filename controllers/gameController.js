@@ -193,7 +193,7 @@ async function getResults(req, res) {
  */
 async function createGame(req, res) {
   try {
-    const { name, openTime, closeTime } = req.body;
+    const { name, openTime, closeTime, midTime, maxBetAfterMidTime } = req.body;
 
     // Validation
     if (!name || !openTime || !closeTime) {
@@ -203,7 +203,13 @@ async function createGame(req, res) {
       });
     }
 
-    const game = await Game.create({ name, openTime, closeTime });
+    const game = await Game.create({
+      name,
+      openTime,
+      closeTime,
+      midTime,
+      maxBetAfterMidTime,
+    });
 
     return res.status(201).json({
       success: true,

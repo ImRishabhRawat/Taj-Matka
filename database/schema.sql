@@ -30,6 +30,8 @@ CREATE TABLE games (
     name VARCHAR(100) NOT NULL,
     open_time TIME NOT NULL,
     close_time TIME NOT NULL,
+    mid_time TIME,
+    max_bet_after_mid_time DECIMAL(10, 2) DEFAULT 100.00,
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

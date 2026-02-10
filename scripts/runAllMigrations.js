@@ -173,6 +173,28 @@ async function runAllMigrations() {
       );
     }
 
+    // 8. Add mid-time bet restriction columns
+    console.log("\n📋 Step 8: Adding mid-time bet restriction columns...");
+    try {
+      await client.query(`
+        ALTER TABLE games 
+        ADD COLUMN IF NOT EXISTS mid_time TIME,
+        ADD COLUMN IF NOT EXISTS max_bet_after_mid_time DECIMAL(10, 2) DEFAULT 100.00
+      `);
+      console.log("✅ Mid-time columns added successfully!");
+      console.log(
+        "   - mid_time: Allows admin to set time when bet restrictions start",
+      );
+      console.log(
+        "   - max_bet_after_mid_time: Maximum bet amount after mid-time (default: ₹100)",
+      );
+    } catch (err) {
+      console.error(
+        "⚠️  Error adding mid-time columns (might already exist):",
+        err.message,
+      );
+    }
+
     console.log("\n🎉 All migrations completed successfully!");
     console.log("✅ Database is ready for production!");
   } catch (error) {

@@ -44,6 +44,8 @@
                                         <th>Name</th>
                                         <th>Open Time</th>
                                         <th>Close Time</th>
+                                        <th>Mid Time</th>
+                                        <th>Max Bet After Mid</th>
                                         <th>Status</th>
                                         <th class="text-end">Actions</th>
                                     </tr>
@@ -65,6 +67,8 @@
                                             <td class="fw-600"><%= game.name %></td>
                                             <td><%= game.open_time %></td>
                                             <td><%= game.close_time %></td>
+                                            <td><%= game.mid_time || '-' %></td>
+                                            <td>₹<%= game.max_bet_after_mid_time || '-' %></td>
                                             <td>
                                                 <% if (game.is_active) { %>
                                                     <% if (isOpen) { %>
@@ -126,6 +130,18 @@
                                 <input type="time" class="form-control rounded-3" id="closeTime" name="closeTime" required>
                             </div>
                         </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label class="form-label fw-600">Mid Time <small class="text-muted">(Optional)</small></label>
+                                <input type="time" class="form-control rounded-3" id="midTime" name="midTime" placeholder="HH:MM">
+                                <small class="text-muted">Time after which max bet limit applies</small>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-600">Max Bet After Mid Time</label>
+                                <input type="number" class="form-control rounded-3" id="maxBetAfterMidTime" name="maxBetAfterMidTime" value="100" step="0.01" min="0" placeholder="100.00">
+                                <small class="text-muted">Maximum bet amount after mid time</small>
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer border-0 pt-0 pb-4 px-4">
                         <button type="button" class="btn btn-light rounded-3 px-4" data-bs-dismiss="modal">Cancel</button>
@@ -155,6 +171,8 @@
                 
                 document.getElementById('openTime').value = formatTime(game.open_time);
                 document.getElementById('closeTime').value = formatTime(game.close_time);
+                document.getElementById('midTime').value = formatTime(game.mid_time);
+                document.getElementById('maxBetAfterMidTime').value = game.max_bet_after_mid_time || 100;
                 gameModal.show();
             });
         });
@@ -173,9 +191,15 @@
             const data = Object.fromEntries(formData.entries());
             const isEdit = data.id !== '';
             
-            // Check if times are valid (close > open)
-            // Note: In Matka, close time might be earlier than open time if it crosses midnight, 
-            // but usually open is like 10 AM and close is 11 AM.
+            // Clean up data - convert empty strings to null for optional fields
+            if (!data.midTime || data.midTime.trim() === '') {
+                data.midTime = null;
+            }
+            
+            // Convert maxBetAfterMidTime to number
+            if (data.maxBetAfterMidTime) {
+                data.maxBetAfterMidTime = parseFloat(data.maxBetAfterMidTime);
+            }
             
             const url = isEdit ? `/api/games/${data.id}` : '/api/games';
             const method = isEdit ? 'PUT' : 'POST';
