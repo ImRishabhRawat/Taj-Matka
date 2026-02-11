@@ -54,16 +54,30 @@
                                     <% 
                                     function calculateStatus(openTime, closeTime) {
                                         const now = new Date();
-                                        const currentTimeStr = now.getHours().toString().padStart(2, '0') + ':' + 
-                                                             now.getMinutes().toString().padStart(2, '0') + ':' + 
-                                                             now.getSeconds().toString().padStart(2, '0');
-                                        if (openTime < closeTime) {
-                                            return currentTimeStr >= openTime && currentTimeStr < closeTime;
+                                        const istDate = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+                                        const currentTimeStr = istDate.getHours().toString().padStart(2, '0') + ':' + 
+                                                             istDate.getMinutes().toString().padStart(2, '0');
+                                        
+                                        // Take HH:MM for comparison to avoid second-level mismatches
+                                        const open = openTime.toString().substring(0, 5);
+                                        const close = closeTime.toString().substring(0, 5);
+                                        
+                                        if (open < close) {
+                                            return currentTimeStr >= open && currentTimeStr < close;
                                         } else {
-                                            return currentTimeStr >= openTime || currentTimeStr < closeTime;
+                                            return currentTimeStr >= open || currentTimeStr < close;
                                         }
                                     }
                                     
+                                    // Display server time for debugging
+                                    const now = new Date();
+                                    const istDate = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Kolkata"}));
+                                    const timeDisplay = istDate.toLocaleTimeString('en-US', {hour12: false});
+                                    %>
+                                    <div class="alert alert-info py-2 mb-3">
+                                        <small><i class="fas fa-clock me-2"></i>Current Server Time (IST): <strong><%= timeDisplay %></strong></small>
+                                    </div>
+                                    <%
                                     games.forEach(game => { 
                                         const isOpen = calculateStatus(game.open_time, game.close_time);
                                     %>
