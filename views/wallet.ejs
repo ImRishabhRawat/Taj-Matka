@@ -1,0 +1,373 @@
+<% 
+const currentPage = 'wallet';
+const title = 'My Wallet';
+%>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title><%= title %> - Taj Matka</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .wallet-card-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .wallet-balance-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .wallet-balance-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+        }
+
+        .card-primary::before { background: var(--gold-gradient); }
+        .card-secondary::before { background: linear-gradient(90deg, #00C853, #69F0AE); }
+
+        .balance-title {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .balance-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 0.25rem;
+        }
+
+        .card-primary .balance-value { color: var(--primary-gold); }
+        .card-secondary .balance-value { color: #69F0AE; }
+
+        .balance-subtitle {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            color: white;
+        }
+
+        .wallet-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .wallet-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.25rem;
+            border-radius: 12px;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .wallet-btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-deposit {
+            background: var(--gold-gradient);
+            color: var(--primary-navy);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .btn-withdraw {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-icon {
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-label {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .transactions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .transactions-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .view-all {
+            color: var(--primary-gold);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .transaction-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .transaction-item {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .trans-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .trans-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .trans-deposit { background: rgba(0, 200, 83, 0.15); color: #00C853; }
+        .trans-withdraw { background: rgba(255, 69, 0, 0.15); color: #FF4500; }
+        .trans-bet { background: rgba(255, 215, 0, 0.15); color: var(--primary-gold); }
+
+        .trans-info h4 {
+            margin: 0 0 0.25rem 0;
+            color: white;
+            font-size: 0.95rem;
+        }
+
+        .trans-date {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .trans-amount {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .amount-plus { color: #00C853; }
+        .amount-minus { color: #FF4500; }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-container">
+        
+        <!-- Fixed Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <button class="menu-btn" onclick="window.history.back()">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                    </button>
+                    <h1 class="app-logo">My Wallet</h1>
+                </div>
+                <div class="header-right">
+                    <button class="menu-btn" onclick="window.location.reload()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M23 4v6h-6"></path>
+                            <path d="M1 20v-6h6"></path>
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            <div class="page-content">
+                
+                <div class="wallet-card-container">
+                    <!-- Betting Balance -->
+                    <div class="wallet-balance-card card-primary">
+                        <div class="balance-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                            Betting Balance
+                        </div>
+                        <div class="balance-value" id="bettingBalance">₹0</div>
+                        <div class="balance-subtitle">Available for playing games</div>
+                    </div>
+
+                    <!-- Winning Balance -->
+                    <div class="wallet-balance-card card-secondary">
+                        <div class="balance-title">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                                <path d="M2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                            </svg>
+                            Winning Balance
+                        </div>
+                        <div class="balance-value" id="winningBalance">₹0</div>
+                        <div class="balance-subtitle">Available for withdrawal</div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="wallet-actions">
+                    <a href="/deposit" class="wallet-btn btn-deposit">
+                        <div class="btn-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                        </div>
+                        <span class="btn-label">Add Money</span>
+                    </a>
+                    <a href="/withdraw" class="wallet-btn btn-withdraw">
+                        <div class="btn-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <line x1="12" y1="19" x2="12" y2="5"></line>
+                                <polyline points="5 12 12 5 19 12"></polyline>
+                            </svg>
+                        </div>
+                        <span class="btn-label">Withdraw</span>
+                    </a>
+                </div>
+
+                <!-- Recent Transactions -->
+                <div class="transactions-section">
+                    <div class="transactions-header">
+                        <div class="transactions-title">Recent Transactions</div>
+                        <a href="/history" class="view-all">View All</a>
+                    </div>
+                    
+                    <div id="transactionsList" class="transaction-list">
+                        <div class="empty-state">Loading transactions...</div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <%- include('partials/bottom-nav', { currentPage: 'wallet' }) %>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script>
+        async function loadWalletData() {
+            try {
+                // Load User Info for Balances
+                const userResponse = await API.get('/auth/me');
+                if (userResponse.success) {
+                    const user = userResponse.data;
+                    document.getElementById('bettingBalance').textContent = `₹${parseFloat(user.balance || 0).toLocaleString('en-IN')}`;
+                    document.getElementById('winningBalance').textContent = `₹${parseFloat(user.winning_balance || 0).toLocaleString('en-IN')}`;
+                }
+
+                // Load Recent Transactions
+                const transResponse = await API.get('/wallet/transactions?limit=5');
+                if (transResponse.success) {
+                    renderTransactions(transResponse.data);
+                } else {
+                    document.getElementById('transactionsList').innerHTML = '<div class="empty-state">No transactions found</div>';
+                }
+
+            } catch (error) {
+                console.error('Error loading wallet data:', error);
+                document.getElementById('transactionsList').innerHTML = '<div class="empty-state">Failed to load data</div>';
+            }
+        }
+
+        function renderTransactions(transactions) {
+            const list = document.getElementById('transactionsList');
+            if (!transactions || transactions.length === 0) {
+                list.innerHTML = '<div class="empty-state">No recent transactions</div>';
+                return;
+            }
+
+            list.innerHTML = transactions.map(t => {
+                const date = new Date(t.created_at).toLocaleDateString('en-IN', {
+                    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+                });
+                
+                let icon = '⇄';
+                let iconClass = 'trans-bet';
+                let amountClass = '';
+                let amountPrefix = '';
+
+                if (t.transaction_type === 'deposit') {
+                    icon = '↓';
+                    iconClass = 'trans-deposit';
+                    amountClass = 'amount-plus';
+                    amountPrefix = '+';
+                } else if (t.transaction_type === 'withdrawal') {
+                    icon = '↑';
+                    iconClass = 'trans-withdraw';
+                    amountClass = 'amount-minus';
+                    amountPrefix = '-';
+                }
+
+                return `
+                    <div class="transaction-item">
+                        <div class="trans-left">
+                            <div class="trans-icon ${iconClass}">${icon}</div>
+                            <div class="trans-info">
+                                <h4>${t.description || t.transaction_type}</h4>
+                                <div class="trans-date">${date}</div>
+                            </div>
+                        </div>
+                        <div class="trans-amount ${amountClass}">
+                            ${amountPrefix}₹${parseFloat(t.amount).toLocaleString('en-IN')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', loadWalletData);
+    </script>
+</body>
+</html>

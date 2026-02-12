@@ -140,6 +140,10 @@ app.get("/privacy-policy", requireAuth, (req, res) => {
   res.render("privacy-policy", { title: "Privacy Policy" });
 });
 
+app.get("/wallet", requireAuth, (req, res) => {
+  res.render("wallet", { title: "My Wallet" });
+});
+
 // Admin routes are now handled in routes/adminRoutes.js
 
 // 404 handler

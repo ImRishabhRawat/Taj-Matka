@@ -92,8 +92,8 @@
                                         </select>
                                     </div>
                                     <div class="col-md-3">
-                                        <label class="form-label fw-bold">Month</label>
-                                        <input type="month" class="form-control" name="month" value="<%= filters.month %>" required>
+                                        <label class="form-label fw-bold">Date</label>
+                                        <input type="date" class="form-control" name="date" value="<%= filters.date %>" required>
                                     </div>
                                     <div class="col-md-2">
                                         <label class="form-label">&nbsp;</label>
@@ -107,71 +107,179 @@
                     </div>
                 </div>
 
-                <!-- Jantri Chart -->
-                <% if (jantriData && jantriData.length > 0) { %>
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="card shadow border-0 rounded-4">
-                                <div class="card-header bg-white py-3 border-0">
-                                    <h5 class="m-0 fw-bold text-primary">
-                                        <%= selectedGame ? selectedGame.name : 'Game' %> - Jantri Chart
-                                        <span class="text-muted fs-6">(<%= filters.month %>)</span>
-                                    </h5>
-                                </div>
-                                <div class="card-body p-4">
-                                    <div class="table-responsive">
-                                        <table class="table jantri-table table-bordered table-responsive-stack">
-                                            <thead class="bg-primary text-white">
-                                                <tr>
-                                                    <th>Date</th>
-                                                    <th>Open Result</th>
-                                                    <th>Close Result</th>
-                                                    <th>Jodi</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <% jantriData.forEach(row => { %>
-                                                    <tr>
-                                                        <td class="date-cell" data-label="Date"><%= new Date(row.date).toLocaleDateString('en-IN') %></td>
-                                                        <td data-label="Open Result">
-                                                            <% if (row.open_result) { %>
-                                                                <span class="result-number"><%= row.open_result %></span>
-                                                            <% } else { %>
-                                                                <span class="text-muted">-</span>
-                                                            <% } %>
-                                                        </td>
-                                                        <td data-label="Close Result">
-                                                            <% if (row.close_result) { %>
-                                                                <span class="result-number"><%= row.close_result %></span>
-                                                            <% } else { %>
-                                                                <span class="text-muted">-</span>
-                                                            <% } %>
-                                                        </td>
-                                                        <td data-label="Jodi">
-                                                            <% if (row.open_result && row.close_result) { %>
-                                                                <span class="result-number text-success">
-                                                                    <%= row.open_result %><%= row.close_result %>
-                                                                </span>
-                                                            <% } else { %>
-                                                                <span class="text-muted">-</span>
-                                                            <% } %>
-                                                        </td>
-                                                    </tr>
-                                                <% }); %>
-                                            </tbody>
-                                        </table>
+                <!-- Report Content -->
+                <% if (report) { %>
+                    <!-- Summary -->
+                    <div class="row mb-4">
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-primary shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Collection</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">₹<%= report.totalBets.toFixed(2) %></div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-rupee-sign fa-2x text-gray-300"></i>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+
+                        <% if (report.winningNumber) { %>
+                            <div class="col-xl-3 col-md-6 mb-4">
+                                <div class="card border-left-success shadow h-100 py-2">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Winning Number</div>
+                                                <div class="h5 mb-0 font-weight-bold text-gray-800"><%= report.winningNumber %></div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <i class="fas fa-trophy fa-2x text-gray-300"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-md-6 mb-4">
+                                <div class="card border-left-info shadow h-100 py-2">
+                                    <div class="card-body">
+                                        <div class="row no-gutters align-items-center">
+                                            <div class="col mr-2">
+                                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Actual Profit</div>
+                                                <div class="h5 mb-0 font-weight-bold <%= report.actualProfit >= 0 ? 'text-success' : 'text-danger' %>">
+                                                    ₹<%= report.actualProfit.toFixed(2) %>
+                                                </div>
+                                            </div>
+                                            <div class="col-auto">
+                                                <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <% } %>
                     </div>
-                <% } else if (filters.gameId && filters.month) { %>
+
+                    <!-- Grids -->
                     <div class="row">
+                        
+                        <!-- Jodi Grid -->
+                        <div class="col-12 mb-4">
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="m-0 font-weight-bold text-primary">Jodi (00-99) Report</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex flex-wrap gap-2 justify-content-center">
+                                        <% report.jodi.forEach(item => { %>
+                                            <% 
+                                                const isLoss = item.profit < 0;
+                                                let bgClass = item.amount > 0 ? (isLoss ? 'bg-danger text-white' : 'bg-success text-white') : 'bg-light';
+                                                let borderClass = item.amount > 0 ? '' : 'border';
+                                                
+                                                if (item.isWinner) {
+                                                    bgClass = 'bg-warning text-dark border-dark border-3';
+                                                    borderClass = '';
+                                                }
+                                            %>
+                                            <div class="card <%= bgClass %> <%= borderClass %> text-center p-2" style="width: 80px;">
+                                                <div class="fw-bold fs-5">
+                                                    <%= item.number %>
+                                                    <% if (item.isWinner) { %><i class="fas fa-crown text-dark small"></i><% } %>
+                                                </div>
+                                                <div class="small" style="font-size: 0.7rem;">Bet: ₹<%= item.amount %></div>
+                                                <% if (item.amount > 0 && !item.isWinner) { %>
+                                                    <div class="small fw-bold" style="font-size: 0.65rem;">
+                                                        P/L: <%= item.profit.toFixed(0) %>
+                                                    </div>
+                                                <% } %>
+                                            </div>
+                                        <% }); %>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Andar Grid -->
+                        <div class="col-md-6 mb-4">
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Andar Haruf Profit/Loss</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex flex-wrap gap-2 justify-content-center">
+                                        <% report.andar.forEach(item => { %>
+                                            <% 
+                                                const isLoss = item.profit < 0;
+                                                let bgClass = item.amount > 0 ? (isLoss ? 'bg-danger text-white' : 'bg-success text-white') : 'bg-light';
+                                                let borderClass = item.amount > 0 ? '' : 'border';
+
+                                                if (item.isWinner) {
+                                                    bgClass = 'bg-warning text-dark border-dark border-3';
+                                                    borderClass = '';
+                                                }
+                                            %>
+                                            <div class="card <%= bgClass %> <%= borderClass %> text-center p-2" style="width: 80px;">
+                                                <div class="fw-bold fs-5"><%= item.number %></div>
+                                                <div class="small" style="font-size: 0.7rem;">Bet: ₹<%= item.amount %></div>
+                                                <% if (item.amount > 0 && !item.isWinner) { %>
+                                                    <div class="small fw-bold" style="font-size: 0.65rem;">
+                                                        P/L: <%= item.profit.toFixed(0) %>
+                                                    </div>
+                                                <% } %>
+                                            </div>
+                                        <% }); %>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bahar Grid -->
+                        <div class="col-md-6 mb-4">
+                            <div class="card shadow mb-4">
+                                <div class="card-header py-3">
+                                    <h6 class="m-0 font-weight-bold text-primary">Bahar Haruf Profit/Loss</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex flex-wrap gap-2 justify-content-center">
+                                        <% report.bahar.forEach(item => { %>
+                                            <% 
+                                                const isLoss = item.profit < 0;
+                                                let bgClass = item.amount > 0 ? (isLoss ? 'bg-danger text-white' : 'bg-success text-white') : 'bg-light';
+                                                let borderClass = item.amount > 0 ? '' : 'border';
+
+                                                if (item.isWinner) {
+                                                    bgClass = 'bg-warning text-dark border-dark border-3';
+                                                    borderClass = '';
+                                                }
+                                            %>
+                                            <div class="card <%= bgClass %> <%= borderClass %> text-center p-2" style="width: 80px;">
+                                                <div class="fw-bold fs-5"><%= item.number %></div>
+                                                <div class="small" style="font-size: 0.7rem;">Bet: ₹<%= item.amount %></div>
+                                                <% if (item.amount > 0 && !item.isWinner) { %>
+                                                    <div class="small fw-bold" style="font-size: 0.65rem;">
+                                                        P/L: <%= item.profit.toFixed(0) %>
+                                                    </div>
+                                                <% } %>
+                                            </div>
+                                        <% }); %>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                <% } else if (filters.gameId) { %>
+                     <div class="row">
                         <div class="col-12">
                             <div class="card shadow border-0 rounded-4">
                                 <div class="card-body text-center py-5">
                                     <i class="fas fa-chart-bar fa-3x text-muted mb-3 opacity-25"></i>
-                                    <p class="text-muted">No results found for selected game and month</p>
+                                    <p class="text-muted">No bets found for selected game and date</p>
                                 </div>
                             </div>
                         </div>
@@ -182,7 +290,7 @@
                             <div class="card shadow border-0 rounded-4">
                                 <div class="card-body text-center py-5">
                                     <i class="fas fa-filter fa-3x text-muted mb-3 opacity-25"></i>
-                                    <p class="text-muted">Please select a game and month to view Jantri report</p>
+                                    <p class="text-muted">Please select a game and date to view Jantri report</p>
                                 </div>
                             </div>
                         </div>

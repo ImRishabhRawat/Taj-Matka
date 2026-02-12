@@ -851,67 +851,158 @@ async function getWithdrawBankRequests(req, res) {
 /**
  * Jantri Report Page
  */
+/**
+ * Jantri Report Page
+ */
 async function getJantriReport(req, res) {
   try {
     const filters = {
       gameId: req.query.gameId || "",
-      month: req.query.month || "",
+      date: req.query.date || new Date().toISOString().split("T")[0],
     };
 
     const games = await Game.getAllActive();
-    let jantriData = [];
+    let report = null;
     let selectedGame = null;
 
-    if (filters.gameId && filters.month) {
-      // Parse month (format: YYYY-MM)
-      const [year, month] = filters.month.split("-");
-      const startDate = `${year}-${month}-01`;
-      const endDate = new Date(year, month, 0).toISOString().split("T")[0];
+    if (filters.gameId && filters.date) {
+      selectedGame = games.find((g) => g.id == filters.gameId);
 
-      // Get results for the month
-      const results = await pool.query(
-        `
-        SELECT 
-          gs.session_date as date,
-          gs.session_type,
-          gs.winning_number
-        FROM game_sessions gs
-        WHERE gs.game_id = $1 
-          AND gs.session_date >= $2 
-          AND gs.session_date <= $3
-          AND gs.status = 'completed'
-        ORDER BY gs.session_date ASC, gs.session_type ASC
-      `,
-        [filters.gameId, startDate, endDate],
+      // Get rates
+      const settings = await Settings.getAll();
+      const rateJodi = parseFloat(settings.rate_jodi || 95);
+      const rateHaruf = parseFloat(settings.rate_haruf || 9.5);
+
+      // Fetch session details for winning number
+      const sessionResult = await pool.query(
+        "SELECT winning_number FROM game_sessions WHERE game_id = $1 AND session_date = $2",
+        [filters.gameId, filters.date],
       );
 
-      // Group by date
-      const groupedResults = {};
-      results.rows.forEach((row) => {
-        const dateKey = row.date;
-        if (!groupedResults[dateKey]) {
-          groupedResults[dateKey] = {
-            date: dateKey,
-            open_result: null,
-            close_result: null,
-          };
-        }
-        if (row.session_type === "open") {
-          groupedResults[dateKey].open_result = row.winning_number;
-        } else {
-          groupedResults[dateKey].close_result = row.winning_number;
+      const session = sessionResult.rows[0];
+      let winningNumber = null;
+      if (
+        session &&
+        session.winning_number !== null &&
+        session.winning_number !== undefined
+      ) {
+        winningNumber = String(session.winning_number).padStart(2, "0");
+      }
+
+      // Fetch bets for the selected game and date
+      const betsResult = await pool.query(
+        `
+        SELECT 
+          b.bet_number,
+          b.bet_type,
+          SUM(b.bet_amount) as total_amount
+        FROM bets b
+        JOIN game_sessions gs ON b.game_session_id = gs.id
+        WHERE gs.game_id = $1 
+          AND gs.session_date = $2
+        GROUP BY b.bet_number, b.bet_type
+      `,
+        [filters.gameId, filters.date],
+      );
+
+      // Initialize data maps
+      const jodiMap = {};
+      const andarMap = {};
+      const baharMap = {};
+
+      let totalBets = 0;
+
+      // Populate maps from DB
+      betsResult.rows.forEach((row) => {
+        const amount = parseFloat(row.total_amount);
+        totalBets += amount;
+
+        // Normalize bet number
+        let num = String(row.bet_number);
+
+        if (row.bet_type === "jodi") {
+          num = num.padStart(2, "0"); // Ensure "5" -> "05"
+          jodiMap[num] = amount;
+        } else if (row.bet_type === "andar") {
+          andarMap[num] = amount;
+        } else if (row.bet_type === "bahar") {
+          baharMap[num] = amount;
         }
       });
 
-      jantriData = Object.values(groupedResults);
-      selectedGame = games.find((g) => g.id == filters.gameId);
+      // Calculate actual profit if result is declared
+      let actualProfit = null;
+      let totalPayout = 0;
+
+      if (winningNumber) {
+        const winJodi = winningNumber;
+        const winAndar = winningNumber[0];
+        const winBahar = winningNumber[1];
+
+        const payoutJodi = (jodiMap[winJodi] || 0) * rateJodi;
+        const payoutAndar = (andarMap[winAndar] || 0) * rateHaruf;
+        const payoutBahar = (baharMap[winBahar] || 0) * rateHaruf;
+
+        totalPayout = payoutJodi + payoutAndar + payoutBahar;
+        actualProfit = totalBets - totalPayout;
+      }
+
+      // Generate sorted arrays for report
+      const jodiList = [];
+      for (let i = 0; i <= 99; i++) {
+        const num = String(i).padStart(2, "0");
+        const amount = jodiMap[num] || 0;
+        jodiList.push({
+          number: num,
+          amount,
+          payout: amount * rateJodi,
+          profit: totalBets - amount * rateJodi,
+          isWinner: winningNumber === num,
+        });
+      }
+
+      const andarList = [];
+      for (let i = 0; i <= 9; i++) {
+        const num = String(i);
+        const amount = andarMap[num] || 0;
+        andarList.push({
+          number: num,
+          amount,
+          payout: amount * rateHaruf,
+          profit: totalBets - amount * rateHaruf,
+          isWinner: winningNumber && winningNumber[0] === num,
+        });
+      }
+
+      const baharList = [];
+      for (let i = 0; i <= 9; i++) {
+        const num = String(i);
+        const amount = baharMap[num] || 0;
+        baharList.push({
+          number: num,
+          amount,
+          payout: amount * rateHaruf,
+          profit: totalBets - amount * rateHaruf,
+          isWinner: winningNumber && winningNumber[1] === num,
+        });
+      }
+
+      // Prepare report object
+      report = {
+        totalBets,
+        winningNumber,
+        actualProfit,
+        jodi: jodiList,
+        andar: andarList,
+        bahar: baharList,
+      };
     }
 
     res.render("admin/jantri-report", {
       title: "Jantri Report",
       user: req.user,
       games,
-      jantriData,
+      report,
       selectedGame,
       filters,
     });
