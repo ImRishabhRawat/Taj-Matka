@@ -64,11 +64,7 @@
                             <h2 class="fw-bold"><i class="fas fa-file-alt text-primary me-2"></i>Jantri Report</h2>
                             <p class="text-secondary">Historical results chart for Matka games</p>
                         </div>
-                        <div>
-                            <button class="btn btn-outline-primary" onclick="exportJantri()">
-                                <i class="fas fa-download me-2"></i>Export PDF
-                            </button>
-                        </div>
+                        <!-- Export button removed -->
                     </div>
                 </div>
 
@@ -302,14 +298,6 @@
 
     <%- include('partials/scripts') %>
 
-    <script>
-        function exportJantri() {
-            Swal.fire({
-                title: 'Export Jantri',
-                text: 'PDF export feature will be implemented soon',
-                icon: 'info'
-            });
-        }
-    </script>
+
 </body>
 </html>

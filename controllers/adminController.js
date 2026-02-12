@@ -861,6 +861,32 @@ async function getJantriReport(req, res) {
       date: req.query.date || new Date().toISOString().split("T")[0],
     };
 
+    // If no game selected, default to the latest result declared
+    if (!req.query.gameId) {
+      try {
+        const latestResult = await pool.query(`
+          SELECT game_id, session_date 
+          FROM game_sessions 
+          WHERE winning_number IS NOT NULL 
+          ORDER BY session_date DESC, id DESC 
+          LIMIT 1
+        `);
+
+        if (latestResult.rows.length > 0) {
+          filters.gameId = latestResult.rows[0].game_id;
+          // Ensure correct date format YYYY-MM-DD
+          const d = new Date(latestResult.rows[0].session_date);
+          // Adjust for potential timezone offset if date is stored as date-only but returned with time
+          // Assuming session_date is date only, but node-postgres returns Date object at local 00:00 or similar
+          // Safest to use split T on ISO string if timezone matches, or construct string
+          // Using simple ISO split for now as it matches existing logic
+          filters.date = d.toISOString().split("T")[0];
+        }
+      } catch (err) {
+        console.error("Error fetching latest result for default:", err);
+      }
+    }
+
     const games = await Game.getAllActive();
     let report = null;
     let selectedGame = null;
