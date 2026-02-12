@@ -19,32 +19,39 @@ function calculateTimeLeft(closeTime, openTime = null) {
   const [closeHours, closeMinutes, closeSeconds] = closeTime
     .split(":")
     .map(Number);
-  let closeTimeInSeconds = closeHours * 3600 + closeMinutes * 60 + closeSeconds;
+  const closeTimeInSeconds =
+    closeHours * 3600 + closeMinutes * 60 + closeSeconds;
 
-  // Handle games that close after midnight (e.g., open 7:30 AM, close 1:30 AM next day)
+  let openTimeInSeconds = 0;
   if (openTime) {
     const [openHours, openMinutes, openSeconds] = openTime
       .split(":")
       .map(Number);
-    const openTimeInSeconds = openHours * 3600 + openMinutes * 60 + openSeconds;
-
-    // If close time is before open time, it means the game closes the next day
-    if (closeTimeInSeconds < openTimeInSeconds) {
-      // If current time is after midnight and before close time, game is still open
-      if (currentTimeInSeconds < closeTimeInSeconds) {
-        // We're in the "next day" period (after midnight, before close)
-        // Time left is just the difference
-        return closeTimeInSeconds - currentTimeInSeconds;
-      }
-      // If current time is after open time, add 24 hours to close time
-      else if (currentTimeInSeconds >= openTimeInSeconds) {
-        closeTimeInSeconds += 24 * 3600; // Add 24 hours
-      }
-    }
+    openTimeInSeconds = openHours * 3600 + openMinutes * 60 + openSeconds;
   }
 
-  const timeLeft = closeTimeInSeconds - currentTimeInSeconds;
+  // Case 1: Cross-midnight game (e.g. Open 20:00, Close 02:00)
+  if (openTime && closeTimeInSeconds < openTimeInSeconds) {
+    // If current time is after midnight and before close time (e.g. 01:00)
+    if (currentTimeInSeconds < closeTimeInSeconds) {
+      return closeTimeInSeconds - currentTimeInSeconds;
+    }
+    // If current time is after open time (e.g. 21:00)
+    if (currentTimeInSeconds >= openTimeInSeconds) {
+      return closeTimeInSeconds + 24 * 3600 - currentTimeInSeconds;
+    }
+    // Otherwise it's closed (e.g. 10:00)
+    return 0;
+  }
 
+  // Case 2: Standard Day Game (e.g. Open 09:00, Close 21:00)
+  // If Open Time is provided, check if we've reached it yet
+  if (openTime && currentTimeInSeconds < openTimeInSeconds) {
+    return 0; // Not open yet
+  }
+
+  // Calculate time remaining
+  const timeLeft = closeTimeInSeconds - currentTimeInSeconds;
   return Math.max(0, timeLeft);
 }
 
