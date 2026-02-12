@@ -21,11 +21,7 @@
                             <h2 class="fw-bold"><i class="fas fa-star text-warning me-2"></i>Winner History</h2>
                             <p class="text-secondary">View all winning bets and user winnings</p>
                         </div>
-                        <div>
-                            <button class="btn btn-outline-primary" onclick="exportWinners()">
-                                <i class="fas fa-download me-2"></i>Export
-                            </button>
-                        </div>
+
                     </div>
                 </div>
 
@@ -207,14 +203,6 @@
 
     <%- include('partials/scripts') %>
 
-    <script>
-        function exportWinners() {
-            Swal.fire({
-                title: 'Export Winners',
-                text: 'Export feature will be implemented soon',
-                icon: 'info'
-            });
-        }
-    </script>
+
 </body>
 </html>

@@ -45,11 +45,7 @@
                             <h2 class="fw-bold"><i class="fas fa-clock text-primary me-2"></i>Result History</h2>
                             <p class="text-secondary">View all past game results</p>
                         </div>
-                        <div>
-                            <button class="btn btn-outline-primary" onclick="exportResults()">
-                                <i class="fas fa-download me-2"></i>Export
-                            </button>
-                        </div>
+
                     </div>
                 </div>
 
@@ -165,14 +161,6 @@
 
     <%- include('partials/scripts') %>
 
-    <script>
-        function exportResults() {
-            Swal.fire({
-                title: 'Export Results',
-                text: 'Export feature will be implemented soon',
-                icon: 'info'
-            });
-        }
-    </script>
+
 </body>
 </html>
