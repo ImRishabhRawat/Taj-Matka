@@ -34,6 +34,10 @@ router.post("/api/results/declare", adminController.declareResult);
 router.post("/api/results/edit", adminController.editResult);
 router.post("/api/results/schedule", adminController.scheduleResult);
 
+// Settings
+router.get("/settings", adminController.getSettings);
+router.post("/settings", adminController.updateSettings);
+
 // New routes
 router.get("/notifications", adminController.getNotifications);
 router.get("/popup", adminController.getPopup);

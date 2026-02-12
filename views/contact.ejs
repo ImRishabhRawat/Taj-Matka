@@ -44,7 +44,9 @@ const title = 'Contact Us';
                         </div>
                         <div style="flex: 1;">
                             <h4 style="color: var(--text-primary); margin-bottom: 0.25rem;">WhatsApp Support</h4>
-                            <a href="https://wa.me/919076972095" style="color: #25D366; font-weight: 600; text-decoration: none; font-size: 1.1rem;">+91 9076972095</a>
+                            <a href="<%= settings.whatsapp_link || 'https://wa.me/919076972095' %>" style="color: #25D366; font-weight: 600; text-decoration: none; font-size: 1.1rem;">
+                                <%= settings.whatsapp_link ? 'Chat on WhatsApp' : '+91 9076972095' %>
+                            </a>
                             <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.25rem;">Available 24/7</p>
                         </div>
                     </div>
@@ -57,7 +59,9 @@ const title = 'Contact Us';
                         </div>
                         <div style="flex: 1;">
                             <h4 style="color: var(--text-primary); margin-bottom: 0.25rem;">Telegram Support</h4>
-                            <a href="https://t.me/tajmatka" style="color: #0088cc; font-weight: 600; text-decoration: none; font-size: 1.1rem;">@tajmatka</a>
+                            <a href="<%= settings.telegram_link || 'https://t.me/tajmatka' %>" style="color: #0088cc; font-weight: 600; text-decoration: none; font-size: 1.1rem;">
+                                <%= settings.telegram_link ? 'Join Channel' : '@tajmatka' %>
+                            </a>
                             <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.25rem;">Join our community</p>
                         </div>
                     </div>
@@ -70,7 +74,9 @@ const title = 'Contact Us';
                         </div>
                         <div style="flex: 1;">
                             <h4 style="color: var(--text-primary); margin-bottom: 0.25rem;">Email Support</h4>
-                            <a href="mailto:support@tajmatka.com" style="color: var(--primary-orange); font-weight: 600; text-decoration: none; font-size: 1.1rem;">support@tajmatka.com</a>
+                            <a href="mailto:<%= settings.support_email || 'support@tajmatka.com' %>" style="color: var(--primary-orange); font-weight: 600; text-decoration: none; font-size: 1.1rem;">
+                                <%= settings.support_email || 'support@tajmatka.com' %>
+                            </a>
                             <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.25rem;">Response within 24 hours</p>
                         </div>
                     </div>

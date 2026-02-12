@@ -1710,6 +1710,42 @@ async function editResult(req, res) {
   }
 }
 
+/**
+ * Settings Page
+ */
+async function getSettings(req, res) {
+  try {
+    const settings = await Settings.getAll();
+    res.render("admin/settings", {
+      title: "Settings",
+      user: req.user,
+      settings: settings,
+    });
+  } catch (error) {
+    console.error("Error getting settings:", error);
+    res.status(500).send("Internal Server Error");
+  }
+}
+
+async function updateSettings(req, res) {
+  try {
+    const settings = req.body;
+
+    // Update each setting
+    for (const [key, value] of Object.entries(settings)) {
+      // Allow empty strings, but skip undefined/null if any (though body parsing usually handles this)
+      if (value !== undefined && value !== null) {
+        await Settings.set(key, value);
+      }
+    }
+
+    res.json({ success: true, message: "Settings updated successfully" });
+  } catch (error) {
+    console.error("Error updating settings:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+}
+
 module.exports = {
   getDashboard,
   getGames,
@@ -1753,4 +1789,6 @@ module.exports = {
   updateProfile,
   changePassword,
   editResult,
+  getSettings,
+  updateSettings,
 };

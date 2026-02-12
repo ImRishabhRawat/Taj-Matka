@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('partials/head') %>
+    <style>
+        .settings-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            background: #fff;
+            padding: 2rem;
+            height: 100%;
+        }
+        .form-label {
+            font-weight: 600;
+            color: #4e73df;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+        .form-control {
+            border-radius: 10px;
+            padding: 12px 15px;
+            border: 1px solid #e3e6f0;
+            background-color: #f8f9fc;
+            font-size: 0.95rem;
+        }
+        .form-control:focus {
+            background-color: #fff;
+            border-color: #4e73df;
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.1);
+        }
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #2e3a59;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #f1f3f9;
+        }
+        .btn-save {
+            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(78, 115, 223, 0.3);
+            transition: transform 0.2s;
+        }
+        .btn-save:hover {
+            transform: translateY(-2px);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper d-flex">
+        <!-- Sidebar -->
+        <%- include('partials/sidebar') %>
+
+        <!-- Page Content -->
+        <div id="content">
+            <!-- Top Navbar -->
+            <%- include('partials/header') %>
+
+            <div class="container-fluid px-4 py-4">
+                <form id="settingsForm">
+                    <div class="row">
+                        <div class="col-12 mb-4 d-flex justify-content-between align-items-center">
+                            <h2 class="h3 mb-0 text-gray-800 fw-bold">App Settings</h2>
+                            <button type="submit" class="btn btn-save">
+                                <i class="fas fa-save me-2"></i> Save Changes
+                            </button>
+                        </div>
+
+                        <!-- Financial Settings -->
+                        <div class="col-lg-6 mb-4">
+                            <div class="settings-card">
+                                <h3 class="section-title"><i class="fas fa-wallet me-2"></i>Financial Settings</h3>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Minimum Deposit</label>
+                                    <input type="number" class="form-control" name="min_deposit" value="<%= settings.min_deposit || '' %>" placeholder="e.g. 50">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Maximum Bid Amount</label>
+                                    <input type="number" class="form-control" name="max_bid_amount" value="<%= settings.max_bid_amount || '' %>" placeholder="e.g. 1000">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Welcome Bonus</label>
+                                    <input type="number" class="form-control" name="welcome_bonus" value="<%= settings.welcome_bonus || '' %>" placeholder="e.g. 5">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Timing Settings -->
+                        <div class="col-lg-6 mb-4">
+                            <div class="settings-card">
+                                <h3 class="section-title"><i class="fas fa-clock me-2"></i>Timing Settings</h3>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Withdraw Open Time</label>
+                                    <input type="time" class="form-control" name="withdraw_open_time" value="<%= settings.withdraw_open_time || '' %>">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Withdraw Close Time</label>
+                                    <input type="time" class="form-control" name="withdraw_close_time" value="<%= settings.withdraw_close_time || '' %>">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Payment Gateway Settings -->
+                        <div class="col-lg-6 mb-4">
+                            <div class="settings-card">
+                                <h3 class="section-title"><i class="fas fa-credit-card me-2"></i>Payment Gateway</h3>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">UPI Gateway Merchant Id</label>
+                                    <input type="text" class="form-control" name="upi_merchant_id" value="<%= settings.upi_merchant_id || '' %>">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">IMB Merchant Id</label>
+                                    <input type="text" class="form-control" name="imb_merchant_id" value="<%= settings.imb_merchant_id || '' %>">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Payment Type</label>
+                                    <input type="text" class="form-control" name="payment_type" value="<%= settings.payment_type || 'UPI Gateway' %>">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Content Settings -->
+                        <div class="col-lg-6 mb-4">
+                            <div class="settings-card">
+                                <h3 class="section-title"><i class="fas fa-paragraph me-2"></i>Content Settings</h3>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Home Page Text</label>
+                                    <textarea class="form-control" name="home_text" rows="4"><%= settings.home_text || '' %></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">How to play page text</label>
+                                    <textarea class="form-control" name="how_to_play_text" rows="3"><%= settings.how_to_play_text || '' %></textarea>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Button Text</label>
+                                    <input type="text" class="form-control" name="button_text" value="<%= settings.button_text || '' %>">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Button Link</label>
+                                    <input type="text" class="form-control" name="button_link" value="<%= settings.button_link || '' %>">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Social & Links -->
+                        <div class="col-lg-12 mb-4">
+                            <div class="settings-card">
+                                <h3 class="section-title"><i class="fas fa-share-alt me-2"></i>Social & Links</h3>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Withdraw Video Link</label>
+                                        <input type="text" class="form-control" name="withdraw_video_link" value="<%= settings.withdraw_video_link || '' %>">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Facebook Link</label>
+                                        <input type="text" class="form-control" name="facebook_link" value="<%= settings.facebook_link || '' %>">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">WhatsApp Link</label>
+                                        <input type="text" class="form-control" name="whatsapp_link" value="<%= settings.whatsapp_link || '' %>" placeholder="e.g. https://wa.me/919999999999">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Youtube Link</label>
+                                        <input type="text" class="form-control" name="youtube_link" value="<%= settings.youtube_link || '' %>">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Telegram Link</label>
+                                        <input type="text" class="form-control" name="telegram_link" value="<%= settings.telegram_link || '' %>">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">Instagram Link</label>
+                                        <input type="text" class="form-control" name="instagram_link" value="<%= settings.instagram_link || '' %>">
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label">How to Play</label>
+                                        <input type="text" class="form-control" name="how_to_play_link" value="<%= settings.how_to_play_link || '' %>" placeholder="Enter link or text">
+                                    </div>
+                                    <div class="col-md-12 mb-3">
+                                        <label class="form-label">Add to Fund Text</label>
+                                        <input type="text" class="form-control" name="add_fund_text" value="<%= settings.add_fund_text || '' %>">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <%- include('partials/scripts') %>
+
+    <script>
+        document.getElementById('settingsForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Saving...';
+
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                const response = await fetch('/admin/settings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Saved!',
+                        text: 'Settings updated successfully',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message || 'Failed to update settings'
+                });
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        });
+    </script>
+</body>
+</html>

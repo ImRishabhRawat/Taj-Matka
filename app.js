@@ -14,7 +14,9 @@ const gameRoutes = require("./routes/gameRoutes");
 const betRoutes = require("./routes/betRoutes");
 const resultRoutes = require("./routes/resultRoutes");
 const walletRoutes = require("./routes/walletRoutes");
+
 const adminRoutes = require("./routes/adminRoutes");
+const Settings = require("./models/Settings");
 
 const app = express();
 
@@ -57,12 +59,32 @@ app.get("/health", (req, res) => {
   });
 });
 
-// Import view authentication middleware
 const {
   requireAuth,
   redirectIfAuth,
   requireAdmin,
 } = require("./middleware/viewAuth");
+
+// Global middleware to inject settings into locals
+app.use(async (req, res, next) => {
+  try {
+    // Only fetch settings for GET requests that render views
+    if (
+      req.method === "GET" &&
+      !req.path.startsWith("/api") &&
+      !req.path.startsWith("/css") &&
+      !req.path.startsWith("/js") &&
+      !req.path.startsWith("/images")
+    ) {
+      const settings = await Settings.getAll();
+      res.locals.settings = settings;
+    }
+  } catch (error) {
+    console.error("Error fetching settings middleware:", error);
+    res.locals.settings = {};
+  }
+  next();
+});
 
 // Root route - redirect to login
 app.get("/", (req, res) => {

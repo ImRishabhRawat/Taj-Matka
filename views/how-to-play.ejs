@@ -35,10 +35,29 @@ const title = 'How To Play';
                 
                 <div style="background: var(--bg-card); padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem;">
                     <h2 style="color: var(--primary-orange); margin-bottom: 1rem; font-size: 1.2rem;">Welcome to Taj Matka!</h2>
-                    <p style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 1rem;">
-                        Taj Matka is India's most trusted online matka gaming platform. Follow these simple steps to start playing and winning!
-                    </p>
+                    
+                    <% if (settings.how_to_play_text) { %>
+                        <div style="color: var(--text-secondary); line-height: 1.6; white-space: pre-wrap; margin-bottom: 1rem;">
+                            <%= settings.how_to_play_text %>
+                        </div>
+                    <% } else { %>
+                        <div style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 1rem;">
+                            Taj Matka is India's most trusted online matka gaming platform. Follow these simple steps to start playing and winning!
+                        </div>
+                    <% } %>
+
+                    <% if (settings.withdraw_video_link) { %>
+                        <div style="margin-top: 1.5rem; text-align: center;">
+                            <a href="<%= settings.withdraw_video_link %>" target="_blank" style="display: inline-block; padding: 10px 20px; background: red; color: white; border-radius: 8px; text-decoration: none; font-weight: bold;">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="white" style="vertical-align: middle; margin-right: 5px;">
+                                    <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+                                </svg>
+                                Watch Tutorial Video
+                            </a>
+                        </div>
+                    <% } %>
                 </div>
+
 
                 <div style="background: var(--bg-card); padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem;">
                     <h3 style="color: var(--primary-orange); margin-bottom: 0.75rem; font-size: 1.1rem;">Step 1: Add Money</h3>
