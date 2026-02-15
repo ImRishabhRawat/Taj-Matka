@@ -1,0 +1,224 @@
+<% 
+const currentPage = 'profile';
+const title = 'Transaction History';
+%>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title><%= title %> - Taj Matka</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .transaction-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .transaction-item {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .trans-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .trans-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .trans-deposit { background: rgba(0, 200, 83, 0.15); color: #00C853; }
+        .trans-withdraw { background: rgba(255, 69, 0, 0.15); color: #FF4500; }
+        .trans-bet { background: rgba(255, 215, 0, 0.15); color: var(--primary-gold); }
+
+        .trans-info h4 {
+            margin: 0 0 0.25rem 0;
+            color: white;
+            font-size: 0.95rem;
+        }
+
+        .trans-date {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .trans-amount {
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .amount-plus { color: #00C853; }
+        .amount-minus { color: #FF4500; }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-container">
+        
+        <!-- Fixed Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <div class="header-left">
+                    <button class="menu-btn" onclick="window.history.back()">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                    </button>
+                    <h1 class="app-logo">Transaction History</h1>
+                </div>
+                <div class="header-right">
+                    <button class="menu-btn" onclick="window.location.reload()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M23 4v6h-6"></path>
+                            <path d="M1 20v-6h6"></path>
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            <div class="page-content">
+                
+                <!-- Transactions List -->
+                <div id="transactionsList" class="transaction-list">
+                    <div class="empty-state">Loading transactions...</div>
+                </div>
+
+            </div>
+        </main>
+
+        <%- include('partials/bottom-nav', { currentPage: 'profile' }) %>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/js/app.js"></script>
+    <script>
+        // Load transaction history
+        async function loadTransactions() {
+            if (!isLoggedIn()) {
+                window.location.href = '/login';
+                return;
+            }
+
+            try {
+                // Fetch more transactions for the full history page
+                const response = await API.get('/wallet/transactions?limit=50');
+                if (response.success) {
+                    renderTransactions(response.data);
+                } else {
+                    document.getElementById('transactionsList').innerHTML = '<div class="empty-state">No transactions found</div>';
+                }
+            } catch (error) {
+                console.error('Error loading transactions:', error);
+                document.getElementById('transactionsList').innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: #ff4444;">
+                        Failed to load transactions
+                    </div>
+                `;
+            }
+        }
+
+        function renderTransactions(transactions) {
+            const list = document.getElementById('transactionsList');
+            if (!transactions || transactions.length === 0) {
+                list.innerHTML = '<div class="empty-state">No recent transactions</div>';
+                return;
+            }
+
+            list.innerHTML = transactions.map(t => {
+                const date = new Date(t.created_at).toLocaleDateString('en-IN', {
+                    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+                });
+                
+                let icon = '⇄';
+                let iconClass = 'trans-bet';
+                let amountClass = '';
+                let amountPrefix = '';
+                
+                // Parse amount safely
+                const amount = parseFloat(t.amount || 0);
+                const displayAmount = isNaN(amount) ? '0.00' : amount.toLocaleString('en-IN');
+
+                // Normalize transaction type
+                const type = (t.transaction_type || '').toLowerCase();
+
+                if (type === 'deposit' || type === 'credit' || type === 'add_fund') {
+                    icon = '↓';
+                    iconClass = 'trans-deposit';
+                    amountClass = 'amount-plus';
+                    amountPrefix = '+';
+                } else if (type === 'withdrawal' || type === 'debit') {
+                    icon = '↑';
+                    iconClass = 'trans-withdraw';
+                    amountClass = 'amount-minus';
+                    amountPrefix = '-';
+                } else if (type === 'bet' || type === 'wager') {
+                    icon = '⇄';
+                    iconClass = 'trans-bet';
+                    amountClass = 'amount-minus';
+                    amountPrefix = '-';
+                } else if (type === 'win' || type === 'payout' || type === 'winning') {
+                    icon = '★';
+                    iconClass = 'trans-deposit'; // Win is positive like deposit
+                    amountClass = 'amount-plus';
+                    amountPrefix = '+';
+                } else if (type === 'refund') {
+                    icon = '↩';
+                    iconClass = 'trans-deposit';
+                    amountClass = 'amount-plus';
+                    amountPrefix = '+';
+                }
+
+                // Description fallback
+                const description = t.description || type.replace('_', ' ').toUpperCase();
+
+                return `
+                    <div class="transaction-item">
+                        <div class="trans-left">
+                            <div class="trans-icon ${iconClass}">${icon}</div>
+                            <div class="trans-info">
+                                <h4>${description}</h4>
+                                <div class="trans-date">${date}</div>
+                            </div>
+                        </div>
+                        <div class="trans-amount ${amountClass}">
+                            ${amountPrefix}₹${displayAmount}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Load transactions on page load
+        loadTransactions();
+    </script>
+</body>
+</html>

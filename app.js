@@ -121,6 +121,10 @@ app.get("/history", requireAuth, (req, res) => {
   res.render("history", { title: "Bet History" });
 });
 
+app.get("/transaction-history", requireAuth, (req, res) => {
+  res.render("transaction-history", { title: "Transaction History" });
+});
+
 app.get("/chart", requireAuth, (req, res) => {
   res.render("chart", { title: "Chart" });
 });
