@@ -166,6 +166,10 @@ app.get("/wallet", requireAuth, (req, res) => {
   res.render("wallet", { title: "My Wallet" });
 });
 
+app.get("/help", requireAuth, (req, res) => {
+  res.render("help", { title: "Help Center" });
+});
+
 // Admin routes are now handled in routes/adminRoutes.js
 
 // 404 handler
