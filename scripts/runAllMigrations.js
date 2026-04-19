@@ -6,12 +6,16 @@ const path = require("path");
 // Use DATABASE_URL from Render, fallback to individual params for local
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+  host: process.env.DATABASE_URL ? undefined : process.env.DB_HOST,
+  port: process.env.DATABASE_URL ? undefined : process.env.DB_PORT,
+  user: process.env.DATABASE_URL ? undefined : process.env.DB_USER,
+  password: process.env.DATABASE_URL ? undefined : process.env.DB_PASSWORD,
+  database: process.env.DATABASE_URL ? undefined : process.env.DB_NAME,
   ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false,
-  // Connection pool settings for Render
-  max: 10, // Maximum number of clients in the pool
-  idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
-  connectionTimeoutMillis: 10000, // Return an error after 10 seconds if connection could not be established
-  // Keepalive settings to prevent connection termination
+  // Connection pool settings
+  max: 10,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000,
   keepAlive: true,
   keepAliveInitialDelayMillis: 10000,
 });
