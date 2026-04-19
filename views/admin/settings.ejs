@@ -164,6 +164,31 @@
                             </div>
                         </div>
 
+                        <!-- How To Play Content Settings -->
+                        <div class="col-lg-12 mb-4">
+                            <div class="settings-card">
+                                <h3 class="section-title"><i class="fas fa-play-circle me-2"></i>How To Play - Fullscreen Content</h3>
+                                <p class="text-muted mb-3" style="font-size: 0.85rem;">Configure what content appears when users click the "खेलने का तरीका" button. You can add a video, image, and/or text. All filled fields will be shown together in a fullscreen overlay.</p>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label"><i class="fas fa-video me-1"></i>Video URL (YouTube/Direct)</label>
+                                        <input type="text" class="form-control" name="htp_video_url" value="<%= settings.htp_video_url || '' %>" placeholder="e.g. https://youtube.com/watch?v=... or direct .mp4 link">
+                                        <small class="text-muted">Supports YouTube links and direct video URLs</small>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label class="form-label"><i class="fas fa-image me-1"></i>Image URL</label>
+                                        <input type="text" class="form-control" name="htp_image_url" value="<%= settings.htp_image_url || '' %>" placeholder="e.g. https://example.com/image.jpg">
+                                        <small class="text-muted">Will display at full width</small>
+                                    </div>
+                                    <div class="col-md-12 mb-3">
+                                        <label class="form-label"><i class="fas fa-align-left me-1"></i>Text Content</label>
+                                        <textarea class="form-control" name="htp_text" rows="5" placeholder="Enter instructions text here..."><%= settings.htp_text || '' %></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Social & Links -->
                         <div class="col-lg-12 mb-4">
                             <div class="settings-card">

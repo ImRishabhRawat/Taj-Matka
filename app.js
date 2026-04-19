@@ -41,6 +41,26 @@ const adminController = require("./controllers/adminController");
 app.get("/api/popups/active", adminController.getActivePopups);
 app.get("/api/banners/active", adminController.getActiveBanners);
 
+// Public API for How To Play content
+app.get("/api/how-to-play", async (req, res) => {
+  try {
+    const Settings = require("./models/Settings");
+    const allSettings = await Settings.getAll();
+    res.json({
+      success: true,
+      data: {
+        video_url: allSettings.htp_video_url || "",
+        image_url: allSettings.htp_image_url || "",
+        text: allSettings.htp_text || "",
+        title: allSettings.button_text || "खेलने का तरीका",
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching HTP settings:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+});
+
 // API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/games", gameRoutes);
