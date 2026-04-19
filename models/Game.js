@@ -319,22 +319,6 @@ async function update(gameId, updates) {
   }
 }
 
-module.exports = {
-  getAllActive,
-  findById,
-  getOrCreateTodaySession,
-  getOrCreateSession,
-  getSessionById,
-  getGameWithTodaySession,
-  getAllWithTodaySessions,
-  isGameOpen,
-  getResults,
-  create,
-  update,
-  deleteGame,
-  getChartData,
-};
-
 /**
  * Delete game permanently
  * @param {number} gameId - Game ID
@@ -425,3 +409,19 @@ async function getChartData(days = 30) {
     throw error;
   }
 }
+
+module.exports = {
+  getAllActive,
+  findById,
+  getOrCreateTodaySession,
+  getOrCreateSession,
+  getSessionById,
+  getGameWithTodaySession,
+  getAllWithTodaySessions,
+  isGameOpen,
+  getResults,
+  create,
+  update,
+  deleteGame,
+  getChartData,
+};

@@ -369,6 +369,7 @@ async function logout(req, res) {
 
 module.exports = {
   login,
+  register,
   sendOTP,
   verifyOTPAndLogin,
   getCurrentUser,

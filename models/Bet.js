@@ -323,13 +323,6 @@ async function getPendingBetsBySession(gameSessionId) {
  * @param {number} payoutAmount - Payout amount (for wins)
  * @returns {Promise<Object>} Updated bet
  */
-/**
- * Update bet status
- * @param {number} betId - Bet ID
- * @param {string} status - New status
- * @param {number} payoutAmount - Payout amount (for wins)
- * @returns {Promise<Object>} Updated bet
- */
 async function updateStatus(betId, status, payoutAmount = 0) {
   try {
     const result = await pool.query(

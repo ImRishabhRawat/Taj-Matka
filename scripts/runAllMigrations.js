@@ -195,6 +195,35 @@ async function runAllMigrations() {
       );
     }
 
+    // 9. Fix transaction_type CHECK constraint to include 'revert'
+    console.log("\n📋 Step 9: Updating transaction_type CHECK constraint...");
+    try {
+      await client.query(`
+        DO $$
+        BEGIN
+          -- Drop old constraint if it exists
+          IF EXISTS (
+            SELECT 1 FROM information_schema.constraint_column_usage 
+            WHERE table_name = 'transactions' AND column_name = 'transaction_type'
+          ) THEN
+            ALTER TABLE transactions DROP CONSTRAINT IF EXISTS transactions_transaction_type_check;
+          END IF;
+          -- Add updated constraint with 'revert' type
+          ALTER TABLE transactions ADD CONSTRAINT transactions_transaction_type_check 
+            CHECK (transaction_type IN ('deposit', 'withdrawal', 'bet', 'win', 'refund', 'revert'));
+        EXCEPTION
+          WHEN duplicate_object THEN
+            NULL; -- Constraint already exists with correct values
+        END $$;
+      `);
+      console.log("✅ Transaction type constraint updated (added 'revert')!");
+    } catch (err) {
+      console.error(
+        "⚠️  Error updating transaction_type constraint:",
+        err.message,
+      );
+    }
+
     console.log("\n🎉 All migrations completed successfully!");
     console.log("✅ Database is ready for production!");
   } catch (error) {

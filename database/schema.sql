@@ -84,7 +84,7 @@ CREATE INDEX idx_bets_status ON bets(status);
 CREATE TABLE transactions (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    transaction_type VARCHAR(20) NOT NULL CHECK (transaction_type IN ('deposit', 'withdrawal', 'bet', 'win', 'refund')),
+    transaction_type VARCHAR(20) NOT NULL CHECK (transaction_type IN ('deposit', 'withdrawal', 'bet', 'win', 'refund', 'revert')),
     amount DECIMAL(10, 2) NOT NULL,
     balance_before DECIMAL(10, 2) NOT NULL,
     balance_after DECIMAL(10, 2) NOT NULL,

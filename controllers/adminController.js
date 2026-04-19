@@ -686,7 +686,7 @@ async function getDepositRequests(req, res) {
       SELECT t.*, u.name as user_name, u.phone as user_phone
       FROM transactions t
       JOIN users u ON t.user_id = u.id
-      WHERE t.type = 'deposit'
+      WHERE t.transaction_type = 'deposit'
     `;
     const params = [];
     let paramCount = 1;
@@ -721,10 +721,10 @@ async function getDepositRequests(req, res) {
 
     // Calculate stats
     const statsUPI = await pool.query(
-      "SELECT COALESCE(SUM(amount), 0) as total FROM transactions WHERE type = 'deposit' AND payment_method = 'upi'",
+      "SELECT COALESCE(SUM(amount), 0) as total FROM transactions WHERE transaction_type = 'deposit' AND payment_method = 'upi'",
     );
     const statsBank = await pool.query(
-      "SELECT COALESCE(SUM(amount), 0) as total FROM transactions WHERE type = 'deposit' AND payment_method = 'bank'",
+      "SELECT COALESCE(SUM(amount), 0) as total FROM transactions WHERE transaction_type = 'deposit' AND payment_method = 'bank'",
     );
 
     const stats = {
@@ -851,9 +851,6 @@ async function getWithdrawBankRequests(req, res) {
 /**
  * Jantri Report Page
  */
-/**
- * Jantri Report Page
- */
 async function getJantriReport(req, res) {
   try {
     const filters = {
@@ -949,9 +946,9 @@ async function getJantriReport(req, res) {
         if (row.bet_type === "jodi") {
           num = num.padStart(2, "0"); // Ensure "5" -> "05"
           jodiMap[num] = amount;
-        } else if (row.bet_type === "andar") {
+        } else if (row.bet_type === "haruf_andar") {
           andarMap[num] = amount;
-        } else if (row.bet_type === "bahar") {
+        } else if (row.bet_type === "haruf_bahar") {
           baharMap[num] = amount;
         }
       });
